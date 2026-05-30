@@ -260,12 +260,13 @@ chain read cached classifier verdicts and report artificially low latency. We
 therefore quote the \emph{cold} DeBERTa latency and characterize the hybrid
 qualitatively: short-circuiting means overtly-malicious prompts are caught by
 sub-millisecond lexical detectors and never reach the classifier.
-An independent PyTorch run of the same protectai weights measured p95~$170$\,ms
-and precision $0.978$, versus the Rust ONNX precision $0.98$: the matching
-precision validates that our ONNX integration faithfully reproduces the reference
-model, while the latency shows Rust ONNX is \emph{not} faster than PyTorch on this
-CPU. We thus make no raw-speed claim; the Rust advantage is single-binary,
-no-Python, in-process deployment.
+An independent PyTorch run of the same protectai weights on the same full corpus
+measured P~$0.984$/R~$0.721$/F1~$0.832$ at p95~$193$\,ms, versus the Rust ONNX
+P~$0.976$/R~$0.744$/F1~$0.844$ at p95~$255$\,ms: the near-identical P/R/F1
+(within ${\sim}0.02$) validates that our ONNX integration faithfully reproduces
+the PyTorch reference, while the latency shows Rust ONNX is \emph{not} faster than
+PyTorch on this CPU. We thus make no raw-speed claim; the Rust advantage is
+single-binary, no-Python, in-process deployment.
 
 \section{Discussion and Limitations}
 QFIRE's positive-security stance trades permissiveness for safety: a strict
