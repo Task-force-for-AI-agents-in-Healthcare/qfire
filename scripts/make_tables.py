@@ -110,7 +110,8 @@ def main():
         L = [r"\begin{tabular}{lrrrr}", r"\toprule",
              r"Chain & Block rate & FPR & Precision & Recall \\", r"\midrule"]
         for key, m in rhc.items():
-            L.append(f"\\texttt{{{key}}} & {fmt(m['block_rate'])} & {fmt(m['fpr'])} "
+            ek = key.replace("_", r"\_")
+            L.append(f"\\texttt{{{ek}}} & {fmt(m['block_rate'])} & {fmt(m['fpr'])} "
                      f"& {fmt(m['precision'])} & {fmt(m['recall'])} \\\\")
         L += [r"\bottomrule", r"\end{tabular}"]
         open(os.path.join(OUTDIR, "healthcare.tex"), "w").write("\n".join(L) + "\n")
