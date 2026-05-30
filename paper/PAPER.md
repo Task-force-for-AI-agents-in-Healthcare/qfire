@@ -62,6 +62,7 @@ and latency percentiles; everything regenerates from `make paper`.
 | Regex denylist (lexical) | 1.00 | 0.29 | 0.46 | 0.00 | 0.65 | <0.1 ms |
 | Aho-Corasick keywords | 0.91 | 0.34 | 0.50 | 0.03 | 0.66 | <0.1 ms |
 | Entropy heuristic | 0.83 | 0.09 | 0.16 | 0.02 | 0.78 | <0.1 ms |
+| DeBERTa-v3 (protectai, PyTorch baseline) | 0.98 | 0.56 | 0.72 | 0.01 | — | 170 ms (p95) |
 | **DeBERTa-v3 (real ONNX, ours)** | 0.98 | 0.74 | 0.84 | 0.02 | **0.925** | 255 ms (p95) |
 | **QFIRE hybrid** | 0.97 | 0.77 | **0.86** | 0.02 | — † | short-circuited ‡ |
 | Hybrid + de-obf (forced, clean traffic) | 0.73 | 0.83 | 0.78 | 0.27 | — † | 279 ms (p95) |
@@ -124,6 +125,13 @@ over-blocking destroys utility.
 - **Lexical / Aho-Corasick / entropy:** sub-0.1 ms per prompt.
 - **DeBERTa-v3 via Rust ONNX (cold):** ~81 ms mean, **255 ms p95** on CPU — the
   cost of the learned detector, paid only when cheap detectors abstain.
+- **Rust ONNX vs PyTorch (same weights):** an independent PyTorch run of
+  `protectai/deberta-v3` measured p50 40 ms / **p95 170 ms** and precision
+  **0.978** — versus the Rust ONNX precision **0.98**. Two honest conclusions:
+  (i) the matching precision **validates that the Rust ONNX integration faithfully
+  reproduces the reference model**; (ii) Rust ONNX is **not faster** than PyTorch
+  on this CPU — contrary to a commonly repeated claim, the measured Rust advantage
+  is single-binary, no-Python-runtime, in-process deployment, *not* raw latency.
 - **LLM judge (Ollama):** the only network-cost node; under local Ollama every
   call is \$0, so firewall overhead is reported as latency. The healthcare chain
   (10 judge rules) shows p95 ≈ 2.8 s, motivating cheap-before-expensive ordering
