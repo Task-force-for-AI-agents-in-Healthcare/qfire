@@ -1,0 +1,64 @@
+[package]
+name = "qfire"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "QFIRE — a prompt firewall for LLM applications (proxy + CLI + benchmark harness)"
+license = "Apache-2.0"
+authors = ["QFIRE contributors"]
+repository = "https://github.com/quome/qfire"
+default-run = "qfire"
+
+[lib]
+name = "qfire"
+path = "src/lib.rs"
+
+[[bin]]
+name = "qfire"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "process", "fs", "io-util", "signal"] }
+axum = { version = "0.7", features = ["json", "tokio"] }
+hyper = { version = "1", features = ["full"] }
+tower = "0.5"
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+clap = { version = "4", features = ["derive", "wrap_help"] }
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+sha2 = "0.10"
+hex = "0.4"
+regex = "1"
+futures = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+csv = "1"
+rand = "0.8"
+rand_chacha = "0.3"
+owo-colors = "4"
+bytes = "1"
+async-trait = "0.1"
+dirs = "5"
+walkdir = "2"
+toml = "0.8"
+
+# Optional ONNX prompt-injection classifier (protectai/deberta-v3-base-prompt-injection)
+ort = { version = "2.0.0-rc.9", optional = true, features = ["download-binaries"] }
+tokenizers = { version = "0.20", optional = true, default-features = false, features = ["onig"] }
+ndarray = { version = "0.16", optional = true }
+once_cell = { version = "1", optional = true }
+
+[features]
+default = []
+onnx = ["dep:ort", "dep:tokenizers", "dep:ndarray", "dep:once_cell"]
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+opt-level = 3
+lto = "thin"

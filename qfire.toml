@@ -1,0 +1,33 @@
+# QFIRE configuration.
+#
+# The first provider listed is the default. Ollama needs no API key and is the
+# default for offline/local benchmarking. To use a paid provider, add a profile
+# and reference an env var for the key, e.g. api_key = "env:OPENAI_API_KEY".
+
+rules_dir = "rules"
+chains_dir = "chains"
+audit_path = "audit.jsonl"
+
+[[providers]]
+name = "ollama"
+kind = "ollama"
+base_url = "http://localhost:11434"
+model = "llama3.2"
+
+# [[providers]]
+# name = "openai"
+# kind = "openai"
+# api_key = "env:OPENAI_API_KEY"
+# model = "gpt-4o-mini"
+
+# [[providers]]
+# name = "anthropic"
+# kind = "anthropic"
+# api_key = "env:ANTHROPIC_API_KEY"
+# model = "claude-3-5-haiku-latest"
+
+# [[providers]]
+# name = "gemini"
+# kind = "gemini"
+# api_key = "env:GEMINI_API_KEY"
+# model = "gemini-1.5-flash"
