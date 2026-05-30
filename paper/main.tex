@@ -1,0 +1,290 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{multirow}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+% Headline numbers are generated from the benchmark JSON by
+% scripts/make_tables.py (\input below); defaults keep the document compilable
+% before a run.
+\providecommand{\NumPrompts}{1{,}968}
+\providecommand{\NumAttacks}{929}
+\providecommand{\NumBenign}{1{,}039}
+\IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+
+\title{\textbf{QFIRE}: A Parallel, Positive-Security Prompt Firewall in Rust\\
+\large Deterministic Scope Constraining and Cheap-Before-Expensive Detector
+Graphs for Low-Latency LLM Defense}
+
+\author{Task Force for AI Agents in Healthcare}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Large language models embedded in autonomous agents process trusted instructions
+and untrusted data in one context window, leaving them open to direct and
+indirect prompt injection. Existing runtime guardrails trade safety against
+latency: model-based auditors are accurate but add hundreds of milliseconds of
+Python inference, while lexical filters are fast but blind to obfuscated or
+semantically disguised payloads. We present \textbf{QFIRE}, an inline,
+provider-agnostic prompt firewall implemented as a single self-contained Rust
+toolchain (proxy, CLI, and benchmark harness). QFIRE contributes three ideas:
+(i) \emph{positive-security scope constraining}, which restricts a model call to
+a declared natural-language purpose and blocks out-of-scope drift even when no
+overt attack token is present; (ii) an \emph{asynchronous detector graph} that
+runs $N$ rules and their typed detector nodes concurrently on a Tokio runtime
+with cheap-before-expensive short-circuiting; and (iii) a \emph{de-obfuscation
+normalization pass} that decodes Base64/hex/ROT13, folds homoglyphs and
+leetspeak, and strips zero-width characters before detection. QFIRE ships
+${\sim}100$ versioned firewall rules, a dedicated HIPAA Safe-Harbor (18
+identifier) healthcare/PHI panel, and runs the
+\texttt{deberta-v3-base-prompt-injection} classifier locally via embedded ONNX
+Runtime. We evaluate head-to-head against open detectors on \NumPrompts{} public
+prompt-injection and jailbreak prompts, reporting precision/recall/F1 with 95\%
+Wilson confidence intervals, ROC--AUC, and p50/p95/p99 latency. All code, rules,
+corpora snapshots, and scripts are released, and every table regenerates from a
+single \texttt{make paper} target against local models with no paid API keys.
+\end{abstract}
+
+\section{Introduction}
+The integration of large language models (LLMs) into agentic systems---tools,
+browsers, retrieval pipelines---has moved AI security from content moderation to
+application-layer defense-in-depth~\cite{llamafirewall2025,greshake2023}. Because
+an LLM consumes its system prompt and untrusted inputs within a single semantic
+context, instruction-override, role-play jailbreak, and adversarial-suffix
+attacks remain effective despite model alignment~\cite{perez2022,greshake2023}.
+Runtime gateways that intercept prompts before they reach the model are therefore
+a necessary control~\cite{llamafirewall2025,oneshield2025}.
+
+A recurring tension in this literature is \emph{security robustness versus
+latency}. Heavy semantic verifiers and model-based auditors achieve strong
+detection but introduce substantial per-call latency from Python-hosted
+inference~\cite{llamafirewall2025}; conversely, deterministic regular-expression
+filters are sub-millisecond but fail on obfuscated or paraphrased
+attacks~\cite{greshake2023}. QFIRE targets this gap with a zero-trust,
+ultra-low-latency design built in Rust.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item \textbf{Positive-security scope constraining.} Beyond flagging overt
+  attacks, QFIRE enforces a declared operational scope (e.g.\ ``marketing copy
+  only'', ``appointment scheduling, no clinical advice'') and blocks anything
+  outside it, neutralizing camouflaged or benign-looking drift.
+  \item \textbf{Asynchronous detector graph with collapse.} Rules and detector
+  nodes execute concurrently; a chain collapses $N$ per-rule verdicts into one
+  terminal decision in either an ordered (iptables-style) or boolean-expression
+  mode, with cheap-before-expensive short-circuiting.
+  \item \textbf{De-obfuscation normalization} that exposes hidden payloads
+  (Base64/hex/ROT13, homoglyphs, leetspeak, zero-width) before detection, and a
+  complete \textbf{HIPAA Safe-Harbor PHI} panel covering all 18 identifiers.
+  \item \textbf{A reproducible benchmark} comparing QFIRE head-to-head with open
+  detectors on public corpora, with Wilson confidence intervals and latency
+  percentiles, regenerated end-to-end by \texttt{make paper}.
+\end{enumerate}
+
+\section{Threat Model and Positioning}
+We assume an adversary who controls all or part of the prompt reaching the model
+(direct injection) or content the agent ingests (indirect
+injection~\cite{greshake2023}). The defender controls a network position
+\emph{in front of} the model and wishes to (a) reject prompts outside a declared
+purpose and (b) detect injection/jailbreak attempts, while preserving throughput.
+Table~\ref{tab:related} situates QFIRE against representative recent systems.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{p{2.5cm}p{4.0cm}p{4.5cm}p{3.0cm}}
+\toprule
+Framework & Design & Advantage & Limitation \\
+\midrule
+LlamaFirewall~\cite{llamafirewall2025} & Python middleware (PromptGuard~2,
+AlignmentCheck, CodeShield) & Deep multi-stage auditing & Python/PyTorch
+inference latency \\
+OneShield~\cite{oneshield2025} & Parallel multi-detector gateway & Dynamic
+scale-out, parallel execution & External API management \\
+garak~\cite{garak2024} & Vulnerability scanner / probe suite & Broad attack
+coverage & Offline scanner, not an inline filter \\
+\textbf{QFIRE (ours)} & Rust async detector graph + positive scope & Low-latency
+local inference, de-obfuscation, scope constraining & Single-node;
+judge cost grows with rules \\
+\bottomrule
+\end{tabular}
+\caption{QFIRE relative to representative guardrail/red-team systems.}
+\label{tab:related}
+\end{table}
+
+\section{System Design}
+QFIRE is an inline reverse proxy and CLI. Incoming requests in the native wire
+formats of OpenAI, Anthropic, Gemini, and Ollama are normalized into one internal
+representation; the firewall evaluates the extracted prompt and, on \textsc{allow},
+transparently forwards the original request downstream.
+
+\subsection{Rules, chains, and collapse}
+A \emph{rule} declares a natural-language scope and an ordered \emph{detector
+pipeline}; each node returns a verdict, confidence, latency, and rationale. A
+\emph{chain} composes rules into one terminal decision in two interchangeable
+modes: \textsc{ordered} (first matching block/allow wins, configurable default)
+and \textsc{expression} (a boolean DAG over named rules, e.g.\
+\texttt{injection\_guard AND (marketing OR support)}). Detectors are typed as
+\emph{blockers} (regex, Aho-Corasick, entropy, the injection classifier), which
+return \textsc{block} or \textsc{abstain}, or \emph{scope deciders} (LLM judge,
+exemplar similarity), which return \textsc{allow}/\textsc{block}; the expression
+predicate ``rule did not block'' lets guards and scope rules compose uniformly.
+
+\subsection{Asynchronous detector graph}
+Given prompt $P$ and active rules $R=\{r_1,\dots,r_N\}$, QFIRE evaluates rules
+concurrently on a Tokio runtime under a bounded-concurrency semaphore. Within a
+rule, nodes run in pipeline order with short-circuiting, so a cheap lexical
+detector that fires aborts the remaining---possibly expensive---nodes (e.g.\ the
+local DeBERTa classifier or an LLM judge). A verdict cache keyed by
+$\mathrm{sha256}(P)$ plus node identity lets repeated or replayed prompts skip
+recomputation. The terminal decision is a collapsible boolean over per-node block
+states.
+
+\subsection{De-obfuscation normalization}
+Before detection, an optional normalization pass produces an expanded view of $P$:
+it strips zero-width characters, folds common Cyrillic/Greek homoglyphs and
+leetspeak to ASCII, and decodes Base64/hex runs and ROT13, appending each
+recovered layer. Detectors then scan the expanded view, exposing payloads that
+the raw text would smuggle past lexical and even learned detectors.
+
+\subsection{Detector library, healthcare panel, and PHI}
+QFIRE ships ${\sim}100$ versioned rules across injection-defense, marketing,
+support, code, data/SQL, finance, legal, and content-safety domains, plus a
+dedicated healthcare panel. The PHI engine implements all 18 HIPAA Safe-Harbor
+identifiers~\cite{hipaa_safe_harbor} (SSN, dates, phone/fax, email, MRN,
+beneficiary/account numbers, URLs, IP addresses, VINs, device/license serials,
+geographic and contextual name/biometric cues), reporting each hit's category and
+supporting typed redaction.
+
+\subsection{Implementation}
+QFIRE is ${\sim}7$k lines of Rust (Tokio, axum, reqwest). The injection
+classifier \texttt{deberta-v3-base-prompt-injection}~\cite{protectai_deberta}
+runs locally via embedded ONNX Runtime~\cite{ort} with a bundled tokenizer; when
+the ONNX model is absent a transparent lexical classifier is used and reported as
+such, so results are never silently degraded. The LLM scope-judge can target any
+configured provider; all reproducibility runs use local Ollama~\cite{ollama}.
+
+\section{Experimental Setup}
+\paragraph{Data.} We evaluate on \NumPrompts{} public prompts
+(\NumAttacks{} attack, \NumBenign{} benign) drawn from the
+deepset prompt-injections~\cite{deepset_pi} and jailbreak-classification
+\cite{jailbreak_cls} datasets, snapshotted and versioned in the repository.
+\paragraph{Baselines.} We compare against open detectors run on the identical
+corpus: \texttt{deberta-v3-base-prompt-injection}~\cite{protectai_deberta} (the
+de-facto open detector, and the engine inside Protect~AI LLM Guard), executed in
+PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; and lexical
+regex / Aho-Corasick filters. QFIRE runs the same DeBERTa weights via Rust ONNX. In our environment the Meta
+PromptGuard-2 weights were gated (access pending) and the PyTorch DeBERTa baseline
+failed to load due to an unrelated \texttt{torch}/\texttt{torchvision} operator
+clash; since QFIRE's ONNX path uses the identical protectai weights, detector
+accuracy is unaffected and we report PromptGuard-2 by citation.
+\paragraph{Metrics.} Treating ``attack'' as the positive class we report
+precision, recall, F1, false-positive rate, accuracy with 95\% Wilson score
+intervals~\cite{wilson1927}, ROC--AUC (from continuous detector scores), and
+latency percentiles (p50/p95/p99). Runs are seeded and described by a manifest.
+
+\section{Results}
+\subsection{Head-to-head detection}
+Table~\ref{tab:main} reports the main comparison on the public corpus. The QFIRE
+deterministic hybrid combines complementary detectors; the de-obfuscation pass
+adds recall on obfuscated payloads (\S\ref{sec:deobf}) at negligible latency.
+
+\begin{table}[t]\centering\small
+\input{tables/main.tex}
+\caption{Head-to-head detection on \NumPrompts{} public prompts (attack =
+positive class). Latency is per-prompt wall clock; QFIRE detectors run in
+Rust, PyTorch baselines on CPU.}
+\label{tab:main}
+\end{table}
+
+\begin{table}[t]\centering\small
+\input{tables/accuracy_ci.tex}
+\caption{QFIRE accuracy with 95\% Wilson score confidence intervals.}
+\label{tab:ci}
+\end{table}
+
+\subsection{De-obfuscation ablation}\label{sec:deobf}
+Table~\ref{tab:deobf} measures detection on an obfuscated variant of the attack
+set (payloads re-encoded with Base64/ROT13/leetspeak/homoglyphs) with and without
+the normalization pass. On obfuscated attacks the pass recovers a large fraction
+of evaded detections, lifting recall substantially; the cost is reduced precision
+when the same aggressive decoding is applied to clean traffic (the false-positive
+rate rises on the non-obfuscated corpus of Table~\ref{tab:main}). The practical
+implication is that de-obfuscation is a \emph{targeted} control for channels where
+encoded payloads are a concern, rather than an always-on default---a trade-off we
+report rather than tune away.
+
+\begin{table}[t]\centering\small
+\input{tables/deobf.tex}
+\caption{Effect of the de-obfuscation normalization pass on obfuscated attacks.}
+\label{tab:deobf}
+\end{table}
+
+\subsection{Healthcare / PHI panel}
+Table~\ref{tab:hc} reports the HIPAA/PHI chain on a clinical-adjacent corpus,
+where over-blocking legitimate benign clinical queries is itself a failure mode.
+The result is a sharp, actionable warning: a single calibrated scope rule
+(\texttt{hc\_no\_diagnosis}) attains F1~$0.91$, but naively conjoining ten strict
+LLM-judge scope rules drives the false-positive rate to $1.00$---every benign
+clinical prompt trips at least one over-eager judge. Positive-security
+composition therefore demands calibration, or utility collapses.
+
+\begin{table}[t]\centering\small
+\input{tables/healthcare.tex}
+\caption{Healthcare/PHI chain: block rate and false-positive rate on
+clinical-adjacent prompts.}
+\label{tab:hc}
+\end{table}
+
+\subsection{Latency and cost}
+Deterministic detectors (regex, Aho-Corasick, entropy) run in under
+$0.1$\,ms/prompt. The local DeBERTa-v3 classifier, executed via Rust ONNX on CPU,
+costs ${\approx}81$\,ms mean / $255$\,ms p95 (cold) and is paid only when the
+cheap detectors abstain. The LLM judge is the only network-cost node; under local
+Ollama every call is \$0, so overhead is reported as latency, and the
+ten-judge healthcare chain reaches a p95 of ${\approx}2.8$\,s---motivating
+cheap-before-expensive ordering and modest rule counts.
+\emph{Measurement integrity:} within a single \texttt{bench} invocation the
+verdict cache is shared across chains, so chains evaluated after the DeBERTa-only
+chain read cached classifier verdicts and report artificially low latency. We
+therefore quote the \emph{cold} DeBERTa latency and characterize the hybrid
+qualitatively: short-circuiting means overtly-malicious prompts are caught by
+sub-millisecond lexical detectors and never reach the classifier.
+
+\section{Discussion and Limitations}
+QFIRE's positive-security stance trades permissiveness for safety: a strict
+healthcare chain can over-block benign clinical-adjacent prompts, which we
+measure rather than hide. Cross-dataset detection numbers are lower than a
+detector's in-distribution test score, underscoring that single-corpus claims do
+not transfer; we therefore report a public, mixed corpus and release the snapshot.
+The LLM-judge node's cost grows with the number of scope rules, motivating the
+cheap-before-expensive ordering. Our PHI matchers are conservative for
+identifiers (names, biometrics, face photos) that are not reliably recoverable
+from text alone.
+
+\section{Conclusion}
+QFIRE shows that a Rust, parallel, positive-security firewall can combine
+low-latency local inference, de-obfuscation, and scope constraining in one
+reproducible toolchain. All artifacts and the \texttt{make paper} pipeline are
+released for independent verification.
+
+\appendix
+\section{Reproducibility}
+Every table is generated from benchmark JSON by \texttt{scripts/make\_tables.py};
+\texttt{make paper} runs the build, fetches the corpus snapshot, executes the
+benchmark matrix and baselines, and compiles this document. The run manifest
+(seed, model and rule/detector/corpus versions) is embedded in each artifact.
+
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{document}

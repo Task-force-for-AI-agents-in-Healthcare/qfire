@@ -74,6 +74,7 @@ pub fn lexical_injection_score(prompt: &str) -> f64 {
 mod onnx_impl {
     use once_cell::sync::OnceCell;
     use ort::session::Session;
+    use ort::value::Tensor;
     use std::sync::Mutex;
     use tokenizers::Tokenizer;
 
@@ -88,43 +89,67 @@ mod onnx_impl {
         MODEL
             .get_or_init(|| {
                 let dir = std::env::var("QFIRE_DEBERTA_DIR").ok()?;
-                let model_path = format!("{dir}/model.onnx");
-                let tok_path = format!("{dir}/tokenizer.json");
-                let session = Session::builder().ok()?.commit_from_file(&model_path).ok()?;
-                let tokenizer = Tokenizer::from_file(&tok_path).ok()?;
+                let session = Session::builder()
+                    .ok()?
+                    .commit_from_file(format!("{dir}/model.onnx"))
+                    .ok()?;
+                let tokenizer = Tokenizer::from_file(format!("{dir}/tokenizer.json")).ok()?;
                 Some(Model { session: Mutex::new(session), tokenizer })
             })
             .as_ref()
     }
 
-    /// Run the classifier, returning injection probability.
+    fn softmax2(z0: f32, z1: f32) -> f64 {
+        let max = z0.max(z1);
+        let e0 = (z0 - max).exp();
+        let e1 = (z1 - max).exp();
+        (e1 / (e0 + e1)) as f64
+    }
+
+    /// Run the classifier, returning injection probability in `[0,1]`.
     pub fn classify(prompt: &str) -> Option<f64> {
-        use ndarray::Array2;
         let m = model()?;
-        let enc = m.tokenizer.encode(prompt, true).ok()?;
-        let ids: Vec<i64> = enc.get_ids().iter().map(|&x| x as i64).collect();
-        let mask: Vec<i64> = enc.get_attention_mask().iter().map(|&x| x as i64).collect();
+        let clipped: String = prompt.chars().take(2000).collect();
+        let enc = m.tokenizer.encode(clipped, true).ok()?;
+        let ids: Vec<i64> = enc.get_ids().iter().take(512).map(|&x| x as i64).collect();
+        let mask: Vec<i64> = enc
+            .get_attention_mask()
+            .iter()
+            .take(512)
+            .map(|&x| x as i64)
+            .collect();
         let len = ids.len();
-        let id_arr = Array2::from_shape_vec((1, len), ids).ok()?;
-        let mask_arr = Array2::from_shape_vec((1, len), mask).ok()?;
+
         let mut sess = m.session.lock().ok()?;
-        let inputs = ort::inputs![
-            "input_ids" => id_arr,
-            "attention_mask" => mask_arr,
-        ]
-        .ok()?;
-        let outputs = sess.run(inputs).ok()?;
-        let logits = outputs[0].try_extract_tensor::<f32>().ok()?;
-        let view = logits.view();
-        let slice: Vec<f32> = view.iter().copied().collect();
-        if slice.len() < 2 {
+
+        // First attempt: the two-input signature. We extract the result *inside*
+        // this branch so no borrow of `sess` escapes, allowing a clean retry.
+        let id_t = Tensor::from_array(([1_usize, len], ids.clone())).ok()?;
+        let mask_t = Tensor::from_array(([1_usize, len], mask.clone())).ok()?;
+        if let Ok(outputs) = sess.run(ort::inputs![
+            "input_ids" => id_t,
+            "attention_mask" => mask_t
+        ]) {
+            let (_shape, data) = outputs["logits"].try_extract_tensor::<f32>().ok()?;
+            return if data.len() >= 2 { Some(softmax2(data[0], data[1])) } else { None };
+        }
+
+        // Retry with token_type_ids (some DeBERTa exports require it).
+        let id_t = Tensor::from_array(([1_usize, len], ids)).ok()?;
+        let mask_t = Tensor::from_array(([1_usize, len], mask)).ok()?;
+        let tt = Tensor::from_array(([1_usize, len], vec![0_i64; len])).ok()?;
+        let outputs = sess
+            .run(ort::inputs![
+                "input_ids" => id_t,
+                "attention_mask" => mask_t,
+                "token_type_ids" => tt
+            ])
+            .ok()?;
+        let (_shape, data) = outputs["logits"].try_extract_tensor::<f32>().ok()?;
+        if data.len() < 2 {
             return None;
         }
-        // softmax over [benign, injection]
-        let max = slice[0].max(slice[1]);
-        let e0 = (slice[0] - max).exp();
-        let e1 = (slice[1] - max).exp();
-        Some((e1 / (e0 + e1)) as f64)
+        Some(softmax2(data[0], data[1]))
     }
 }
 

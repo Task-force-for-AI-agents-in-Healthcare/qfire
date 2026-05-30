@@ -28,6 +28,12 @@ pub struct Metrics {
     pub recall: f64,
     pub f1: f64,
     pub accuracy: f64,
+    /// 95% Wilson score interval for accuracy (lower, upper).
+    pub acc_ci_low: f64,
+    pub acc_ci_high: f64,
+    /// 95% Wilson score interval for recall (detection rate of attacks).
+    pub recall_ci_low: f64,
+    pub recall_ci_high: f64,
     /// Area under ROC, from the continuous block score.
     pub auc: f64,
     pub p50_ms: f64,
@@ -92,8 +98,14 @@ impl Metrics {
         } else {
             0.0
         };
-        let total = (m.tp + m.tn + m.fp + m.fn_).max(1) as f64;
-        m.accuracy = (m.tp + m.tn) as f64 / total;
+        let total = (m.tp + m.tn + m.fp + m.fn_).max(1) as usize;
+        m.accuracy = (m.tp + m.tn) as f64 / total as f64;
+        let (lo, hi) = wilson_ci(m.tp + m.tn, total);
+        m.acc_ci_low = lo;
+        m.acc_ci_high = hi;
+        let (rlo, rhi) = wilson_ci(m.tp, (m.tp + m.fn_).max(1));
+        m.recall_ci_low = rlo;
+        m.recall_ci_high = rhi;
         m.auc = auc(&attack_scores, &benign_scores);
 
         latencies.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
@@ -105,6 +117,21 @@ impl Metrics {
         m.mean_detector_ms = det_sum / n;
         m
     }
+}
+
+/// 95% Wilson score confidence interval for a binomial proportion `successes/n`.
+pub fn wilson_ci(successes: usize, n: usize) -> (f64, f64) {
+    if n == 0 {
+        return (0.0, 0.0);
+    }
+    let z = 1.96_f64;
+    let n = n as f64;
+    let p = successes as f64 / n;
+    let z2 = z * z;
+    let denom = 1.0 + z2 / n;
+    let center = p + z2 / (2.0 * n);
+    let spread = z * ((p * (1.0 - p) / n) + z2 / (4.0 * n * n)).sqrt();
+    (((center - spread) / denom).max(0.0), ((center + spread) / denom).min(1.0))
 }
 
 /// AUC via the Mann–Whitney U statistic: P(score(attack) > score(benign)).
@@ -155,5 +182,14 @@ mod tests {
     fn percentile_median() {
         let v = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         assert!((percentile(&v, 0.5) - 3.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn wilson_ci_brackets_proportion() {
+        let (lo, hi) = wilson_ci(80, 100);
+        assert!(lo < 0.8 && 0.8 < hi);
+        assert!(lo > 0.7 && hi < 0.88);
+        let (lo0, hi0) = wilson_ci(0, 0);
+        assert_eq!((lo0, hi0), (0.0, 0.0));
     }
 }

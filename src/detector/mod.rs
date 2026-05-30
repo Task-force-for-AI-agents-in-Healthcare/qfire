@@ -6,17 +6,21 @@
 //! [`build_detector`]. Each detector reports a `kind` and a `version` so results
 //! are reproducible and citable.
 
+mod aho;
 mod custom;
 mod deberta;
 mod entropy;
 mod judge;
+mod phi_node;
 mod regex_node;
 mod similarity;
 
+pub use aho::AhoDetector;
 pub use custom::CustomDetector;
 pub use deberta::DebertaDetector;
 pub use entropy::EntropyDetector;
 pub use judge::JudgeDetector;
+pub use phi_node::PhiDetector;
 pub use regex_node::RegexDetector;
 pub use similarity::SimilarityDetector;
 
@@ -121,6 +125,17 @@ pub enum NodeConfig {
         #[serde(default)]
         command: Option<String>,
     },
+    /// Aho-Corasick multi-pattern literal denylist (fast for large lists).
+    Aho {
+        #[serde(default)]
+        deny: Vec<String>,
+    },
+    /// HIPAA PHI detector: BLOCK when at least `min_hits` Safe-Harbor identifiers
+    /// are present.
+    Phi {
+        #[serde(default)]
+        min_hits: Option<usize>,
+    },
 }
 
 /// A stable JSON-based hash of a node config, for the verdict cache.
@@ -156,6 +171,8 @@ pub fn build_detector(node: &NodeConfig) -> Result<Box<dyn Detector>> {
                 .ok_or_else(|| Error::Config("custom node requires a `command`".into()))?;
             Box::new(CustomDetector::new(cmd, h))
         }
+        NodeConfig::Aho { deny } => Box::new(AhoDetector::new(deny, h)?),
+        NodeConfig::Phi { min_hits } => Box::new(PhiDetector::new(min_hits.unwrap_or(1), h)),
     };
     Ok(d)
 }

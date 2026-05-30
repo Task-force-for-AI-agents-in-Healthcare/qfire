@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""Run open-source prompt-injection baselines head-to-head on the SAME labeled
+corpus QFIRE is evaluated on, and emit metrics (precision/recall/F1/accuracy +
+95% Wilson CI) and latency percentiles (p50/p95/p99) per model.
+
+Baselines:
+  - protectai/deberta-v3-base-prompt-injection  (open SOTA detector; LLM Guard core)
+  - meta-llama/Llama-Prompt-Guard-2-86M         (Meta PromptGuard-2; skipped if gated)
+
+Output: bench-out/baselines.json
+"""
+import json, os, sys, time, math
+
+BASE = "/Users/jim/Desktop/qfire"
+ATTACKS = os.path.join(BASE, "corpora/eval/attacks/public_attacks.jsonl")
+BENIGN = os.path.join(BASE, "corpora/eval/benign/public_benign.jsonl")
+OUT = os.path.join(BASE, "bench-out/baselines.json")
+CAP = int(os.environ.get("QFIRE_BASELINE_CAP", "0"))
+
+MODELS = [
+    ("deberta-v3-injection", "protectai/deberta-v3-base-prompt-injection"),
+    ("promptguard-2-86m", "meta-llama/Llama-Prompt-Guard-2-86M"),
+]
+
+
+def load(path, label):
+    rows = []
+    if not os.path.exists(path):
+        return rows
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                o = json.loads(line)
+            except Exception:
+                continue
+            if o.get("prompt"):
+                rows.append((o["prompt"], label))
+    return rows
+
+
+def wilson(succ, n):
+    if n == 0:
+        return (0.0, 0.0)
+    z = 1.96
+    p = succ / n
+    denom = 1 + z * z / n
+    center = p + z * z / (2 * n)
+    spread = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return ((center - spread) / denom, (center + spread) / denom)
+
+
+def metrics(preds, labels):
+    tp = fp = tn = fn = 0
+    for pr, la in zip(preds, labels):
+        atk = la == "attack"
+        if pr and atk:
+            tp += 1
+        elif pr and not atk:
+            fp += 1
+        elif not pr and atk:
+            fn += 1
+        else:
+            tn += 1
+    n = tp + fp + tn + fn
+    prec = tp / (tp + fp) if (tp + fp) else 0.0
+    rec = tp / (tp + fn) if (tp + fn) else 0.0
+    f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
+    acc = (tp + tn) / n if n else 0.0
+    al, ah = wilson(tp + tn, n)
+    rl, rh = wilson(tp, tp + fn)
+    return dict(tp=tp, fp=fp, tn=tn, fn=fn, n=n, precision=prec, recall=rec, f1=f1,
+                accuracy=acc, acc_ci=[al, ah], recall_ci=[rl, rh],
+                fpr=fp / (fp + tn) if (fp + tn) else 0.0)
+
+
+def pct(xs, q):
+    if not xs:
+        return 0.0
+    s = sorted(xs)
+    i = q * (len(s) - 1)
+    lo, hi = int(math.floor(i)), int(math.ceil(i))
+    return s[lo] + (s[hi] - s[lo]) * (i - lo)
+
+
+def run_model(name, repo, prompts, labels):
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+    print(f"[{name}] loading {repo}", flush=True)
+    tok = AutoTokenizer.from_pretrained(repo)
+    model = AutoModelForSequenceClassification.from_pretrained(repo)
+    model.eval()
+    torch.set_num_threads(os.cpu_count() or 4)
+    preds, lat = [], []
+    with torch.no_grad():
+        for i, p in enumerate(prompts):
+            t0 = time.perf_counter()
+            enc = tok(p, return_tensors="pt", truncation=True, max_length=512)
+            logits = model(**enc).logits[0]
+            prob = torch.softmax(logits, dim=-1)
+            inj = float(prob[-1])
+            lat.append((time.perf_counter() - t0) * 1000.0)
+            preds.append(inj >= 0.5)
+            if (i + 1) % 250 == 0:
+                print(f"  [{name}] {i+1}/{len(prompts)}", flush=True)
+    m = metrics(preds, labels)
+    m["latency_ms"] = dict(p50=pct(lat, 0.5), p95=pct(lat, 0.95), p99=pct(lat, 0.99),
+                           mean=sum(lat) / len(lat))
+    m["model"] = repo
+    return m
+
+
+def main():
+    data = load(ATTACKS, "attack") + load(BENIGN, "benign")
+    if CAP:
+        atk = [d for d in data if d[1] == "attack"][:CAP]
+        ben = [d for d in data if d[1] == "benign"][:CAP]
+        data = atk + ben
+    prompts = [d[0] for d in data]
+    labels = [d[1] for d in data]
+    print(f"corpus: {len(prompts)} ({labels.count('attack')} atk / {labels.count('benign')} ben)", flush=True)
+    results = {}
+    for name, repo in MODELS:
+        try:
+            results[name] = run_model(name, repo, prompts, labels)
+            r = results[name]
+            print(f"[{name}] P={r['precision']:.3f} R={r['recall']:.3f} F1={r['f1']:.3f} "
+                  f"acc={r['accuracy']:.3f} p50={r['latency_ms']['p50']:.1f}ms", flush=True)
+        except Exception as e:
+            results[name] = {"error": str(e), "model": repo}
+            print(f"[{name}] SKIPPED: {e}", flush=True)
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    with open(OUT, "w") as f:
+        json.dump({"corpus_size": len(prompts), "attacks": labels.count("attack"),
+                   "benign": labels.count("benign"), "results": results}, f, indent=2)
+    print(f"wrote {OUT}", flush=True)
+    print("BASELINES_DONE", flush=True)
+
+
+if __name__ == "__main__":
+    main()

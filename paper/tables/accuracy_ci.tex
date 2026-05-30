@@ -1,0 +1,12 @@
+\begin{tabular}{lrl}
+\toprule
+System & Accuracy & 95\% Wilson CI \\
+\midrule
+Regex denylist (lexical) & 0.667 & [0.646, 0.688] \\
+Aho-Corasick keywords & 0.673 & [0.652, 0.694] \\
+Entropy heuristic & 0.561 & [0.539, 0.583] \\
+DeBERTa-v3 (ONNX, ours) & 0.870 & [0.855, 0.885] \\
+\textbf{QFIRE hybrid} & 0.878 & [0.863, 0.892] \\
+\textbf{QFIRE hybrid + de-obf} & 0.776 & [0.757, 0.794] \\
+\bottomrule
+\end{tabular}

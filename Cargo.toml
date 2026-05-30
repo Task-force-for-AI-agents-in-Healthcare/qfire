@@ -45,6 +45,8 @@ async-trait = "0.1"
 dirs = "5"
 walkdir = "2"
 toml = "0.8"
+aho-corasick = "1"
+base64 = "0.22"
 
 # Optional ONNX prompt-injection classifier (protectai/deberta-v3-base-prompt-injection)
 ort = { version = "2.0.0-rc.9", optional = true, features = ["download-binaries"] }

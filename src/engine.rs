@@ -139,7 +139,14 @@ impl Engine {
         request: &LlmRequest,
     ) -> Result<Decision> {
         let prompt = request.prompt_text();
+        // Audit/cache identity is over the ORIGINAL prompt; detectors may see a
+        // de-obfuscated expansion when the chain enables normalization.
         let prompt_hash = Self::prompt_hash(&prompt);
+        let eval_prompt = if chain.normalize {
+            crate::normalize::normalize(&prompt).expanded
+        } else {
+            prompt.clone()
+        };
         let referenced = chain.referenced_rules()?;
 
         let wall_start = std::time::Instant::now();
@@ -149,7 +156,7 @@ impl Engine {
             let cr = rules.get(rule_id).ok_or_else(|| {
                 crate::Error::Reference(format!("chain references unknown rule '{rule_id}'"))
             })?;
-            futs.push(self.evaluate_rule(cr, &prompt, chain.fail_policy));
+            futs.push(self.evaluate_rule(cr, &eval_prompt, chain.fail_policy));
         }
         let traces: Vec<RuleTrace> = futures::future::join_all(futs).await;
         let wall_clock_ms = wall_start.elapsed().as_secs_f64() * 1000.0;

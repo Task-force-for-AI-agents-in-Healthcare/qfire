@@ -68,6 +68,44 @@ bench-quick: release
 serve: build
 	$(CARGO) run -- serve --addr 127.0.0.1:8787 --chain default
 
+# ---- Research paper pipeline ------------------------------------------------
+# Reproduce the paper end-to-end: fetch corpora, run the QFIRE detector matrix
+# (real DeBERTa ONNX), run open Python baselines, generate LaTeX tables, build PDF.
+DEBERTA_DIR ?= models/deberta
+
+.PHONY: corpora deberta baselines exp1 tables paper paper-pdf
+
+corpora:
+	python3 scripts/fetch_corpora.py corpora/eval
+
+deberta:
+	bash scripts/fetch-deberta.sh $(DEBERTA_DIR)
+
+# QFIRE detector/chain matrix on the public corpus (uses real ONNX if built with
+# --features onnx and QFIRE_DEBERTA_DIR is set).
+exp1:
+	QFIRE_DEBERTA_DIR=$(DEBERTA_DIR) ./target/release/qfire bench \
+		--chain bench_regex --chain bench_aho --chain bench_deberta \
+		--chain bench_entropy --chain bench_hybrid --chain bench_hybrid_norm \
+		--attacks corpora/eval/attacks --benign corpora/eval/benign \
+		--seed $(SEED) --out bench-out/exp1
+
+baselines:
+	python3 scripts/baselines.py
+
+tables:
+	python3 scripts/make_tables.py
+
+# Full paper reproduction (requires: cargo build --release --features onnx).
+paper: corpora exp1 baselines tables paper-pdf
+	@echo "Paper artifacts in paper/ (main.pdf) and bench-out/."
+
+paper-pdf:
+	cd paper && pdflatex -interaction=nonstopmode main.tex && \
+		(bibtex main || true) && \
+		pdflatex -interaction=nonstopmode main.tex && \
+		pdflatex -interaction=nonstopmode main.tex
+
 fmt:
 	$(CARGO) fmt
 
