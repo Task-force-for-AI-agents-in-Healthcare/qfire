@@ -1,0 +1,15 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'16px','primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','lineColor':'#475569'}}}%%
+flowchart TD
+    P["Incoming prompt"] --> C["PromptGuard-2 (86M)<br/>SOTA injection / jailbreak classifier"]
+    C --> D{"label =<br/>injection ?"}
+    D -- yes --> B["BLOCK"]
+    D -- no --> A["ALLOW &rarr; model"]
+
+    M["PHI exfiltration<br/>cross-patient access<br/>re-identification<br/>bulk export<br/>out-of-scope advice"] -. "no injection token<br/>&rarr; only 0.40 recall here" .-> A
+
+    classDef block fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
+    classDef allow fill:#dcfce7,stroke:#16a34a,color:#14532d;
+    classDef miss fill:#fef9c3,stroke:#ca8a04,color:#713f12,font-style:italic;
+    class B block;
+    class A allow;
+    class M miss;

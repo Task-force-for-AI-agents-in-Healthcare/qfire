@@ -3,6 +3,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
@@ -20,9 +21,10 @@
 \providecommand{\NumBenign}{1{,}039}
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
 
-\title{\textbf{QFIRE}: A Parallel, Positive-Security Prompt Firewall in Rust\\
-\large Deterministic Scope Constraining and Cheap-Before-Expensive Detector
-Graphs for Low-Latency LLM Defense}
+\title{Beyond Injection Detection: A Positive-Security Prompt Firewall that
+Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare\\
+\large \textbf{QFIRE} --- a parallel, low-latency Rust firewall benchmarked
+against PromptGuard-2 and DeBERTa-v3}
 
 \author{Task Force for AI Agents in Healthcare}
 \date{\today}
@@ -49,11 +51,23 @@ leetspeak, and strips zero-width characters before detection. QFIRE ships
 ${\sim}100$ versioned firewall rules, a dedicated HIPAA Safe-Harbor (18
 identifier) healthcare/PHI panel, and runs the
 \texttt{deberta-v3-base-prompt-injection} classifier locally via embedded ONNX
-Runtime. We evaluate head-to-head against open detectors on \NumPrompts{} public
-prompt-injection and jailbreak prompts, reporting precision/recall/F1 with 95\%
-Wilson confidence intervals, ROC--AUC, and p50/p95/p99 latency. All code, rules,
-corpora snapshots, and scripts are released, and every table regenerates from a
-single \texttt{make paper} target against local models with no paid API keys.
+Runtime. On \NumPrompts{} public prompt-injection and jailbreak prompts QFIRE's
+deterministic hybrid attains F1~$0.86$, statistically tied with Meta's
+state-of-the-art PromptGuard-2 (F1~$0.86$) and above protectai DeBERTa-v3
+(F1~$0.83$), while lexical baselines lag (F1~$0.16$--$0.50$). Our central result is
+on \emph{QFIRE-HealthBench}, a new 2{,}000-prompt healthcare benchmark we build
+with real garak and Microsoft PyRIT payloads: there the same SOTA PromptGuard-2
+recovers only $0.40$ recall (DeBERTa-v3 $0.57$), because most clinical
+threats---PHI exfiltration, cross-patient access, re-identification, bulk export,
+out-of-scope advice---carry no injection signal, whereas QFIRE's combined
+scope+PHI chain reaches $0.83$ recall (F1~$0.87$) at a calibrated $0.08$
+false-positive rate. Generic prompt-injection detection, even SOTA, is therefore
+necessary but not sufficient for healthcare LLM agents; positive-security scope
+and PHI controls close a gap a classifier structurally cannot. We report
+precision/recall/F1 with 95\% Wilson confidence intervals, ROC--AUC, and
+p50/p95/p99 latency. All code, rules, corpora snapshots, and scripts are released,
+and every table regenerates from a single \texttt{make paper} target against local
+models with no paid API keys.
 \end{abstract}
 
 \section{Introduction}
@@ -121,6 +135,34 @@ judge cost grows with rules \\
 \caption{QFIRE relative to representative guardrail/red-team systems.}
 \label{tab:related}
 \end{table}
+
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.49\textwidth}\centering
+  \includegraphics[width=\linewidth]{figs/deberta.png}\\[2pt]
+  {\footnotesize (a) DeBERTa-v3 --- single classifier}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+  \includegraphics[width=\linewidth]{figs/promptguard2.png}\\[2pt]
+  {\footnotesize (b) PromptGuard-2 (SOTA) --- single classifier}
+\end{minipage}
+
+\vspace{6pt}
+\begin{minipage}{0.92\textwidth}\centering
+  \includegraphics[width=\linewidth]{figs/qfire.png}\\[2pt]
+  {\footnotesize (c) QFIRE --- parallel detector graph with positive-security
+  scope + PHI nodes}
+\end{minipage}
+\caption{How the three approaches decide to block. The two SOTA baselines (a, b)
+are single-classifier injection detectors: a prompt is blocked only if one model
+labels it an injection, so healthcare threats with no injection signal (PHI
+exfiltration, cross-patient access, re-identification, bulk export, out-of-scope
+advice) pass through---why PromptGuard-2 reaches only $0.40$ recall on
+QFIRE-HealthBench. QFIRE (c) fans out across lexical, classifier, PHI, and scope
+detectors and collapses them into one explainable decision, catching those threats
+and lifting recall to $0.83$.}
+\label{fig:approaches}
+\end{figure}
 
 \section{System Design}
 QFIRE is an inline reverse proxy and CLI. Incoming requests in the native wire

@@ -1,0 +1,31 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'15px','primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','lineColor':'#475569'}}}%%
+flowchart TD
+    P["Incoming prompt"] --> N["De-obfuscation normalize<br/>(Base64/ROT13/homoglyph/zero-width)"]
+    N --> G{{"Parallel detector graph<br/>(Tokio fan-out, cheap-before-expensive)"}}
+
+    G --> L["Aho-Corasick + regex<br/>(sub-ms)"]
+    G --> E["entropy heuristic"]
+    G --> DB["DeBERTa-v3 injection<br/>(ONNX, only if cheap nodes abstain)"]
+    G --> PHI["PHI detector<br/>18 HIPAA Safe-Harbor IDs"]
+    G --> SC["LLM scope judge<br/>positive-security: in-scope?"]
+
+    L --> COL["Collapse<br/>(ordered / boolean DAG)"]
+    E --> COL
+    DB --> COL
+    PHI --> COL
+    SC --> COL
+
+    COL --> DEC{"any rule blocks<br/>OR out-of-scope?"}
+    DEC -- yes --> B["BLOCK + explainable trace"]
+    DEC -- no --> A["ALLOW &rarr; model"]
+
+    M["PHI exfil / cross-patient /<br/>re-identification / bulk export /<br/>out-of-scope advice"] -- "caught by PHI + scope<br/>&rarr; 0.83 recall" --> B
+
+    classDef block fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
+    classDef allow fill:#dcfce7,stroke:#16a34a,color:#14532d;
+    classDef caught fill:#fef9c3,stroke:#ca8a04,color:#713f12,font-style:italic;
+    classDef det fill:#e0e7ff,stroke:#6366f1,color:#312e81;
+    class B block;
+    class A allow;
+    class M caught;
+    class L,E,DB,PHI,SC det;

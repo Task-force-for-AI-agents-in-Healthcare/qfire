@@ -1,0 +1,4 @@
+{
+  "theme": "base",
+  "flowchart": { "useMaxWidth": false, "htmlLabels": true, "curve": "basis" }
+}

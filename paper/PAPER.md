@@ -1,6 +1,6 @@
-# QFIRE: A Parallel, Positive-Security Prompt Firewall in Rust
+# Beyond Injection Detection: A Positive-Security Prompt Firewall that Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare
 
-**Deterministic scope constraining and cheap-before-expensive detector graphs for low-latency LLM defense**
+**QFIRE — a parallel, low-latency Rust firewall benchmarked against PromptGuard-2 and DeBERTa-v3**
 
 *Task Force for AI Agents in Healthcare — 2026-05-30*
 
@@ -45,6 +45,32 @@ ROC–AUC, and latency percentiles; everything regenerates from `make paper`.
 3. **De-obfuscation** (Base64/hex/ROT13/leetspeak/homoglyph/zero-width) and a
    **complete 18-identifier HIPAA Safe-Harbor PHI** detector/redactor.
 4. **A reproducible head-to-head benchmark** with confidence intervals.
+
+### 1.1 How the three approaches decide to block
+
+The two SOTA baselines are **single-classifier injection detectors**: a prompt is
+blocked only if one model scores it as an injection/jailbreak. Anything without an
+injection signal — including PHI exfiltration, cross-patient access,
+re-identification, bulk export, and out-of-scope clinical advice — is passed
+through. This is *why* even SOTA PromptGuard-2 recovers only 0.40 recall on
+QFIRE-HealthBench.
+
+**DeBERTa-v3 (protectai):**
+
+![DeBERTa-v3 blocking path](figs/deberta.png)
+
+**PromptGuard-2 (Meta, SOTA):**
+
+![PromptGuard-2 blocking path](figs/promptguard2.png)
+
+QFIRE instead runs a **parallel, multi-detector graph with positive-security
+scope and PHI nodes**, collapsing many verdicts into one explainable decision.
+The same clinical threats the classifiers miss are caught by the PHI detector and
+the scope judge, lifting recall to 0.83:
+
+**QFIRE:**
+
+![QFIRE parallel detector graph](figs/qfire.png)
 
 ## 2. Experimental setup
 

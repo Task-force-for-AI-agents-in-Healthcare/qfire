@@ -6,3 +6,13 @@ models/
 /audit.jsonl
 /bench-out/
 corpora/healthcare_bench/subset/
+
+# LaTeX build intermediates
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.log
+paper/main.out
+paper/*.synctex.gz
+scripts/__pycache__/
+*.orig
