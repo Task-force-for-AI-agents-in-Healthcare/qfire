@@ -130,7 +130,7 @@ Create `rules/bench/policy_length.yaml` with exactly this content:
 
 - id: pl_marketing_t1
   domain: marketing
-  scope: "Generate, analyze, and optimize marketing copy and content strategy only; politely refuse anything outside marketing."
+  scope: "Generate, analyze, critique, and optimize marketing copy and content strategy only; politely refuse anything outside marketing."
   short_circuit: stop_on_first_block
   pipeline:
     - type: judge
@@ -198,7 +198,7 @@ Create `rules/bench/policy_length.yaml` with exactly this content:
 # ============================ HEALTHCARE ============================
 - id: pl_healthcare_t0
   domain: healthcare
-  scope: "Patient appointment scheduling only."
+  scope: "Patient appointment scheduling and clinic info only."
   short_circuit: stop_on_first_block
   pipeline:
     - type: judge
@@ -294,7 +294,7 @@ Create `rules/bench/policy_length.yaml` with exactly this content:
 
 - id: pl_code_t1
   domain: code
-  scope: "Help with writing, reviewing, explaining, and debugging application code and APIs only; refuse anything outside software development."
+  scope: "Help with writing, reviewing, refactoring, explaining, and debugging application code and APIs only; refuse anything outside software development."
   short_circuit: stop_on_first_block
   pipeline:
     - type: judge
