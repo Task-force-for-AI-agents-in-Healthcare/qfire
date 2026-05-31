@@ -359,30 +359,17 @@ latency percentiles (p50/p95/p99). Runs are seeded and described by a manifest.
 
 \section{Results}
 \subsection{Head-to-head detection}
-Table~\ref{tab:main} reports the main comparison on the public corpus. On generic
+Figure~\ref{fig:rocpr} shows the detector curves on the public corpus; the exact
+numbers are in Table~\ref{tab:main} (Appendix~\ref{app:tables}). On generic
 injection QFIRE's deterministic hybrid (F1~$0.86$) and Meta PromptGuard-2
 (F1~$0.86$) are statistically tied at the top, both above the DeBERTa-v3 detector
 alone ($0.84$); PromptGuard-2 reaches it with the cleanest precision ($1.00$,
 FPR~$0.00$). We make no claim that QFIRE beats PromptGuard-2 on generic
 injection---they are even. QFIRE's distinguishing value is the scope/PHI story
-(\S\ref{sec:healthbench}), where the same PromptGuard-2 recovers only $0.40$
-recall versus $0.83$ for QFIRE's combined scope+PHI chain. The QFIRE
-deterministic hybrid combines complementary detectors; the de-obfuscation pass
-adds recall on obfuscated payloads (\S\ref{sec:deobf}) at negligible latency.
-
-\begin{table}[t]\centering\small
-\input{tables/main.tex}
-\caption{Head-to-head detection on \NumPrompts{} public prompts (attack =
-positive class). Latency is per-prompt wall clock; QFIRE detectors run in
-Rust, PyTorch baselines on CPU.}
-\label{tab:main}
-\end{table}
-
-\begin{table}[t]\centering\small
-\input{tables/accuracy_ci.tex}
-\caption{QFIRE accuracy with 95\% Wilson score confidence intervals.}
-\label{tab:ci}
-\end{table}
+(\S\ref{sec:healthbench}, Figure~\ref{fig:hero}), where the same PromptGuard-2
+recovers only $0.40$ recall versus $0.83$ for QFIRE's combined scope+PHI chain. The
+QFIRE deterministic hybrid combines complementary detectors; the de-obfuscation
+pass adds recall on obfuscated payloads (\S\ref{sec:deobf}) at negligible latency.
 
 \begin{figure}[t]
 \centering
@@ -394,7 +381,7 @@ filters track the diagonal, making the ``fast-but-blind'' gap visual.}
 \end{figure}
 
 \subsection{De-obfuscation ablation}\label{sec:deobf}
-Table~\ref{tab:deobf} measures detection on an obfuscated variant of the attack
+Figure~\ref{fig:deobfladder} shows the trade-off; Table~\ref{tab:deobf} (Appendix~\ref{app:tables}) lists the exact numbers, measured on an obfuscated variant of the attack
 set (payloads re-encoded with Base64/ROT13/leetspeak/homoglyphs) with and without
 the normalization pass. On obfuscated attacks the pass recovers a large fraction
 of evaded detections, lifting recall substantially; the cost is reduced precision
@@ -403,12 +390,6 @@ rate rises on the non-obfuscated corpus of Table~\ref{tab:main}). The practical
 implication is that de-obfuscation is a \emph{targeted} control for channels where
 encoded payloads are a concern, rather than an always-on default---a trade-off we
 report rather than tune away.
-
-\begin{table}[t]\centering\small
-\input{tables/deobf.tex}
-\caption{Effect of the de-obfuscation normalization pass on obfuscated attacks.}
-\label{tab:deobf}
-\end{table}
 
 \begin{figure}[t]
 \centering
@@ -422,7 +403,7 @@ sweet spot.}
 \end{figure}
 
 \subsection{Healthcare / PHI panel}\label{sec:hcpanel}
-Table~\ref{tab:hc} reports the HIPAA/PHI chain on a clinical-adjacent corpus,
+Table~\ref{tab:hc} (Appendix~\ref{app:tables}) reports the HIPAA/PHI chain on a clinical-adjacent corpus,
 where over-blocking legitimate benign clinical queries is itself a failure mode.
 The result is a sharp, actionable warning: a single calibrated scope rule
 (\texttt{hc\_no\_diagnosis}) attains F1~$0.91$, but naively conjoining ten strict
@@ -430,12 +411,6 @@ LLM-judge scope rules drives the false-positive rate to $1.00$---every benign
 clinical prompt trips at least one over-eager judge. Positive-security
 composition therefore demands calibration, or utility collapses.
 
-\begin{table}[t]\centering\small
-\input{tables/healthcare.tex}
-\caption{Healthcare/PHI chain: block rate and false-positive rate on
-clinical-adjacent prompts.}
-\label{tab:hc}
-\end{table}
 
 \subsection{Latency and cost}
 Deterministic detectors (regex, Aho-Corasick, entropy) run in under
@@ -470,29 +445,9 @@ model. To isolate that model's effect we hold everything else fixed---a single
 scope rule (\texttt{hc\_no\_diagnosis}) in a one-rule chain so the model's verdict
 is the only deciding factor, the same $100$-attack/$100$-benign HealthBench
 subset, prompt, seed, and \texttt{--no-cache}---and vary only the Ollama model via
-\texttt{QFIRE\_JUDGE\_MODEL}. Table~\ref{tab:judgeabl} reports two within-family
+\texttt{QFIRE\_JUDGE\_MODEL}. Figure~\ref{fig:judgebars} and Table~\ref{tab:judgeabl} (Appendix~\ref{app:tables}) report two within-family
 points (Llama~3.1~8B vs.\ 3.2) and two cross-family models pulled at evaluation
 time (Gemma~4, Qwen~3.6).
-
-\begin{table}[t]\centering\small
-\begin{tabular}{lrrrrrr}
-\toprule
-Judge model & Prec. & Rec. & F1 & FPR & p50 & abstain \\
-\midrule
-\textbf{Llama 3.1 8B} (base) & 1.00 & 0.99 & \textbf{0.995} & 0.00 & 0.4\,s & 0 \\
-Llama 3.2 & 0.78 & 1.00 & 0.877 & \textbf{0.28} & 0.6\,s & 0 \\
-Gemma 4 & 1.00 & 0.99 & \textbf{0.995} & 0.00 & 7.2\,s & 1 \\
-Qwen 3.6 & 1.00 & 0.13 & 0.230 & 0.00 & 25\,s & \textbf{100} \\
-\bottomrule
-\end{tabular}
-\caption{Judge-model ablation on the single-rule \texttt{judge\_scope} chain
-($100$ attack / $100$ benign). Per-prompt agreement with the Llama~3.1 baseline
-(Cohen's $\kappa$): Llama~3.2 $85.5\%$ ($\kappa{=}0.71$), Gemma~4 $99.0\%$
-($\kappa{=}0.98$), Qwen~3.6 $57.0\%$ ($\kappa{=}0.13$). ``abstain'' counts prompts
-where the model failed to emit a parseable one-line verdict (treated as
-abstain$\rightarrow$allow).}
-\label{tab:judgeabl}
-\end{table}
 
 \noindent\textbf{Finding.} The backend model matters in two ways. (i)
 \emph{Decision quality varies even within a family}: Llama~3.1 and Gemma~4 are
@@ -536,23 +491,6 @@ the ensemble (Llama~3.1 + Gemma~4 + Qwen3~8B) on the same subset and additionall
 compute every $k$-of-$n$ majority from the aligned per-prompt decisions
 (Figure~\ref{fig:frontier}).
 
-\begin{table}[t]\centering\small
-\begin{tabular}{lrrrrr}
-\toprule
-Configuration & Prec. & Rec. & F1 & FPR & p50 (parallel) \\
-\midrule
-Best single (Llama 3.1) & 1.00 & 0.99 & 0.995 & 0.00 & \textbf{0.4\,s} \\
-Llama 3.2 (miscalibrated) & 0.78 & 1.00 & 0.877 & 0.28 & 0.6\,s \\
-Qwen3 8B & 1.00 & 0.90 & 0.947 & 0.00 & 4.0\,s \\
-\textbf{3-model majority vote} & 1.00 & 1.00 & \textbf{1.000} & 0.00 & 7.1\,s \\
-\bottomrule
-\end{tabular}
-\caption{Multi-judge majority vote vs.\ single judges on the
-$100$-attack/$100$-benign subset. The vote reaches a perfect F1, but the best
-single model already attains $0.995$ at $16\times$ lower latency.}
-\label{tab:ensemble}
-\end{table}
-
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.92\linewidth]{figs/ensemble_frontier.png}
@@ -586,7 +524,7 @@ access, re-identification, bulk export, and out-of-scope clinical advice. All
 identifiers are synthetic; the dataset and its card ship in
 \texttt{corpora/healthcare\_bench/}.
 
-Table~\ref{tab:healthbench} reports the central healthcare result. An injection
+Figure~\ref{fig:hero} and Table~\ref{tab:healthbench} (Appendix~\ref{app:tables}) report the central healthcare result. An injection
 classifier alone caps far below QFIRE---and the \emph{strongest} generic detector
 we measured, Meta PromptGuard-2 (F1~$0.86$ on public injection), recovers only
 $0.40$ recall here; protectai DeBERTa $0.57$; QFIRE's classifier-only chain
@@ -601,15 +539,6 @@ combined chain covers re-identification ($0.00\rightarrow1.00$), PHI-exfiltratio
 the quantitative case for the paper's thesis: generic injection detection---even
 SOTA---is necessary but not sufficient in healthcare; scope and PHI controls close
 a gap a classifier structurally cannot.
-
-\begin{table}[t]\centering\small
-\input{tables/healthbench.tex}
-\caption{QFIRE-HealthBench ($1{,}000$ attack / $1{,}000$ benign): a generic
-injection classifier (incl.\ SOTA PromptGuard-2) vs.\ QFIRE's combined scope+PHI
-chain. PromptGuard-2 leads on public injection yet recovers only $0.40$ recall
-here.}
-\label{tab:healthbench}
-\end{table}
 
 \section{Discussion and Limitations}
 
@@ -692,6 +621,85 @@ reproducible toolchain. All artifacts and the \texttt{make paper} pipeline are
 released for independent verification.
 
 \appendix
+\section{Detailed result tables}\label{app:tables}
+The figures in the body carry the narrative; the exact numbers behind them are
+collected here for completeness. Each table is referenced from the corresponding
+results subsection.
+
+\begin{table}[h]\centering\small
+\input{tables/main.tex}
+\caption{Head-to-head detection on \NumPrompts{} public prompts (attack =
+positive class). Latency is per-prompt wall clock; QFIRE detectors run in
+Rust, PyTorch baselines on CPU.}
+\label{tab:main}
+\end{table}
+
+\begin{table}[h]\centering\small
+\input{tables/accuracy_ci.tex}
+\caption{QFIRE accuracy with 95\% Wilson score confidence intervals.}
+\label{tab:ci}
+\end{table}
+
+\begin{table}[h]\centering\small
+\input{tables/deobf.tex}
+\caption{Effect of the de-obfuscation normalization pass on obfuscated attacks.}
+\label{tab:deobf}
+\end{table}
+
+\begin{table}[h]\centering\small
+\input{tables/healthcare.tex}
+\caption{Healthcare/PHI chain: block rate and false-positive rate on
+clinical-adjacent prompts.}
+\label{tab:hc}
+\end{table}
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Judge model & Prec. & Rec. & F1 & FPR & p50 & abstain \\
+\midrule
+\textbf{Llama 3.1 8B} (base) & 1.00 & 0.99 & \textbf{0.995} & 0.00 & 0.4\,s & 0 \\
+Llama 3.2 & 0.78 & 1.00 & 0.877 & \textbf{0.28} & 0.6\,s & 0 \\
+Gemma 4 & 1.00 & 0.99 & \textbf{0.995} & 0.00 & 7.2\,s & 1 \\
+Qwen3 8B & 1.00 & 0.90 & 0.947 & 0.00 & 4.0\,s & 0 \\
+Qwen 3.6 & 1.00 & 0.13 & 0.230 & 0.00 & 25\,s & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\caption{Judge-model ablation on the single-rule \texttt{judge\_scope} chain
+($100$ attack / $100$ benign). Per-prompt agreement with the Llama~3.1 baseline
+(Cohen's $\kappa$): Llama~3.2 $85.5\%$ ($\kappa{=}0.71$), Gemma~4 $99.0\%$
+($\kappa{=}0.98$), Qwen3~8B $94.5\%$ ($\kappa{=}0.96$ est.), Qwen~3.6 $57.0\%$
+($\kappa{=}0.13$). ``abstain'' counts prompts where the model failed to emit a
+parseable one-line verdict (treated as abstain$\rightarrow$allow).}
+\label{tab:judgeabl}
+\end{table}
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lrrrrr}
+\toprule
+Configuration & Prec. & Rec. & F1 & FPR & p50 (parallel) \\
+\midrule
+Best single (Llama 3.1) & 1.00 & 0.99 & 0.995 & 0.00 & \textbf{0.4\,s} \\
+Llama 3.2 (miscalibrated) & 0.78 & 1.00 & 0.877 & 0.28 & 0.6\,s \\
+Qwen3 8B & 1.00 & 0.90 & 0.947 & 0.00 & 4.0\,s \\
+\textbf{3-model majority vote} & 1.00 & 1.00 & \textbf{1.000} & 0.00 & 7.1\,s \\
+\bottomrule
+\end{tabular}
+\caption{Multi-judge majority vote vs.\ single judges on the
+$100$-attack/$100$-benign subset. The vote reaches a perfect F1, but the best
+single model already attains $0.995$ at $16\times$ lower latency.}
+\label{tab:ensemble}
+\end{table}
+
+\begin{table}[h]\centering\small
+\input{tables/healthbench.tex}
+\caption{QFIRE-HealthBench ($1{,}000$ attack / $1{,}000$ benign): a generic
+injection classifier (incl.\ SOTA PromptGuard-2) vs.\ QFIRE's combined scope+PHI
+chain. PromptGuard-2 leads on public injection yet recovers only $0.40$ recall
+here.}
+\label{tab:healthbench}
+\end{table}
+
 \section{Reproducibility}
 Every table is generated from benchmark JSON by \texttt{scripts/make\_tables.py};
 \texttt{make paper} runs the build, fetches the corpus snapshot, executes the
