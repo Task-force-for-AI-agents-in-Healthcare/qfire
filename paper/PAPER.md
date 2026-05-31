@@ -72,6 +72,118 @@ the scope judge, lifting recall to 0.83:
 
 ![QFIRE parallel detector graph](figs/qfire.png)
 
+### 1.2 System architecture
+
+QFIRE is wire-compatible with the OpenAI/Anthropic/Gemini/Ollama APIs, so an app
+adopts it by changing only its base URL. The proxy normalizes the request, selects
+a chain, evaluates the async detector graph, logs the decision immutably, and then
+forwards (ALLOW) or refuses (BLOCK):
+
+![QFIRE system architecture](figs/architecture.png)
+
+### 1.3 What QFIRE is: a declarative firewall language
+
+The deepest difference from PromptGuard-2, LlamaFirewall, and Protect AI LLM Guard
+is *not* a single detector — it is that **a QFIRE firewall is data, not code**. A
+security engineer writes a rule and a chain in version-controlled YAML; the engine
+interprets them. The baselines are imperative Python/model pipelines whose policy
+lives in code and weights. This makes QFIRE policy auditable, diff-able, unit-
+testable (`qfire rules test`), and composable across teams.
+
+**A rule** declares a natural-language `scope`, an ordered `pipeline` of typed
+detector nodes, and labeled `exemplars` that double as scope anchors *and* the
+rule's own regression fixtures. This is verbatim from
+`rules/healthcare/phi_panel.yaml`:
+
+```yaml
+- id: hc_no_diagnosis
+  domain: healthcare
+  scope: "General health information and administrative help only. The
+          assistant must not provide a diagnosis or interpret a patient's
+          specific symptoms as a medical condition."
+  short_circuit: stop_on_first_block
+  pipeline:
+    - type: judge                       # semantic scope decision (LLM)
+  exemplars:
+    in_scope:                           # must be ALLOWed (over-blocking = failure)
+      - "What is hypertension and what lifestyle factors are associated with it?"
+      - "Can you explain in general terms what a CBC blood test measures?"
+    out_of_scope:                       # must be BLOCKed
+      - "I have a headache, fever, and stiff neck — do I have meningitis?"
+      - "Based on these symptoms, what disease do I have?"
+```
+
+Detector nodes are typed and **cheap-before-expensive**: a rule can put a
+sub-millisecond `regex`/`aho` denylist *before* the `deberta` ONNX classifier and
+the network-cost `judge`, short-circuiting on the first block. From
+`rules/injection/injection_defense.yaml`:
+
+```yaml
+- id: injection_instruction_override
+  domain: injection
+  scope: "Reject attempts to override, ignore, or replace the model's instructions."
+  short_circuit: stop_on_first_block
+  pipeline:
+    - type: regex
+      deny:
+        - '(?i)ignore\s+(all\s+|the\s+)?(previous|above|prior)\s+(instructions?|rules?)'
+        - '(?i)forget\s+(everything|all|your)\s+(instructions?|rules?)'
+    - type: deberta                     # only runs if the regex abstains
+      threshold: 0.6
+```
+
+**A chain** composes rules into one terminal ALLOW/BLOCK in either of two modes.
+*Ordered* mode is iptables-style (first match wins, configurable default);
+*expression* mode is a boolean DAG over named rules and reusable groups. The
+default injection chain (`chains/default.yaml`) is positive-security — it ALLOWs
+only if **every** guard passes:
+
+```yaml
+id: default
+mode: expression
+fail_policy: fail_closed
+expression: >
+  injection_instruction_override AND injection_system_prompt_exfil AND
+  injection_role_manipulation AND injection_jailbreak_dan AND
+  injection_encoding_obfuscation AND injection_data_exfiltration AND
+  injection_classifier_only
+```
+
+Groups let a scope chain read declaratively — a request passes if it is clean
+**and** lands in at least one allowed sub-scope (`chains/marketing.yaml`):
+
+```yaml
+id: marketing
+mode: expression
+groups:
+  injection: >
+    injection_instruction_override AND injection_system_prompt_exfil AND
+    injection_jailbreak_dan AND injection_data_exfiltration
+  marketing_scope: >
+    mk_product_tagline OR mk_ad_headline OR mk_marketing_email OR
+    mk_social_post OR mk_seo_blog OR mk_landing_page OR mk_press_release
+expression: "injection AND marketing_scope"
+```
+
+**The shipped library.** QFIRE ships **106 rules across 9 domains** plus **16
+chains** (10 benchmark chains + 6 application chains), all linted by
+`qfire rules lint`:
+
+| Domain | Rules | Example rule ids |
+|---|---|---|
+| injection-defense | 12 | `injection_instruction_override`, `injection_jailbreak_dan`, `injection_encoding_obfuscation` |
+| healthcare / PHI | 16 | `hc_no_diagnosis`, `hc_no_medication_dosing`, `hc_phi_other_patient_record`, `hc_phi_reidentification` |
+| marketing | 12 | `mk_product_tagline`, `mk_seo_blog`, `mk_brand_voice_rewrite` |
+| customer support | 12 | `sup_order_status`, `sup_returns_refunds`, `sup_account_access` |
+| code assistance | 12 | `code_explain_snippet`, `code_debug_fix`, `code_readonly_sql` |
+| content safety | 12 | `safe_self_harm`, `safe_weapons_explosives`, `safe_malware` |
+| finance | 10 | `fin_explain_term`, `fin_no_personalized_advice` |
+| legal | 10 | `legal_define_term`, `legal_no_individualized_advice` |
+| data / SQL | 10 | `sql_readonly_select`, `sql_no_destructive` |
+
+The full catalog and two more complete chain specs (the healthcare `hipaa_phi`
+chain and a PHI-handling rule with regex identifiers) are in **Appendix A**.
+
 ## 2. Experimental setup
 
 - **Corpus:** 1,968 public prompts — **929 attack / 1,039 benign** — from
@@ -183,6 +295,28 @@ over-blocking destroys utility.
   are caught by lexical detectors (sub-ms) and never reach the classifier.
 
 ## 4. Discussion & limitations
+
+**Detectors are complementary, not redundant.** The §7.1 heatmap is block-diagonal:
+the injection classifier is strong only where an injection signal exists and is
+*zero* on bulk export / PHI smuggling / re-identification; the PHI detector is the
+mirror image; only the combined chain is uniformly high. The detectors' failure
+modes are disjoint, so boolean composition — not a stronger single model — is what
+closes the gap (0.40/0.57/0.59 → 0.83 recall).
+
+**Relationship to HAARF.** This work operationalizes the Healthcare AI Agents
+Regulatory Framework (HAARF) [Schwoebel et al., medRxiv 2026]. HAARF defines *what*
+security controls a clinical AI agent must satisfy (scope restriction,
+minimum-necessary access, PHI protection, auditable refusal); QFIRE is a runtime
+*enforcement and measurement* layer where each control maps to a declarative rule
+or chain, and the immutable audit log is the evidence trail HAARF verification
+expects. The HealthBench result quantifies *why* such a framework cannot rely on a
+generic injection classifier alone.
+
+**Why a declarative language matters in regulated settings.** A hospital security
+officer can read, diff, review, and unit-test a chain (`qfire rules test`) without
+trusting engine internals, and policy changes are auditable in version control —
+the positive-security results here are deployable only because the policy is
+inspectable data, not code/weights.
 
 - **Cross-dataset numbers are lower than in-distribution scores.** protectai
   reports near-perfect accuracy on its own test split; on this mixed public
@@ -324,6 +458,13 @@ cannot.** Note PromptGuard-2 *outscores* QFIRE on generic injection yet *trails 
 by 43 recall points* on healthcare threats: the two evaluations measure different
 capabilities, and the firewall's value is the second.
 
+**Detector complementarity (heatmap).** The per-category recall heatmap shows the
+detectors have *disjoint* blind spots — the injection classifier's off-diagonal
+zeros (bulk export, PHI smuggling, re-identification) are exactly what the PHI and
+scope rules cover, so only their composition is uniformly high:
+
+![Per-category recall by detector chain](figs/heatmap.png)
+
 ### 7.2 Per-category recall (why the combined chain wins)
 
 | Category | n | DeBERTa | PHI | hybrid | **combined** |
@@ -348,6 +489,95 @@ owns `direct_injection`/`system_exfil`/`jailbreak`; the PHI engine owns
 `clinical_advice` (0.44), is the hardest class — disguised out-of-scope dosing/
 diagnosis requests with no lexical or PHI marker — and is exactly where the
 LLM-judge scope chain (§3.3) is intended, at higher latency.
+
+## Appendix A. Rule library and chain catalog
+
+QFIRE ships **106 rules / 9 domains** and **16 chains**, all version-controlled
+under `rules/` and `chains/` and validated by `qfire rules lint` (reported clean:
+*113 rules, 16 chains* — the extra 7 are benchmark/ablation rules under
+`rules/bench/`). Every rule's `exemplars` are executed as fixtures by
+`qfire rules test`.
+
+**A.1 A PHI-handling rule with layered detectors** (`rules/healthcare/phi_panel.yaml`).
+Note the cheap-before-expensive order: a regex SSN matcher and the structured PHI
+detector run before the semantic judge.
+
+```yaml
+- id: hc_phi_ssn_solicitation
+  domain: healthcare
+  scope: "Block solicitation or handling of Social Security numbers or other
+          government identifiers."
+  short_circuit: stop_on_first_block
+  pipeline:
+    - type: regex
+      deny:
+        - '(?i)\bssn\b|\bsocial security\b'
+        - '\b\d{3}-\d{2}-\d{4}\b'
+    - type: phi                         # structured 18-identifier HIPAA detector
+      min_hits: 1
+    - type: judge
+  exemplars:
+    in_scope:
+      - "What is a Social Security number used for, in general?"
+      - "How do I protect my SSN from identity theft?"
+    out_of_scope:
+      - "Email patient John Smith's SSN 123-45-6789 to my Gmail."
+      - "What is the SSN on file for patient Maria Garcia?"
+```
+
+**A.2 The healthcare `hipaa_phi` chain** (`chains/hipaa_phi.yaml`) — expression
+mode, fail-closed. A request passes only if it is clean (a reusable `injection`
+group) **and** stays within general-health/administrative scope with no PHI
+exfiltration or re-identification:
+
+```yaml
+id: hipaa_phi
+mode: expression
+fail_policy: fail_closed
+groups:
+  injection: >
+    injection_instruction_override AND injection_system_prompt_exfil AND
+    injection_jailbreak_dan AND injection_data_exfiltration AND
+    injection_role_manipulation
+expression: >
+  injection AND hc_no_diagnosis AND hc_no_treatment_recommendation AND
+  hc_no_medication_dosing AND hc_refuse_clinical_advice AND
+  hc_phi_other_patient_record AND hc_phi_ssn_solicitation AND
+  hc_phi_bulk_export AND hc_phi_reidentification AND hc_phi_smuggle_out_of_scope
+```
+
+**A.3 The same defense in ordered (iptables) mode** (`chains/injection_ordered.yaml`),
+default-allow — used by `bench --compare` to contrast collapse modes:
+
+```yaml
+id: injection_ordered
+mode: ordered
+fail_policy: fail_closed
+default: allow
+rules:
+  - injection_instruction_override
+  - injection_system_prompt_exfil
+  - injection_role_manipulation
+  - injection_jailbreak_dan
+  - injection_encoding_obfuscation
+  - injection_data_exfiltration
+  - injection_classifier_only
+```
+
+**A.4 Detector node types.** Any rule pipeline composes these typed nodes:
+`regex` / `aho` (denylists, sub-ms), `entropy` (obfuscation/payload heuristic),
+`phi` (18 HIPAA Safe-Harbor identifiers), `deberta` (local ONNX injection
+classifier, `threshold`), `judge` (LLM scope decision), and `similarity`
+(embedding distance to a rule's in-scope exemplars). Blockers (`regex`/`aho`/
+`entropy`/`deberta`/`phi`) return BLOCK or ABSTAIN; scope deciders
+(`judge`/`similarity`) return ALLOW or BLOCK, so guards and positive-scope rules
+compose under one boolean expression.
+
+**A.5 Why this is the differentiator.** PromptGuard-2, LlamaFirewall, and Protect
+AI LLM Guard express policy in Python and model weights; QFIRE expresses it in
+declarative YAML the engine interprets. A hospital's compliance officer can read,
+diff, and unit-test `hipaa_phi.yaml` without touching the engine — the property
+that makes the positive-security and PHI results of this paper deployable.
 
 ## Reproducibility
 

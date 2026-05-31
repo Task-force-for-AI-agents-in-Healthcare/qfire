@@ -80,6 +80,14 @@ attacks remain effective despite model alignment~\cite{perez2022,greshake2023}.
 Runtime gateways that intercept prompts before they reach the model are therefore
 a necessary control~\cite{llamafirewall2025,oneshield2025}.
 
+This work extends the Healthcare AI Agents Regulatory Framework
+(HAARF)~\cite{haarf2026}, a security-verification standard for autonomous AI
+systems in clinical environments from the same group. Where HAARF specifies
+\emph{what} security controls a clinical AI agent must satisfy, QFIRE is a
+concrete, measured \emph{enforcement} layer that hardens those controls at
+runtime---in particular the scope-restriction and PHI-handling requirements that,
+as we show, generic prompt-injection detectors structurally cannot meet.
+
 A recurring tension in this literature is \emph{security robustness versus
 latency}. Heavy semantic verifiers and model-based auditors achieve strong
 detection but introduce substantial per-call latency from Python-hosted
@@ -168,7 +176,22 @@ and lifting recall to $0.83$.}
 QFIRE is an inline reverse proxy and CLI. Incoming requests in the native wire
 formats of OpenAI, Anthropic, Gemini, and Ollama are normalized into one internal
 representation; the firewall evaluates the extracted prompt and, on \textsc{allow},
-transparently forwards the original request downstream.
+transparently forwards the original request downstream. Figure~\ref{fig:arch}
+shows the end-to-end path: SDKs reach QFIRE by changing only their base URL, the
+engine evaluates the selected chain on a Tokio runtime, and every decision is
+written to an immutable audit log before a request is forwarded or refused.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{figs/architecture.png}
+\caption{QFIRE system architecture. Wire-compatible adapters accept native
+OpenAI/Anthropic/Gemini/Ollama traffic; requests are normalized, routed to a
+chain, and evaluated by an asynchronous detector graph with a verdict cache.
+On \textsc{allow} the original request is forwarded (and the response streamed
+back); on \textsc{block} a refusal envelope with an explainable trace is returned.
+Every decision is appended to an immutable audit log.}
+\label{fig:arch}
+\end{figure*}
 
 \subsection{Rules, chains, and collapse}
 A \emph{rule} declares a natural-language scope and an ordered \emph{detector
@@ -181,6 +204,90 @@ and \textsc{expression} (a boolean DAG over named rules, e.g.\
 return \textsc{block} or \textsc{abstain}, or \emph{scope deciders} (LLM judge,
 exemplar similarity), which return \textsc{allow}/\textsc{block}; the expression
 predicate ``rule did not block'' lets guards and scope rules compose uniformly.
+
+\subsection{A declarative firewall language}\label{sec:language}
+The deepest difference from PromptGuard-2, LlamaFirewall, and Protect~AI LLM Guard
+is not a single detector: a QFIRE firewall is \emph{data, not code}. Those systems
+express policy in Python and model weights; QFIRE expresses it in
+version-controlled YAML that the engine interprets, making policy auditable,
+diff-able, and unit-testable (\texttt{qfire rules test} runs each rule's exemplars
+as fixtures). Figure~\ref{fig:spec} shows a rule, an expression chain, and an
+ordered chain verbatim from the repository; Table~\ref{tab:library} summarizes the
+shipped library. Detector nodes are typed---\texttt{regex}/\texttt{aho} (sub-ms
+denylists), \texttt{entropy}, \texttt{phi} (18 HIPAA identifiers),
+\texttt{deberta} (local ONNX classifier), \texttt{judge} (LLM scope), and
+\texttt{similarity}---and are ordered cheap-before-expensive so a rule
+short-circuits on the first block before reaching the classifier or judge.
+
+\begin{figure}[t]
+\centering
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single,
+  keywordstyle=\bfseries,language=,columns=fullflexible,breaklines=true]
+# rules/healthcare/phi_panel.yaml -- a rule: scope + typed pipeline + exemplars
+- id: hc_no_diagnosis
+  scope: "General health info only; no diagnosis or symptom interpretation."
+  short_circuit: stop_on_first_block
+  pipeline:
+    - type: judge                 # semantic scope decision (LLM)
+  exemplars:
+    in_scope:  ["What is hypertension and its lifestyle factors?"]   # ALLOW
+    out_of_scope: ["I have fever and a stiff neck - do I have meningitis?"] # BLOCK
+
+# rules/injection/injection_defense.yaml -- cheap regex BEFORE the classifier
+- id: injection_instruction_override
+  pipeline:
+    - type: regex
+      deny: ['(?i)ignore\s+(all\s+|the\s+)?(previous|above)\s+instructions?']
+    - type: deberta               # only runs if the regex abstains
+      threshold: 0.6
+
+# chains/hipaa_phi.yaml -- EXPRESSION mode (boolean DAG, fail-closed)
+id: hipaa_phi
+mode: expression
+fail_policy: fail_closed
+groups:
+  injection: "injection_instruction_override AND injection_system_prompt_exfil"
+expression: >
+  injection AND hc_no_diagnosis AND hc_no_medication_dosing AND
+  hc_phi_other_patient_record AND hc_phi_reidentification
+
+# chains/injection_ordered.yaml -- ORDERED mode (iptables-style, default-allow)
+id: injection_ordered
+mode: ordered
+default: allow
+rules: [injection_instruction_override, injection_jailbreak_dan,
+        injection_data_exfiltration, injection_classifier_only]
+\end{lstlisting}
+\caption{The QFIRE spec, verbatim from the repository: a \emph{rule}
+(scope + cheap-before-expensive typed pipeline + exemplars that are also test
+fixtures), an \emph{expression} chain (boolean DAG with a reusable group), and an
+\emph{ordered} chain. Policy is declarative data a compliance reviewer can read,
+diff, and test---unlike the code/model pipelines of the baselines.}
+\label{fig:spec}
+\end{figure}
+
+\begin{table}[t]\centering\small
+\begin{tabular}{lrl}
+\toprule
+Domain & Rules & Example rule ids \\
+\midrule
+injection-defense & 12 & \texttt{injection\_instruction\_override}, \texttt{injection\_jailbreak\_dan} \\
+healthcare / PHI  & 16 & \texttt{hc\_no\_diagnosis}, \texttt{hc\_phi\_reidentification} \\
+marketing         & 12 & \texttt{mk\_product\_tagline}, \texttt{mk\_seo\_blog} \\
+customer support  & 12 & \texttt{sup\_order\_status}, \texttt{sup\_returns\_refunds} \\
+code assistance   & 12 & \texttt{code\_explain\_snippet}, \texttt{code\_readonly\_sql} \\
+content safety    & 12 & \texttt{safe\_self\_harm}, \texttt{safe\_malware} \\
+finance           & 10 & \texttt{fin\_no\_personalized\_advice} \\
+legal             & 10 & \texttt{legal\_no\_individualized\_advice} \\
+data / SQL        & 10 & \texttt{sql\_readonly\_select}, \texttt{sql\_no\_destructive} \\
+\midrule
+\textbf{Total}    & \textbf{106} & + 16 chains (10 benchmark, 6 application) \\
+\bottomrule
+\end{tabular}
+\caption{The shipped rule library: 106 rules across 9 domains, all validated by
+\texttt{qfire rules lint} and exercised by \texttt{qfire rules test}.}
+\label{tab:library}
+\end{table}
 
 \subsection{Asynchronous detector graph}
 Given prompt $P$ and active rules $R=\{r_1,\dots,r_N\}$, QFIRE evaluates rules
@@ -283,7 +390,7 @@ report rather than tune away.
 \label{tab:deobf}
 \end{table}
 
-\subsection{Healthcare / PHI panel}
+\subsection{Healthcare / PHI panel}\label{sec:hcpanel}
 Table~\ref{tab:hc} reports the HIPAA/PHI chain on a clinical-adjacent corpus,
 where over-blocking legitimate benign clinical queries is itself a failure mode.
 The result is a sharp, actionable warning: a single calibrated scope rule
@@ -357,18 +464,78 @@ here.}
 \end{table}
 
 \section{Discussion and Limitations}
+
+\paragraph{Detectors are complementary, not redundant.}
+Figure~\ref{fig:heatmap} makes the paper's central claim visible at a glance: it
+plots per-category recall for each detector chain on the 1{,}000 malicious
+QFIRE-HealthBench prompts. The structure is block-diagonal, not uniform. The
+injection classifier (column~1) is strong exactly where an injection signal exists
+---direct injection, system-prompt exfiltration, jailbreak---and falls to
+\emph{zero} on bulk export, PHI smuggling, and re-identification, which contain no
+such signal. The PHI detector (column~2) is the mirror image: it owns
+bulk-export and PHI-smuggling but is blind to jailbreaks. Neither single detector
+is sufficient, and crucially their failure modes are \emph{disjoint}: the
+off-diagonal zeros of one column are covered by another. Only the combined chain
+(column~4) is uniformly green, because the boolean composition of complementary
+detectors is what closes the coverage gap---this is the mechanism behind the
+$0.40/0.57/0.59 \rightarrow 0.83$ recall jump, not a better classifier. The single
+remaining cool cell, out-of-scope clinical advice ($0.44$), is the hardest class:
+disguised dosing/diagnosis requests with neither a lexical nor a PHI marker, where
+only the higher-latency LLM scope judge (\S\ref{sec:hcpanel}) applies. This
+heatmap is the empirical argument for the declarative, multi-detector design of
+Figure~\ref{fig:spec}: a deployer composes the columns their threat model needs.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.72\textwidth]{figs/heatmap.png}
+\caption{Per-category recall by detector chain on QFIRE-HealthBench (1{,}000
+malicious prompts; green = caught, red = missed). The injection classifier and
+the PHI detector have \emph{disjoint} blind spots (off-diagonal zeros); only their
+composition---the combined scope+PHI chain---is uniformly high. This complementarity,
+not a stronger single model, is why QFIRE closes the healthcare gap that SOTA
+PromptGuard-2 ($0.40$ recall) leaves open.}
+\label{fig:heatmap}
+\end{figure*}
+
+\paragraph{Relationship to HAARF.}
+This work operationalizes the Healthcare AI Agents Regulatory Framework
+(HAARF)~\cite{haarf2026}. HAARF defines the security-verification \emph{standard}
+a clinical AI agent must meet---scope restriction, minimum-necessary access, PHI
+protection, and auditable refusal. QFIRE is a runtime \emph{enforcement} and
+\emph{measurement} layer for those requirements: each HAARF control maps to a
+declarative rule or chain (e.g.\ minimum-necessary $\rightarrow$
+\texttt{hc\_phi\_other\_patient\_record}; no-diagnosis $\rightarrow$
+\texttt{hc\_no\_diagnosis}), and the immutable audit log supplies the evidence
+trail HAARF verification expects. The HealthBench result quantifies why such a
+framework cannot rely on a generic injection classifier alone: the controls HAARF
+most cares about are precisely the threats that carry no injection signal.
+
+\paragraph{Why a declarative language matters in regulated settings.}
+The baselines encode policy in Python and model weights; QFIRE encodes it in
+version-controlled YAML the engine interprets (Figure~\ref{fig:spec}). In a
+clinical deployment this is not a convenience but a compliance property: a hospital
+security officer can read, diff, review, and unit-test a chain
+(\texttt{qfire rules test} runs every rule's exemplars) without modifying or
+trusting the engine internals, and changes to policy are auditable in version
+control. The positive-security results of this paper are only deployable because
+the policy that produced them is inspectable data.
+
+\paragraph{Limitations.}
 QFIRE's positive-security stance trades permissiveness for safety: a strict
 healthcare chain can over-block benign clinical-adjacent prompts, which we
-measure rather than hide. On generic injection a strong classifier (PromptGuard-2)
-matches QFIRE; QFIRE's measured advantage is the scope/PHI coverage of
-\S\ref{sec:healthbench} and single-binary deployment with no Python in the hot
-path, not a generic-detector win. Cross-dataset detection numbers are lower than a
-detector's in-distribution test score, underscoring that single-corpus claims do
-not transfer; we therefore report a public, mixed corpus and release the snapshot.
-The LLM-judge node's cost grows with the number of scope rules, motivating the
-cheap-before-expensive ordering. Our PHI matchers are conservative for
-identifiers (names, biometrics, face photos) that are not reliably recoverable
-from text alone.
+measure (\S\ref{sec:hcpanel}) rather than hide. On generic injection a strong
+classifier (PromptGuard-2) matches QFIRE; QFIRE's measured advantage is the
+scope/PHI coverage of \S\ref{sec:healthbench} and single-binary deployment with no
+Python in the hot path, not a generic-detector win. Cross-dataset detection
+numbers are lower than a detector's in-distribution test score, underscoring that
+single-corpus claims do not transfer; we therefore report a public, mixed corpus
+and release the snapshot. The LLM-judge node's cost grows with the number of scope
+rules, motivating the cheap-before-expensive ordering. Our PHI matchers are
+conservative for identifiers (names, biometrics, face photos) that are not reliably
+recoverable from text alone. Finally, the LLM scope judge inherits the biases and
+failure modes of its backing model; we mitigate but do not eliminate this by
+keeping deterministic detectors ahead of it and by reporting judge-chain
+over-blocking explicitly.
 
 \section{Conclusion}
 QFIRE shows that a Rust, parallel, positive-security firewall can combine

@@ -78,6 +78,16 @@ def strip_comments(text):
     return re.sub(r"(?<!\\)%.*", "", text)
 
 
+def strip_verbatim(text):
+    # verbatim/lstlisting blocks contain literal _, {, } that are NOT TeX errors;
+    # blank them out (preserving line count) before the underscore/brace checks.
+    def blank(m):
+        return "\n".join("" for _ in m.group(0).split("\n"))
+    text = re.sub(r"\\begin\{lstlisting\}.*?\\end\{lstlisting\}", blank, text, flags=re.S)
+    text = re.sub(r"\\begin\{verbatim\}.*?\\end\{verbatim\}", blank, text, flags=re.S)
+    return text
+
+
 def check_unescaped_underscores(text):
     """The exact error class that broke Overleaf: a literal `_` in normal text
     mode (i.e. not inside \\texttt{...}, \\url{...}, \\verb, or $...$ math)."""
@@ -162,7 +172,7 @@ def lint():
         return 1
     raw = read(main_path)
     expanded, missing = expand_inputs(raw, PAPER_DIR)
-    text = strip_comments(expanded)
+    text = strip_verbatim(strip_comments(expanded))
 
     n = 0
     print("== static LaTeX lint (no engine needed) ==")

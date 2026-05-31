@@ -1,0 +1,44 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'15px','primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','lineColor':'#475569'}}}%%
+flowchart LR
+    subgraph CLIENT["Client app / SDK"]
+      SDK["OpenAI / Anthropic /<br/>Gemini / Ollama SDK<br/>(only base-URL changes)"]
+    end
+
+    subgraph QFIRE["QFIRE proxy daemon (Rust, Tokio + axum)"]
+      direction TB
+      IN["Wire adapters<br/>/v1/chat, /v1/messages,<br/>:generateContent, /api/chat"] --> NORM["Normalize to<br/>internal request"]
+      NORM --> SEL["Chain selector<br/>(route / header / API-key)"]
+      SEL --> ENG["Engine: evaluate chain"]
+
+      subgraph ENG2["Async detector graph (bounded concurrency)"]
+        direction TB
+        R1["rule 1 pipeline"]
+        R2["rule 2 pipeline"]
+        R3["rule N pipeline"]
+        CACHE[("verdict cache<br/>sha256(P)+node")]
+      end
+      ENG --> ENG2
+      ENG2 --> COL["Collapse<br/>ordered / boolean DAG"]
+      COL --> DEC{"ALLOW?"}
+      DEC -- "BLOCK" --> REF["Refusal envelope<br/>+ explainable trace"]
+      DEC -- "ALLOW" --> FWD["Forward original request"]
+      COL --> AUD[("immutable audit log<br/>prompt hash, verdicts,<br/>tokens, cost, latency")]
+    end
+
+    subgraph PROV["Downstream providers"]
+      OAI["OpenAI"]
+      ANT["Anthropic"]
+      GEM["Gemini"]
+      OLL["Ollama (local, \$0)"]
+    end
+
+    SDK -->|"HTTP"| IN
+    FWD --> OAI & ANT & GEM & OLL
+    OAI & ANT & GEM & OLL -->|"stream response"| SDK
+    REF -->|"refusal"| SDK
+
+    classDef block fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
+    classDef allow fill:#dcfce7,stroke:#16a34a,color:#14532d;
+    classDef store fill:#f1f5f9,stroke:#64748b,color:#334155;
+    class REF block; class FWD allow;
+    class CACHE,AUD store;
