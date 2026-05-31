@@ -551,6 +551,57 @@ premium set by the slowest member. We recommend a single validated judge for
 latency-critical inline use, and majority voting where judge calibration is
 uncertain or must be defended in audit.
 
+\subsection{Policy-verbosity ablation: does a wordier scope help?}\label{sec:verbabl}
+A scope policy can be written tersely (\texttt{"Marketing content only."}) or as a
+long structured firewall (role, allowed/forbidden lists, adversarial-defense
+clause, refusal protocol; ${\sim}230$ words). We hold QFIRE's judge scaffold and
+the \texttt{IN/OUT SCOPE} contract fixed and vary \emph{only} the scope text across
+four verbosity rungs (T0 terse, T1 one sentence, T2 structured paragraph, T3 full
+firewall) in each of four domains (marketing, healthcare, code, SQL). Each of the
+$16$ conditions is a judge-only single-rule chain---no lexical node, so the scope
+wording is the sole deciding factor---evaluated with \texttt{--no-cache} (the
+verdict cache key omits scope) and seed $42$ on the same $929$ public injection
+attacks (out-of-scope $\rightarrow$ expected \textsc{block}) and $50$ generated
+in-domain benign requests per domain (in-scope $\rightarrow$ expected
+\textsc{allow}); judge model Llama~3.2. We report Youden's
+$J = \mathrm{TPR} + \mathrm{TNR} - 1$ and paired bootstrap CIs on $\Delta J$
+between adjacent rungs (same prompts $\rightarrow$ paired).
+
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{figs/policy_length.png}
+\caption{Policy-verbosity ablation ($16$ conditions, Llama~3.2 judge). (a) Youden's
+$J$ vs.\ rung per domain (thin) and pooled (bold): the curve is non-monotone---the
+one-sentence rung dips, the structured paragraph peaks, the full firewall regresses.
+(b) Pooled true-positive rate (attacks blocked) is essentially flat at
+$0.98$ across all rungs, while the true-negative rate (legitimate requests passed)
+carries all the variation. Policy verbosity barely affects injection-blocking; its
+effect is on over-refusal.}
+\label{fig:verbabl}
+\end{figure}
+
+\noindent\textbf{Finding.} \emph{Policy length is nearly irrelevant for blocking
+injections, and the verbosity that matters trades off against over-refusal
+non-monotonically.} Across all $16$ conditions, attack-block rate stays in
+$0.97$--$0.99$ (Fig.~\ref{fig:verbabl}b)---the firewall scaffold and judge contract
+do that work; scope wording adds little. The differentiator is the true-negative
+rate (legitimate-request pass rate), and the pooled $J$ curve is non-monotone:
+$0.80$ (T0) $\rightarrow 0.62$ (T1) $\rightarrow 0.85$ (T2) $\rightarrow 0.76$ (T3).
+Paired bootstrap confirms every step (CIs exclude $0$): terse$\rightarrow$sentence
+$\Delta J = -0.18$ $[-0.23, -0.13]$, sentence$\rightarrow$paragraph
+$+0.23$ $[+0.17, +0.29]$, paragraph$\rightarrow$firewall $-0.09$ $[-0.14, -0.05]$.
+The one-sentence rung (T1) is a trap: ``do X only; refuse anything else'' primes the
+judge toward refusal without enumerating what is allowed---healthcare T1 collapses
+to a $0.02$ pass rate, refusing $98\%$ of legitimate scheduling requests. The
+structured paragraph (T2) with explicit allowed \emph{and} forbidden lists is the
+best or tied-best rung in every domain; the maximal firewall (T3) regresses from it,
+its aggressive ``respond only with the refusal'' framing making the judge
+trigger-happy at no gain in already-saturated TPR. The practical guidance:
+enumerate both what is allowed and what is forbidden in a short paragraph---neither
+a bald one-liner nor a maximal defensive wall. (Caveats: a single $3$B judge; a
+larger model may follow long policies more faithfully. The model-generated benign
+sets add noise to absolute per-domain TNR but cancel in the paired $\Delta J$
+contrasts that carry the finding.)
+
 \section{QFIRE-HealthBench}\label{sec:healthbench}
 QFIRE-HealthBench is a healthcare-specific prompt-injection dataset: $1{,}000$
 benign clinical-adjacent prompts and $1{,}000$ malicious prompts built with real

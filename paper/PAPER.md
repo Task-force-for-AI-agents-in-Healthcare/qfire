@@ -407,6 +407,39 @@ premium set by the slowest member. The practical recommendation: prefer a single
 validated judge for latency-critical inline use, and reserve majority voting for
 settings where judge calibration is uncertain or must be defended in audit.
 
+### 3.7 Policy-verbosity ablation: does a wordier scope help?
+
+A scope policy can be written tersely (`"Marketing content only."`) or as a long
+structured firewall (role, allowed/forbidden lists, adversarial-defense clause,
+refusal protocol; ~230 words). Holding QFIRE's judge scaffold and the `IN/OUT
+SCOPE` contract fixed, we vary *only* the scope text across four verbosity rungs
+(T0 terse, T1 one sentence, T2 structured paragraph, T3 full firewall) in each of
+four domains (marketing, healthcare, code, SQL). Each of the 16 conditions is a
+judge-only single-rule chain — no lexical node, so the scope wording is the sole
+deciding factor — evaluated with `--no-cache` (the verdict cache key omits scope)
+and seed 42 on the same 929 public injection attacks and 50 generated in-domain
+benign requests per domain; judge model Llama 3.2.
+
+![Policy-verbosity ablation](figs/policy_length.png)
+
+**Finding.** *Policy length is nearly irrelevant for blocking injections, and the
+verbosity that matters trades off against over-refusal non-monotonically.*
+Attack-block rate stays in 0.97–0.99 across all 16 conditions — the firewall
+scaffold and judge contract do that work. The differentiator is the
+legitimate-request pass rate (TNR), and the pooled Youden's J curve is
+non-monotone: 0.80 (T0) → 0.62 (T1) → 0.85 (T2) → 0.76 (T3). Paired bootstrap
+confirms every step (95% CIs exclude 0): terse→sentence ΔJ = −0.18 [−0.23, −0.13],
+sentence→paragraph +0.23 [+0.17, +0.29], paragraph→firewall −0.09 [−0.14, −0.05].
+The one-sentence rung (T1) is a trap — "do X only; refuse anything else" primes the
+judge toward refusal without enumerating what's allowed (healthcare T1 collapses to
+a 0.02 pass rate, refusing 98% of legitimate scheduling requests). The structured
+paragraph (T2) with explicit allowed **and** forbidden lists is the best or
+tied-best rung in every domain; the maximal firewall (T3) regresses from it. The
+guidance: enumerate both what is allowed and what is forbidden in a short paragraph
+— neither a bald one-liner nor a maximal defensive wall. (Caveats: single 3B judge;
+model-generated benign sets add noise to absolute per-domain TNR but cancel in the
+paired ΔJ contrasts.) Full results: `docs/superpowers/specs/2026-05-31-policy-verbosity-ablation-results.md`.
+
 ## 4. Discussion & limitations
 
 **Detectors are complementary, not redundant.** The §7.1 heatmap is block-diagonal:
