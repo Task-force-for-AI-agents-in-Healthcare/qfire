@@ -294,6 +294,56 @@ over-blocking destroys utility.
   the hybrid qualitatively: short-circuiting means most overtly-malicious prompts
   are caught by lexical detectors (sub-ms) and never reach the classifier.
 
+### 3.5 Judge-model ablation: does the backend model matter?
+
+The LLM scope-judge node delegates the in-scope/out-of-scope decision to a backing
+model. Does swapping that model change firewall behavior? We hold everything else
+fixed — the same single scope rule (`hc_no_diagnosis`, isolated in a one-rule
+`judge_scope` chain so the model's verdict is the only deciding factor), the same
+100-attack / 100-benign HealthBench subset, the same prompt, seed 42, `--no-cache`
+— and vary only the Ollama model via `QFIRE_JUDGE_MODEL`. We test two
+within-family points (Llama 3.1 8B vs 3.2) and two cross-family models pulled at
+evaluation time (Gemma 4, Qwen 3.6).
+
+| Judge model | Prec. | Rec. | F1 | FPR | p50 | p95 | abstain |
+|---|---|---|---|---|---|---|---|
+| **Llama 3.1 8B** (baseline) | 1.00 | 0.99 | **0.995** | 0.00 | 0.40 s | 0.93 s | 0 |
+| Llama 3.2 | 0.78 | 1.00 | 0.877 | **0.28** | 0.57 s | 0.86 s | 0 |
+| Gemma 4 | 1.00 | 0.99 | **0.995** | 0.00 | 7.2 s | 16 s | 1 |
+| Qwen 3.6 | 1.00 | 0.13 | 0.230 | 0.00 | 25 s | 40 s | **100** |
+
+Per-prompt agreement with the Llama 3.1 baseline (Cohen's κ): Llama 3.2 85.5%
+(κ=0.71), Gemma 4 99.0% (κ=0.98), Qwen 3.6 57.0% (κ=0.13).
+
+**Finding.** The backend model matters, and in two distinct ways:
+
+1. **Decision quality varies even within a family.** Llama 3.1 and Gemma 4 are
+   excellent, near-interchangeable scope judges (F1 0.995, FPR 0.00, κ=0.98 between
+   them). But Llama 3.2 — same family, newer/smaller — is markedly more
+   trigger-happy: it catches every attack (R=1.0) but over-blocks **28%** of benign
+   clinical prompts (FPR 0.28, κ only 0.71). A model swap is therefore *not* a
+   safe drop-in: it can silently shift the precision/recall operating point.
+
+2. **Verbose reasoning models are unsuitable as low-latency single-line judges.**
+   Qwen 3.6 judges correctly when given room (it returns the right verdict on
+   isolated prompts), but as a firewall judge it **abstained on 100/200 prompts**
+   and ran at **25–40 s/call** — 60× the Llama latency. On the longer adversarial
+   garak/PyRIT prompts it exhausts its generation budget on internal reasoning and
+   never emits the required one-line `OUT OF SCOPE` verdict, which the firewall
+   conservatively treats as abstain→allow (collapsing recall to 0.13). This is a
+   genuine deployment property, not a defect we tuned away: the judge node needs a
+   model that answers in the requested format under a tight token budget, and a
+   chain-of-thought model is the wrong tool even when its underlying judgment is
+   sound.
+
+**Takeaway.** QFIRE's deterministic detectors (regex/Aho/entropy/DeBERTa) are
+model-independent and reproducible, but any chain containing a `judge` node
+inherits the backing model's calibration and output-format behavior. We therefore
+record the judge model in every run manifest and node version string
+(`judge/<provider>:<model>`), and recommend validating the precision/recall and
+abstain rate of a candidate judge model on a labeled subset before deployment —
+exactly the procedure this ablation demonstrates.
+
 ## 4. Discussion & limitations
 
 **Detectors are complementary, not redundant.** The §7.1 heatmap is block-diagonal:

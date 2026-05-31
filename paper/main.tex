@@ -428,6 +428,56 @@ the PyTorch reference, while the latency shows Rust ONNX is \emph{not} faster th
 PyTorch on this CPU. We thus make no raw-speed claim; the Rust advantage is
 single-binary, no-Python, in-process deployment.
 
+\subsection{Judge-model ablation: does the backend model matter?}\label{sec:judgeabl}
+The LLM scope-judge node delegates the in/out-of-scope decision to a backing
+model. To isolate that model's effect we hold everything else fixed---a single
+scope rule (\texttt{hc\_no\_diagnosis}) in a one-rule chain so the model's verdict
+is the only deciding factor, the same $100$-attack/$100$-benign HealthBench
+subset, prompt, seed, and \texttt{--no-cache}---and vary only the Ollama model via
+\texttt{QFIRE\_JUDGE\_MODEL}. Table~\ref{tab:judgeabl} reports two within-family
+points (Llama~3.1~8B vs.\ 3.2) and two cross-family models pulled at evaluation
+time (Gemma~4, Qwen~3.6).
+
+\begin{table}[t]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Judge model & Prec. & Rec. & F1 & FPR & p50 & abstain \\
+\midrule
+\textbf{Llama 3.1 8B} (base) & 1.00 & 0.99 & \textbf{0.995} & 0.00 & 0.4\,s & 0 \\
+Llama 3.2 & 0.78 & 1.00 & 0.877 & \textbf{0.28} & 0.6\,s & 0 \\
+Gemma 4 & 1.00 & 0.99 & \textbf{0.995} & 0.00 & 7.2\,s & 1 \\
+Qwen 3.6 & 1.00 & 0.13 & 0.230 & 0.00 & 25\,s & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\caption{Judge-model ablation on the single-rule \texttt{judge\_scope} chain
+($100$ attack / $100$ benign). Per-prompt agreement with the Llama~3.1 baseline
+(Cohen's $\kappa$): Llama~3.2 $85.5\%$ ($\kappa{=}0.71$), Gemma~4 $99.0\%$
+($\kappa{=}0.98$), Qwen~3.6 $57.0\%$ ($\kappa{=}0.13$). ``abstain'' counts prompts
+where the model failed to emit a parseable one-line verdict (treated as
+abstain$\rightarrow$allow).}
+\label{tab:judgeabl}
+\end{table}
+
+\noindent\textbf{Finding.} The backend model matters in two ways. (i)
+\emph{Decision quality varies even within a family}: Llama~3.1 and Gemma~4 are
+excellent, near-interchangeable judges (F1~$0.995$, FPR~$0.00$, $\kappa{=}0.98$
+between them), but Llama~3.2---same family, newer/smaller---over-blocks $28\%$ of
+benign clinical prompts (FPR~$0.28$, $\kappa$ only $0.71$); a swap silently shifts
+the precision/recall operating point. (ii) \emph{Verbose reasoning models are
+unsuitable as low-latency single-line judges}: Qwen~3.6 judges correctly on
+isolated prompts but, as a firewall judge, abstained on $100/200$ prompts at
+$25$--$40$\,s/call ($60\times$ Llama). On longer adversarial prompts it exhausts
+its generation budget on internal reasoning and never emits the required
+\texttt{OUT OF SCOPE} line, which the firewall conservatively treats as
+abstain$\rightarrow$allow (recall collapses to $0.13$). This is a genuine
+deployment property: a \texttt{judge} node needs a model that answers in the
+requested format under a tight token budget. QFIRE's deterministic detectors are
+model-independent, but any chain with a \texttt{judge} node inherits the backing
+model's calibration and format behavior; we therefore record the judge model in
+every run manifest and node version (\texttt{judge/<provider>:<model>}) and
+recommend validating a candidate judge's precision/recall and abstain rate on a
+labeled subset before deployment---the procedure this ablation demonstrates.
+
 \section{QFIRE-HealthBench}\label{sec:healthbench}
 QFIRE-HealthBench is a healthcare-specific prompt-injection dataset: $1{,}000$
 benign clinical-adjacent prompts and $1{,}000$ malicious prompts built with real
