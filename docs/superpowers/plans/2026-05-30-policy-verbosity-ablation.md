@@ -1098,7 +1098,7 @@ def main():
             f"| {m['f1']:.3f} | {m['youden_j']:+.3f} |"
         )
 
-    lines += ["", "## Paired ΔJ between adjacent rungs (bootstrap 95% CI, B=%d)" % N_BOOT, "",
+    lines += ["", f"## Paired ΔJ between adjacent rungs (bootstrap 95% CI, B={N_BOOT})", "",
               "| scope | contrast | ΔJ | 95% CI | P(ΔJ>0) |",
               "|---|---|---|---|---|"]
     contrasts = [("t0", "t1"), ("t1", "t2"), ("t2", "t3")]
