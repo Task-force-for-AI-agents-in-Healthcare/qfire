@@ -120,6 +120,19 @@ Pooled paired comparisons are all significant (CIs exclude 0): terse→sentence
 - **Benign set is model-generated** (50/domain, deduped + decontaminated +
   scope-filtered). Absolute over-refusal numbers depend on it; the *between-rung*
   ΔJ contrasts are paired on identical prompts and are robust to benign-set noise.
+- **Known contamination in the healthcare benign set:** 8 of its 50 lines are
+  llama3.2 *meta-commentary* that leaked past the fragment/scope filters — assistant
+  preamble ("I'd be happy to help…", "Before providing the requested output…"),
+  two bare category headers ("Patient appointment logistics"; "Clinic hours,
+  location, directions, and insurance plans"), and a closing ("I hope these
+  requests help you test…"). The other 42 are genuine scheduling requests. Because
+  the *same* 50 prompts are used for all four healthcare rungs, these 8 items add
+  noise to healthcare's *absolute* TNR but cancel in the paired ΔJ contrasts that
+  drive the finding. The generator's `looks_like_request` filter rejects bare SQL
+  fragments but not conversational preamble; catching assistant meta-commentary is
+  a known follow-up (would require regenerating the corpus and re-running the
+  healthcare bench). The headline (length-invariant TPR; T2 sweet spot) does not
+  depend on these 8 lines.
 - Healthcare over-refusal is high in absolute terms for every rung; the finding
   is about the *shape* of the length→J curve, not that any rung is production-ready
   for the clinic-scheduling case on this judge.

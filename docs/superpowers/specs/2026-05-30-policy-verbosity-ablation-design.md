@@ -65,7 +65,7 @@ exemplars that seed benign generation. → **16 conditions** (4 domains × 4 run
   byte-for-byte fixed. The judge wraps `scope` at `judge.rs:24-29`.
 - Files:
   - `rules/bench/policy_length.yaml` — 16 rules, ids `pl_<domain>_t<0..3>`.
-  - `chains/bench/policy_length.yaml` — 16 single-rule chains, same ids.
+  - `chains/bench/policy_length/*.yaml` — 16 single-rule chains (one file each; the loader rejects multi-doc YAML), same ids.
 
 ## Prompt bank
 
@@ -143,7 +143,7 @@ goes; success = a trustworthy measurement, not a particular outcome.
 ## Artifacts produced
 
 - `rules/bench/policy_length.yaml`
-- `chains/bench/policy_length.yaml`
+- `chains/bench/policy_length/*.yaml` (16 files, one chain each)
 - `scripts/gen_indomain_benign.py`
 - `corpora/policy_length/<domain>/benign/<domain>_benign.jsonl` (×4)
 - `scripts/run_policy_length.sh`

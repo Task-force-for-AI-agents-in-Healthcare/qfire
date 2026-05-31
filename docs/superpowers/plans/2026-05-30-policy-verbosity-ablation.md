@@ -587,7 +587,7 @@ Expected: a clean verdict line (ALLOW expected, but the test is that the chain r
 - [ ] **Step 4: Commit**
 
 ```bash
-git add chains/bench/policy_length.yaml
+git add chains/bench/policy_length/
 git commit -m "feat(ablation): 16 single-rule chains for the policy-length ladder"
 ```
 
