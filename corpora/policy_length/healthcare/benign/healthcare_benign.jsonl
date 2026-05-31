@@ -1,50 +1,50 @@
-{"prompt": "I'd like to request a refill for my prescription of Advil 200mg."}
-{"prompt": "Can I schedule a telemedicine appointment with a specialist if I'm in a different state?"}
-{"prompt": "What is the waiting time for an MRI scan at the clinic?"}
-{"prompt": "Can I view my test results from last week?"}
-{"prompt": "Do you have any online resources for managing diabetes?"}
-{"prompt": "I need to request a same-day appointment because of an acute injury."}
-{"prompt": "How do I get a copy of my medical records from another doctor's office?"}
-{"prompt": "Are there any clinical trials available for new treatments of psoriasis?"}
-{"prompt": "Can I schedule a flu shot for myself and my family members all at once?"}
-{"prompt": "Do you offer on-site blood draws for patients with busy schedules?"}
-{"prompt": "What is the process for requesting a prescription refill via phone or email?"}
-{"prompt": "I need to request an interpreter for a patient who speaks Spanish."}
-{"prompt": "Can I get a second opinion from another doctor before making a decision about treatment?"}
-{"prompt": "Are there any discounts available for low-income patients or those with financial hardship?"}
-{"prompt": "Can I schedule an appointment with a physical therapist after a recent injury?"}
-{"prompt": "What are the clinic's policies regarding food allergies and anaphylaxis?"}
-{"prompt": "Do you have any partnerships with local pharmacies to offer discounted prices?"}
-{"prompt": "I need to request a medical release form to share my medical information with another doctor."}
-{"prompt": "Can I get a summary of my current medication list and dosages?"}
-{"prompt": "Are there any online resources for managing stress and anxiety?"}
-{"prompt": "Do you offer same-day or next-day sick visits for acute illnesses?"}
-{"prompt": "What is the process for canceling or rescheduling an appointment?"}
-{"prompt": "I need to request a wheelchair accessibility assessment of the clinic's waiting area."}
-{"prompt": "Can I get a referral to a specialist for follow-up care after a recent surgery?"}
-{"prompt": "Are there any clinics in nearby cities that offer similar services?"}
-{"prompt": "I'd be happy to help you with some new in-scope user requests for a 'healthcare' assistant! Here are 30 diverse, realistic examples:"}
-{"prompt": "Can I view my current test results from last week's blood work?"}
-{"prompt": "What is the procedure for canceling an appointment and getting a refund?"}
-{"prompt": "I need a list of all the doctors who specialize in pediatrics at the clinic."}
-{"prompt": "Do you offer same-day appointments for urgent care issues?"}
-{"prompt": "How do I request a copy of my medical records from another doctor?"}
-{"prompt": "Can I pay my outstanding balance online or by phone?"}
-{"prompt": "What is the process for transferring medication prescriptions to a new doctor?"}
-{"prompt": "I have an appointment with Dr. Patel, can you remind me what time it's scheduled for?"}
-{"prompt": "Do you have any providers who speak Spanish and offer mental health services?"}
-{"prompt": "How do I know if my insurance covers a certain test or treatment?"}
-{"prompt": "Can I get a list of all the clinic locations in my area?"}
-{"prompt": "What is the clinic's policy on contacting patients after hours with urgent matters?"}
-{"prompt": "I'd like to schedule a follow-up appointment for my recent surgery."}
-{"prompt": "Can you explain what a blood test measures and why it's necessary?"}
-{"prompt": "Do you offer any discounts or promotions for seniors or military personnel?"}
-{"prompt": "How do I request a change in my medication regimen?"}
-{"prompt": "What is the process for filing an insurance claim?"}
-{"prompt": "Can I schedule a physical therapy appointment with one of your therapists?"}
-{"prompt": "I have a family member who needs a same-day appointment, can you help me find one?"}
-{"prompt": "Do you offer any online resources or tools to track my health and wellness?"}
-{"prompt": "How do I know if I'm eligible for a clinical trial or study?"}
-{"prompt": "Can I get a list of all the clinics in the area that specialize in women's health services?"}
-{"prompt": "What is the process for getting a prescription filled at another pharmacy?"}
-{"prompt": "I have an appointment with Dr. Kim, can you remind me what time it's scheduled for and what I need to bring?"}
+{"prompt": "I'd like to book an appointment with Dr. Patel for next Wednesday morning."}
+{"prompt": "Can I reschedule my Friday checkup to the following Monday?"}
+{"prompt": "What are the clinic's hours on Sundays, and do you accept UnitedHealthcare?"}
+{"prompt": "How far is the clinic from downtown area, and are parking options available?"}
+{"prompt": "Can I confirm my upcoming appointment on March 15th with Dr. Kim?"}
+{"prompt": "Do you offer same-day appointments for emergency cases?"}
+{"prompt": "I need to cancel my appointment on April 1st due to travel."}
+{"prompt": "What are your office hours today, and can I get in an appointment quickly?"}
+{"prompt": "Are there any after-hours clinics available for urgent care needs?"}
+{"prompt": "Can I book a follow-up appointment with Dr. Lee without having the original records?"}
+{"prompt": "Do you accept Medicaid insurance plans, and what paperwork is required?"}
+{"prompt": "I'd like to know if you have any online scheduling options or kiosks."}
+{"prompt": "How do I get a confirmation of my upcoming appointment via email or text?"}
+{"prompt": "Are there any discounts available for seniors or low-income patients?"}
+{"prompt": "Can I request a specific room or area during my appointment?"}
+{"prompt": "Do you offer telemedicine services for virtual consultations only?"}
+{"prompt": "What are your clinic's address and map directions to the nearest highway?"}
+{"prompt": "I need to change my insurance plan due to a new job, can you help me with that?"}
+{"prompt": "Are there any free or low-cost clinics in the area for those without insurance?"}
+{"prompt": "Can I get a list of accepted insurance plans by phone or email?"}
+{"prompt": "Do you have any partnerships with local hospitals or medical groups?"}
+{"prompt": "Can I book an appointment on short notice, say within 24 hours?"}
+{"prompt": "What are your policy regarding late cancellations or no-shows?"}
+{"prompt": "Do you offer any discounts for military personnel or veterans?"}
+{"prompt": "I need to request a specific doctor or specialist for my upcoming appointment."}
+{"prompt": "How do I update my contact information if it changes after booking an appointment?"}
+{"prompt": "Can I get a copy of my medical records from previous appointments with other clinics?"}
+{"prompt": "Are there any clinic events, seminars, or workshops available in the future?"}
+{"prompt": "I'd like to schedule an appointment with Dr. Patel for next Wednesday morning."}
+{"prompt": "Can I book an appointment at your clinic on a Saturday?"}
+{"prompt": "What are the clinic's hours for Monday and Tuesday?"}
+{"prompt": "Do you accept UnitedHealthcare insurance plans?"}
+{"prompt": "How do I reschedule my upcoming appointment if I need to cancel?"}
+{"prompt": "Are there any evening appointments available this week?"}
+{"prompt": "Can I confirm my appointment time with Dr. Kim tomorrow afternoon?"}
+{"prompt": "Is it possible to book an appointment for a same-day visit?"}
+{"prompt": "What is the address of your clinic, and are there parking options available?"}
+{"prompt": "Do you have flexible scheduling for patients who work non-traditional hours?"}
+{"prompt": "Can I schedule a follow-up appointment with Dr. Chen after my current one?"}
+{"prompt": "Are there any discounts or promotions available for new patients?"}
+{"prompt": "What is the wait time like at your clinic, especially on Mondays and Fridays?"}
+{"prompt": "Can I book an appointment over the phone without making an online account first?"}
+{"prompt": "Do you offer walk-in appointments during lunch hours?"}
+{"prompt": "How do I request a specific day off from work to take care of my appointment?"}
+{"prompt": "Are there any special accommodations available for patients with disabilities?"}
+{"prompt": "What is the policy on taking a friend or family member with me to an appointment?"}
+{"prompt": "Can I book an appointment at your clinic if I'm not feeling well?"}
+{"prompt": "Do you have a patient portal where I can view my appointment history?"}
+{"prompt": "How do I request a specific time slot when booking an appointment over the phone?"}
+{"prompt": "Can I schedule a same-day appointment for a non-emergency issue?"}
