@@ -36,7 +36,10 @@ impl JudgeDetector {
             tools: vec![],
             params: crate::ir::GenParams {
                 temperature: Some(0.0),
-                max_tokens: Some(64),
+                // Generous budget so reasoning models (gemma/qwen emit a
+                // <think>...</think> trace) still reach the verdict line. We
+                // strip the think block before parsing; see strip_reasoning().
+                max_tokens: Some(512),
                 top_p: None,
             },
             stream: false,
@@ -44,10 +47,26 @@ impl JudgeDetector {
     }
 }
 
+/// Strip a leading chain-of-thought block emitted by reasoning models
+/// (e.g. gemma/qwen `<think>...</think>`) so the verdict line can be parsed.
+fn strip_reasoning(answer: &str) -> &str {
+    if let Some(end) = answer.find("</think>") {
+        answer[end + "</think>".len()..].trim_start()
+    } else {
+        answer.trim_start()
+    }
+}
+
 /// Parse the judge's free-text answer into (verdict, confidence, rationale).
-fn parse_answer(answer: &str) -> (Verdict, f64, String) {
+fn parse_answer(raw: &str) -> (Verdict, f64, String) {
+    let answer = strip_reasoning(raw);
     let lower = answer.to_ascii_lowercase();
-    let first_line = answer.lines().next().unwrap_or("").trim().to_string();
+    let first_line = answer
+        .lines()
+        .find(|l| !l.trim().is_empty())
+        .unwrap_or("")
+        .trim()
+        .to_string();
     // Look for the strongest signal first.
     if lower.contains("out of scope") || lower.contains("out-of-scope") {
         (Verdict::Block, 0.85, format!("judge: {first_line}"))
@@ -101,13 +120,18 @@ impl Detector for JudgeDetector {
                 )
             }
         };
-        // Resolve a model: explicit override, else a sensible default per family.
-        let model = self.model.clone().unwrap_or_else(|| match provider.kind() {
-            crate::config::ProviderKind::Ollama => "llama3.2".into(),
-            crate::config::ProviderKind::OpenAi => "gpt-4o-mini".into(),
-            crate::config::ProviderKind::Anthropic => "claude-3-5-haiku-latest".into(),
-            crate::config::ProviderKind::Gemini => "gemini-1.5-flash".into(),
-        });
+        // Resolve a model. Priority: explicit per-rule `model:` > QFIRE_JUDGE_MODEL
+        // env override (used by the judge-model ablation) > per-family default.
+        let model = self
+            .model
+            .clone()
+            .or_else(|| std::env::var("QFIRE_JUDGE_MODEL").ok().filter(|s| !s.is_empty()))
+            .unwrap_or_else(|| match provider.kind() {
+                crate::config::ProviderKind::Ollama => "llama3.2".into(),
+                crate::config::ProviderKind::OpenAi => "gpt-4o-mini".into(),
+                crate::config::ProviderKind::Anthropic => "claude-3-5-haiku-latest".into(),
+                crate::config::ProviderKind::Gemini => "gemini-1.5-flash".into(),
+            });
         let req = self.build_request(&model, ctx.scope, ctx.prompt);
         match provider.complete(&req).await {
             Ok(resp) => {
@@ -115,7 +139,7 @@ impl Detector for JudgeDetector {
                 let score = if verdict == Verdict::Block { conf } else { 1.0 - conf };
                 NodeVerdict::new(
                     self.kind(),
-                    format!("{}/{}", self.version(), provider.name()),
+                    format!("{}/{}:{}", self.version(), provider.name(), model),
                     verdict,
                     conf,
                     elapsed_ms(start),

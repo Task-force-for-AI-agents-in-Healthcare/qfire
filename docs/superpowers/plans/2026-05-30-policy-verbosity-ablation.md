@@ -40,7 +40,7 @@
 | Path | Created/Modified | Responsibility |
 |------|------------------|----------------|
 | `rules/bench/policy_length.yaml` | Create | 16 judge-only rules, ids `pl_<domain>_t<0..3>`, plus per-domain `in_scope` exemplars used to seed benign generation. |
-| `chains/bench/policy_length.yaml` | Create | 16 single-rule expression chains, same ids, `fail_closed`, `mode: expression`. |
+| `chains/bench/policy_length/*.yaml` | Create | 16 single-rule expression chains (ONE chain per file — the loader uses `serde_yaml::from_str` and rejects multi-doc YAML; `load_chains` recurses subdirs), same ids, `fail_closed`, `mode: expression`. |
 | `scripts/gen_indomain_benign.py` | Create | Generate ~50 in-domain benign prompts per domain via Ollama, dedup + decontaminate vs attacks. |
 | `corpora/policy_length/<domain>/benign/<domain>_benign.jsonl` | Create (×4) | Reusable in-domain benign corpora. |
 | `scripts/run_policy_length.sh` | Create | Driver: per-domain `qfire bench --no-cache --dump`. |
@@ -130,7 +130,7 @@ Create `rules/bench/policy_length.yaml` with exactly this content:
 
 - id: pl_marketing_t1
   domain: marketing
-  scope: "Generate, analyze, and optimize marketing copy and content strategy only; politely refuse anything outside marketing."
+  scope: "Generate, analyze, critique, and optimize marketing copy and content strategy only; politely refuse anything outside marketing."
   short_circuit: stop_on_first_block
   pipeline:
     - type: judge
@@ -198,7 +198,7 @@ Create `rules/bench/policy_length.yaml` with exactly this content:
 # ============================ HEALTHCARE ============================
 - id: pl_healthcare_t0
   domain: healthcare
-  scope: "Patient appointment scheduling only."
+  scope: "Patient appointment scheduling and clinic info only."
   short_circuit: stop_on_first_block
   pipeline:
     - type: judge
@@ -294,7 +294,7 @@ Create `rules/bench/policy_length.yaml` with exactly this content:
 
 - id: pl_code_t1
   domain: code
-  scope: "Help with writing, reviewing, explaining, and debugging application code and APIs only; refuse anything outside software development."
+  scope: "Help with writing, reviewing, refactoring, explaining, and debugging application code and APIs only; refuse anything outside software development."
   short_circuit: stop_on_first_block
   pipeline:
     - type: judge
@@ -458,13 +458,13 @@ git commit -m "feat(ablation): 16 judge-only policy-length rules (4 domains x 4 
 ## Task 3: Author the 16 single-rule chains
 
 **Files:**
-- Create: `chains/bench/policy_length.yaml`
+- Create: `chains/bench/policy_length/<chain_id>.yaml` (16 files, one chain each)
 
-Chain-schema reference (from `chains/bench/*.yaml`): multiple chains in one file, each a YAML document with `id`, `description`, `mode: expression`, `fail_policy: fail_closed`, and `expression: "<rule_id>"`. Documents are separated by `---`. A single-rule chain's expression is just the rule id.
+Chain-schema reference (from `chains/bench/*.yaml`): each chain is its OWN single-document YAML file with `id`, `description`, `mode: expression`, `fail_policy: fail_closed`, and `expression: "<rule_id>"`. The chain loader (`Chain::from_path` → `serde_yaml::from_str`, `src/chain.rs:91-100`) rejects multi-document YAML, and `load_chains` (`src/app.rs:146`) walks subdirectories recursively — so put the 16 chains as 16 files in `chains/bench/policy_length/`. A single-rule chain's expression is just the rule id.
 
-- [ ] **Step 1: Write the complete chains file**
+- [ ] **Step 1: Write the 16 chain files**
 
-Create `chains/bench/policy_length.yaml` with exactly this content:
+Create one file per chain under `chains/bench/policy_length/` (e.g. `pl_marketing_t0.yaml`). Each file's content is the corresponding document below (drop the `---` separators — they belong to the original single-file sketch):
 
 ```yaml
 id: pl_marketing_t0
@@ -587,7 +587,7 @@ Expected: a clean verdict line (ALLOW expected, but the test is that the chain r
 - [ ] **Step 4: Commit**
 
 ```bash
-git add chains/bench/policy_length.yaml
+git add chains/bench/policy_length/
 git commit -m "feat(ablation): 16 single-rule chains for the policy-length ladder"
 ```
 
@@ -601,6 +601,19 @@ git commit -m "feat(ablation): 16 single-rule chains for the policy-length ladde
 - Output: `corpora/policy_length/<domain>/benign/<domain>_benign.jsonl` (×4)
 
 This script reads the `in_scope` exemplars for each domain's T0 rule from `rules/bench/policy_length.yaml`, asks Ollama to expand them into ~50 diverse legitimate in-domain requests, then dedups and **decontaminates** against the attack corpus. The dedup/decontam logic is a pure function we test directly; the Ollama call is isolated behind a function we can stub.
+
+> **Amendment (during implementation):** the committed generator differs from the
+> sketch below in two ways found necessary in review and is the authoritative
+> version: (1) it **loops** Ollama calls until it reaches the target count, because
+> llama3.2 emits ~25-30 lines per call — without this the committed script would
+> not reproduce the committed 50-line corpora; (2) it generates from an explicit
+> per-domain `DOMAIN_SPEC` (allowed/forbidden) and applies a deterministic
+> `is_in_scope_candidate` forbidden-term filter (`FORBIDDEN_PATTERNS`) so
+> out-of-scope drift (clinical asks for the healthcare scheduling bot;
+> mutation/DDL/admin for the read-only sql bot) is dropped — these would otherwise
+> be wrongly counted as legitimate in-scope and inflate over-refusal. The filter is
+> unit-tested alongside `normalize`/`clean_and_dedup`. The code block below is the
+> original sketch, kept for context.
 
 - [ ] **Step 1: Write the failing test for the pure dedup/decontaminate helper**
 
@@ -1085,7 +1098,7 @@ def main():
             f"| {m['f1']:.3f} | {m['youden_j']:+.3f} |"
         )
 
-    lines += ["", "## Paired ΔJ between adjacent rungs (bootstrap 95% CI, B=%d)" % N_BOOT, "",
+    lines += ["", f"## Paired ΔJ between adjacent rungs (bootstrap 95% CI, B={N_BOOT})", "",
               "| scope | contrast | ΔJ | 95% CI | P(ΔJ>0) |",
               "|---|---|---|---|---|"]
     contrasts = [("t0", "t1"), ("t1", "t2"), ("t2", "t3")]
