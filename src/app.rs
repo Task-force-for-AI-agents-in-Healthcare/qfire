@@ -73,6 +73,7 @@ impl App {
                 groups: HashMap::new(),
                 provider: None,
                 normalize: false,
+                normalize_mode: None,
                 version: "adhoc".into(),
             });
         }

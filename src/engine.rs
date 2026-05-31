@@ -142,10 +142,20 @@ impl Engine {
         // Audit/cache identity is over the ORIGINAL prompt; detectors may see a
         // de-obfuscated expansion when the chain enables normalization.
         let prompt_hash = Self::prompt_hash(&prompt);
-        let eval_prompt = if chain.normalize {
-            crate::normalize::normalize(&prompt).expanded
-        } else {
-            prompt.clone()
+        let mode = chain
+            .normalize_mode
+            .as_deref()
+            .unwrap_or(if chain.normalize { "always" } else { "off" });
+        let eval_prompt = match mode {
+            "always" => crate::normalize::normalize(&prompt).expanded,
+            "triggered" => {
+                if crate::normalize::has_encoding_signal(&prompt) {
+                    crate::normalize::normalize(&prompt).expanded
+                } else {
+                    prompt.clone()
+                }
+            }
+            _ => prompt.clone(),
         };
         let referenced = chain.referenced_rules()?;
 

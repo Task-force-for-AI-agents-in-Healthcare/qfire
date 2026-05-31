@@ -160,6 +160,13 @@ pub struct BenchArgs {
     /// Limit prompts per corpus (0 = all).
     #[arg(long, default_value_t = 0)]
     pub limit: usize,
+    /// Disable the verdict cache (honest, un-warmed per-chain latency).
+    #[arg(long)]
+    pub no_cache: bool,
+    /// Dump per-prompt predictions (one JSONL file per chain) into this directory,
+    /// for paired statistics (McNemar, bootstrap CIs).
+    #[arg(long)]
+    pub dump: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]

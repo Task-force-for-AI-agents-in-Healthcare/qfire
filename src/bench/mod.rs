@@ -98,9 +98,14 @@ pub async fn run_bench(app: &App, args: &crate::cli::BenchArgs, json: bool) -> c
         );
     }
 
+    // Build a dedicated engine so the verdict cache can be disabled for honest,
+    // un-warmed per-chain latency (and so chains don't share cached verdicts).
+    let engine = crate::engine::Engine::new(app.engine.providers().clone())
+        .with_cache(!args.no_cache);
+
     let mut reports = Vec::new();
     for chain_name in &args.chains {
-        let report = bench_chain(app, chain_name, &attacks, &benign, args).await?;
+        let report = bench_chain(app, &engine, chain_name, &attacks, &benign, args).await?;
         reports.push(report);
     }
 
@@ -122,6 +127,7 @@ pub async fn run_bench(app: &App, args: &crate::cli::BenchArgs, json: bool) -> c
 
 async fn bench_chain(
     app: &App,
+    engine: &crate::engine::Engine,
     chain_name: &str,
     attacks: &[String],
     benign: &[String],
@@ -135,8 +141,27 @@ async fn bench_chain(
     for (prompts, is_attack) in [(attacks, true), (benign, false)] {
         for p in prompts {
             let req = LlmRequest::user("bench", p);
-            let decision = app.engine.evaluate(&chain, &compiled, &req).await?;
+            let decision = engine.evaluate(&chain, &compiled, &req).await?;
             samples.push(sample_from(&decision, is_attack));
+        }
+    }
+
+    // Optional per-prompt prediction dump (corpus order: attacks then benign),
+    // for paired tests (McNemar) and bootstrap CIs across chains.
+    if let Some(dir) = &args.dump {
+        std::fs::create_dir_all(dir)?;
+        use std::io::Write as _;
+        let mut f = std::fs::File::create(dir.join(format!("{}.jsonl", chain.id)))?;
+        for s in &samples {
+            writeln!(
+                f,
+                "{}",
+                serde_json::json!({
+                    "is_attack": s.is_attack,
+                    "blocked": s.terminal == Verdict::Block,
+                    "score": s.score
+                })
+            )?;
         }
     }
 
@@ -161,7 +186,7 @@ async fn bench_chain(
         let mut aip_samples = Vec::new();
         for p in &mutated {
             let req = LlmRequest::user("bench", p);
-            let decision = app.engine.evaluate(&chain, &compiled, &req).await?;
+            let decision = engine.evaluate(&chain, &compiled, &req).await?;
             aip_samples.push(sample_from(&decision, true));
         }
         Some(Metrics::from_samples(
@@ -183,12 +208,27 @@ async fn bench_chain(
 }
 
 fn sample_from(decision: &crate::engine::Decision, is_attack: bool) -> Sample {
+    // Coherent chain block-score for ROC/AUC: every node contributes a value in
+    // [0,1] -- the calibrated injection probability for scoring detectors
+    // (deberta/judge/similarity), or the block-confidence for lexical blockers
+    // (regex/aho/entropy), which contribute only when they actually BLOCK. This
+    // avoids mixing raw entropy bits (a different scale) into the ranking score,
+    // which previously inverted the AUC for multi-detector chains.
     let score = decision
         .trace
         .rules
         .iter()
         .flat_map(|r| r.nodes.iter())
-        .filter_map(|n| n.score)
+        .map(|n| match n.kind.as_str() {
+            "deberta" | "judge" | "similarity" => n.score.unwrap_or(n.confidence),
+            _ => {
+                if n.verdict == Verdict::Block {
+                    n.confidence
+                } else {
+                    0.0
+                }
+            }
+        })
         .fold(0.0_f64, f64::max);
     let rule_verdicts = decision
         .trace

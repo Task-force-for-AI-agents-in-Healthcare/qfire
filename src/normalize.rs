@@ -34,6 +34,45 @@ impl Normalized {
     }
 }
 
+/// Cheap heuristic: does the raw text show an obfuscation/encoding signal that
+/// warrants the (FPR-costly) de-obfuscation expansion? Used by the `triggered`
+/// normalization mode so plain ASCII prose is never expanded. Detects long
+/// Base64/hex runs, zero-width characters, and non-ASCII homoglyph letters.
+pub fn has_encoding_signal(text: &str) -> bool {
+    // zero-width / BOM characters
+    if text.chars().any(|c| {
+        matches!(c, '\u{200B}' | '\u{200C}' | '\u{200D}' | '\u{2060}' | '\u{FEFF}' | '\u{00AD}')
+    }) {
+        return true;
+    }
+    // non-ASCII alphabetic (potential homoglyph)
+    if text.chars().any(|c| c.is_alphabetic() && !c.is_ascii()) {
+        return true;
+    }
+    // long base64/hex run
+    let mut b64 = 0usize;
+    let mut hex = 0usize;
+    for c in text.chars() {
+        if is_b64_char(c) {
+            b64 += 1;
+            if b64 >= 24 {
+                return true;
+            }
+        } else {
+            b64 = 0;
+        }
+        if c.is_ascii_hexdigit() {
+            hex += 1;
+            if hex >= 24 {
+                return true;
+            }
+        } else {
+            hex = 0;
+        }
+    }
+    false
+}
+
 /// Produce an expanded, de-obfuscated view of `text`.
 pub fn normalize(text: &str) -> Normalized {
     let mut layers: Vec<Layer> = Vec::new();

@@ -67,8 +67,14 @@ pub struct Chain {
 
     /// Apply the de-obfuscation normalization pass (decode Base64/hex/ROT13,
     /// fold homoglyphs/leetspeak, strip zero-width) before detector evaluation.
+    /// `true` means "always"; for finer control set `normalize_mode`.
     #[serde(default)]
     pub normalize: bool,
+
+    /// De-obfuscation mode: `off`, `always`, or `triggered` (expand only when the
+    /// raw prompt shows an encoding signal). Overrides `normalize` when set.
+    #[serde(default)]
+    pub normalize_mode: Option<String>,
 
     #[serde(default = "default_version")]
     pub version: String,
