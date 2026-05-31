@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.."
 
 QFIRE=./target/release/qfire
 SEED=42
-ATTACKS=corpora/policy_length/attacks_sample300
+ATTACKS=corpora/policy_length/attacks_subset
 
 cargo build --release
 
@@ -32,8 +32,9 @@ run_model() {
   done
 }
 
-run_model "qwen3:4b"     "qwen3_4b"
+run_model "phi3.5:3.8b"  "phi3.5_3.8b"
 run_model "llama3.1:8b"  "llama3.1_8b"
-run_model "qwen3:8b"     "qwen3_8b"
+run_model "gemma2:9b"    "gemma2_9b"
 run_model "gemma4:latest" "gemma4"
+run_model "deepseek-r1:latest" "deepseek_r1"
 echo "XMODEL_RUN_DONE"

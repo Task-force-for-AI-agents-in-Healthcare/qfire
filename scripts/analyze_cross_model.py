@@ -25,10 +25,11 @@ OUT_DIR = os.path.join(BASE, "bench-out/policy_length_xmodel")
 # (display name, tag, dump-root, latency-bench-root)
 MODELS = [
     ("llama3.2", "llama3.2:latest", "bench-out/policy_length_llama3.2", "bench-out/policy_length"),
-    ("qwen3:4b", "qwen3:4b", "bench-out/policy_length_qwen3_4b", "bench-out/policy_length_qwen3_4b"),
+    ("phi3.5:3.8b", "phi3.5:3.8b", "bench-out/policy_length_phi3.5_3.8b", "bench-out/policy_length_phi3.5_3.8b"),
     ("llama3.1:8b", "llama3.1:8b", "bench-out/policy_length_llama3.1_8b", "bench-out/policy_length_llama3.1_8b"),
-    ("qwen3:8b", "qwen3:8b", "bench-out/policy_length_qwen3_8b", "bench-out/policy_length_qwen3_8b"),
+    ("gemma2:9b", "gemma2:9b", "bench-out/policy_length_gemma2_9b", "bench-out/policy_length_gemma2_9b"),
     ("gemma4", "gemma4:latest", "bench-out/policy_length_gemma4", "bench-out/policy_length_gemma4"),
+    ("deepseek-r1", "deepseek-r1:latest", "bench-out/policy_length_deepseek_r1", "bench-out/policy_length_deepseek_r1"),
 ]
 
 

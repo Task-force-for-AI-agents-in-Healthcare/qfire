@@ -12,7 +12,7 @@ import os
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_ROOT = os.path.join(BASE, "bench-out/policy_length")
 DST_ROOT = os.path.join(BASE, "bench-out/policy_length_llama3.2")
-IDX_PATH = os.path.join(BASE, "corpora/policy_length/attacks_sample300/indices.json")
+IDX_PATH = os.path.join(BASE, "corpora/policy_length/attacks_subset/indices.json")
 DOMAINS = ["marketing", "healthcare", "code", "sql"]
 RUNGS = ["t0", "t1", "t2", "t3"]
 

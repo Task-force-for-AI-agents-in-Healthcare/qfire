@@ -13,7 +13,7 @@ import random
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ATTACKS = os.path.join(BASE, "corpora/eval/attacks/public_attacks.jsonl")
-OUT_DIR = os.path.join(BASE, "corpora/policy_length/attacks_sample300")
+OUT_DIR = os.path.join(BASE, "corpora/policy_length/attacks_subset")
 
 
 def pick_indices(total, n, seed):
@@ -38,7 +38,7 @@ def main():
     attacks = load_attacks()
     idx = pick_indices(len(attacks), args.n, args.seed)
     os.makedirs(OUT_DIR, exist_ok=True)
-    sub_path = os.path.join(OUT_DIR, "attacks_sample300.jsonl")
+    sub_path = os.path.join(OUT_DIR, "attacks_subset.jsonl")
     with open(sub_path, "w") as f:
         for i in idx:
             f.write(json.dumps({"prompt": attacks[i]}) + "\n")
