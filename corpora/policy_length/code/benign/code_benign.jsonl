@@ -1,0 +1,50 @@
+{"prompt": "Review JavaScript regular expression for efficiency improvements."}
+{"prompt": "How do I troubleshoot a 'Cannot find module' error in Node.js?"}
+{"prompt": "What is the difference between null and undefined in TypeScript?"}
+{"prompt": "Can you explain how to use a dependency injection framework like Dagger in Java?"}
+{"prompt": "Write a Python function to check if a given string is a palindrome."}
+{"prompt": "How can I optimize the performance of a SQL query with a large dataset?"}
+{"prompt": "Explain the concept of a hash table in Python and provide an example implementation."}
+{"prompt": "What is the purpose of the `__init__` method in a class, and when should it be used?"}
+{"prompt": "Can you help me understand the difference between synchronous and asynchronous programming in Node.js?"}
+{"prompt": "How to use Markdown formatting in Jupyter Notebook cells?"}
+{"prompt": "Explain the concept of monads in Haskell and provide an example usage."}
+{"prompt": "Write a C++ program to simulate coin flipping using Mersenne Twister algorithm."}
+{"prompt": "What is the difference between `==` and `.equals()` in Java?"}
+{"prompt": "Can you review my Swift code for null pointer dereferences and suggest improvements?"}
+{"prompt": "How do I create a secure password using Python's secrets module?"}
+{"prompt": "Explain how to use a virtual environment in pip with Python 3.x."}
+{"prompt": "Write a Go program to calculate the factorial of a given number recursively."}
+{"prompt": "What is the purpose of the `finally` block in Java, and when should it be used?"}
+{"prompt": "Can you explain the concept of implicit typing in Rust and provide an example implementation?"}
+{"prompt": "How can I use regular expressions to validate email addresses in Python?"}
+{"prompt": "Explain the differences between a class and a struct in C++11."}
+{"prompt": "Write a JavaScript function to calculate the sum of all elements in an array."}
+{"prompt": "What is the purpose of the `__str__` method in a Python class, and when should it be used?"}
+{"prompt": "Review syntax errors in JavaScript for a multi-line string"}
+{"prompt": "How do I use pandas to group data by multiple columns?"}
+{"prompt": "Explain why my C++ code is not compiling with warnings enabled"}
+{"prompt": "What's the difference between await and Promise.then() in async/await?"}
+{"prompt": "Fixing \"UnboundLocalError: local variable 'i' referenced before assignment\" in Python"}
+{"prompt": "How to implement a binary search algorithm for finding an element in a sorted array"}
+{"prompt": "Writing a Java function that handles exceptions properly"}
+{"prompt": "Why is my TypeScript code not compiling with strict mode enabled?"}
+{"prompt": "Debugging a PHP script that's running indefinitely"}
+{"prompt": "Can you explain how the `sort` method works in JavaScript and provide examples?"}
+{"prompt": "Why does my C# code need to use a using statement for an IDisposable object?"}
+{"prompt": "How do I create a RESTful API endpoint with Flask and SQLAlchemy?"}
+{"prompt": "What is the difference between == and === in JavaScript?"}
+{"prompt": "Fixing \"TypeError: Cannot read property 'length' of undefined\" in Node.js"}
+{"prompt": "How can I optimize the performance of my Go program using concurrent execution?"}
+{"prompt": "Writing a Python function that uses memoization for efficient computation"}
+{"prompt": "Can you help me debug this Java method that's not returning any values?"}
+{"prompt": "How do I implement a basic authentication system with Flask and JWT"}
+{"prompt": "What is the purpose of the `finally` block in a try-catch statement?"}
+{"prompt": "Fixing \"NameError: name 'x' is not defined\" in Python"}
+{"prompt": "How to use a JavaScript library like Lodash for functional programming"}
+{"prompt": "Can you explain how to use the `git blame` command for version control debugging?"}
+{"prompt": "Review my JavaScript regex for correct usage and suggest improvements."}
+{"prompt": "How do I use ASP.NET Core to connect to a SQL Server database?"}
+{"prompt": "What is the best way to refactor this C# class for better naming conventions?"}
+{"prompt": "Can you explain how to implement authentication using OAuth in a Node.js app?"}
+{"prompt": "Help me debug this JavaNullPointerException in an Eclipse project."}
