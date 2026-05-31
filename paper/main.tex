@@ -114,6 +114,17 @@ ultra-low-latency design built in Rust.
   percentiles, regenerated end-to-end by \texttt{make paper}.
 \end{enumerate}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.96\linewidth]{figs/hero_recall_gap.png}
+\caption{\textbf{The paper in one figure.} The same three detectors are
+statistically tied on generic prompt injection (left), but on healthcare threats
+(right) SOTA PromptGuard-2 collapses to $0.40$ recall while QFIRE's scope+PHI chain
+holds at $0.83$. Generic injection detection is necessary but not sufficient in
+healthcare; the visual drop between panels is this paper's thesis.}
+\label{fig:hero}
+\end{figure}
+
 \section{Threat Model and Positioning}
 We assume an adversary who controls all or part of the prompt reaching the model
 (direct injection) or content the agent ingests (indirect
@@ -373,6 +384,15 @@ Rust, PyTorch baselines on CPU.}
 \label{tab:ci}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/roc_pr.png}
+\caption{ROC and precision-recall curves on the public corpus. The learned
+detectors (DeBERTa AUC~$0.89$, QFIRE hybrid) hug the top-left corner; the lexical
+filters track the diagonal, making the ``fast-but-blind'' gap visual.}
+\label{fig:rocpr}
+\end{figure}
+
 \subsection{De-obfuscation ablation}\label{sec:deobf}
 Table~\ref{tab:deobf} measures detection on an obfuscated variant of the attack
 set (payloads re-encoded with Base64/ROT13/leetspeak/homoglyphs) with and without
@@ -389,6 +409,17 @@ report rather than tune away.
 \caption{Effect of the de-obfuscation normalization pass on obfuscated attacks.}
 \label{tab:deobf}
 \end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{figs/deobf_ladder.png}
+\caption{De-obfuscation trade-off across settings (off~$\rightarrow$~triggered
+$\rightarrow$~always-on) for a mirror and an independent obfuscator. Recall on
+obfuscated attacks (green) rises with normalization while clean-traffic FPR (red)
+stays near baseline until always-on spikes it to $0.27$. \emph{Triggered} is the
+sweet spot.}
+\label{fig:deobfladder}
+\end{figure}
 
 \subsection{Healthcare / PHI panel}\label{sec:hcpanel}
 Table~\ref{tab:hc} reports the HIPAA/PHI chain on a clinical-adjacent corpus,
@@ -481,7 +512,69 @@ model-independent, but any chain with a \texttt{judge} node inherits the backing
 model's calibration and format behavior; we therefore record the judge model in
 every run manifest and node version (\texttt{judge/<provider>:<model>}) and
 recommend validating a candidate judge's precision/recall and abstain rate on a
-labeled subset before deployment---the procedure this ablation demonstrates.
+labeled subset before deployment---the procedure this ablation demonstrates. (A
+compact non-reasoning alternative, Qwen3~8B, is a viable judge:
+P~$1.00$/R~$0.90$/F1~$0.947$ at p50~$4.0$\,s.)
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/judge_bars.png}
+\caption{Judge-model ablation: F1 (left), false-positive rate (centre, Llama~3.2's
+$0.28$ spike), and p50 latency (right, log scale, $0.4$--$7.2$\,s). The backend
+model changes both accuracy and latency.}
+\label{fig:judgebars}
+\end{figure}
+
+\subsection{Multi-judge majority voting: accuracy, latency, robustness}\label{sec:ensemble}
+If one judge model can be miscalibrated (\S\ref{sec:judgeabl}), can an ensemble be
+more robust? QFIRE expresses this declaratively: one rule with three \texttt{judge}
+nodes, each pinned to a different model, under the \texttt{aggregate} short-circuit,
+which evaluates all nodes \emph{concurrently} and collapses them by
+confidence-weighted majority---a hard 2-of-3 vote. Because the judges run in
+parallel, measured latency is the \emph{slowest} member, not the sum. We benchmark
+the ensemble (Llama~3.1 + Gemma~4 + Qwen3~8B) on the same subset and additionally
+compute every $k$-of-$n$ majority from the aligned per-prompt decisions
+(Figure~\ref{fig:frontier}).
+
+\begin{table}[t]\centering\small
+\begin{tabular}{lrrrrr}
+\toprule
+Configuration & Prec. & Rec. & F1 & FPR & p50 (parallel) \\
+\midrule
+Best single (Llama 3.1) & 1.00 & 0.99 & 0.995 & 0.00 & \textbf{0.4\,s} \\
+Llama 3.2 (miscalibrated) & 0.78 & 1.00 & 0.877 & 0.28 & 0.6\,s \\
+Qwen3 8B & 1.00 & 0.90 & 0.947 & 0.00 & 4.0\,s \\
+\textbf{3-model majority vote} & 1.00 & 1.00 & \textbf{1.000} & 0.00 & 7.1\,s \\
+\bottomrule
+\end{tabular}
+\caption{Multi-judge majority vote vs.\ single judges on the
+$100$-attack/$100$-benign subset. The vote reaches a perfect F1, but the best
+single model already attains $0.995$ at $16\times$ lower latency.}
+\label{tab:ensemble}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{figs/ensemble_frontier.png}
+\caption{Cost-accuracy frontier: every single judge and every $k$-of-$n$ majority
+vote in F1$\times$latency space (latency = slowest member, log scale). The
+$F1{=}1.00$ ensembles \emph{include} the miscalibrated Llama~3.2, whose
+false-positives are outvoted---voting buys \emph{robustness}, not raw accuracy.}
+\label{fig:frontier}
+\end{figure}
+
+\noindent\textbf{Finding (honest framing).} The majority vote reaches a perfect
+F1~($1.000$), higher than any single judge---but the frontier shows the best
+\emph{single} model (Llama~3.1) already attains F1~$0.995$ at $0.4$\,s,
+${\approx}16\times$ faster than the $7$\,s ensemble, so voting buys little raw
+accuracy here. What it buys is \emph{robustness}: the $F1{=}1.000$ ensembles
+include the miscalibrated Llama~3.2 (FPR~$0.28$ alone), whose benign
+false-positives are outvoted by the two well-calibrated judges. Majority voting
+thus lets a deployer safely fold in a model they do not fully trust---converting a
+single model's silent failure mode into a recoverable minority vote---at a latency
+premium set by the slowest member. We recommend a single validated judge for
+latency-critical inline use, and majority voting where judge calibration is
+uncertain or must be defended in audit.
 
 \section{QFIRE-HealthBench}\label{sec:healthbench}
 QFIRE-HealthBench is a healthcare-specific prompt-injection dataset: $1{,}000$

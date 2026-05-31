@@ -36,6 +36,12 @@ ROC–AUC, and latency percentiles; everything regenerates from `make paper`.
 
 ## 1. Introduction & contributions
 
+**The paper in one figure.** The same three detectors are statistically tied on
+generic prompt injection, but on healthcare threats SOTA PromptGuard-2 collapses to
+0.40 recall while QFIRE's scope+PHI chain holds at 0.83:
+
+![The same detectors: tied on generic injection, far apart on healthcare](figs/hero_recall_gap.png)
+
 (See `main.tex` for full prose.) Contributions:
 1. **Positive-security scope constraining** — enforce a declared purpose and
    block out-of-scope drift even absent an overt attack token.
@@ -237,6 +243,12 @@ is the scope/PHI and latency-budget story (§3.3, §7), not a generic-detector w
 
 *(Exact CIs are emitted to `paper/tables/accuracy_ci.tex` from the run.)*
 
+The ROC and precision-recall curves make the "fast-but-blind" gap visual — the
+learned detectors (DeBERTa AUC 0.89, hybrid) hug the top-left corner while the
+lexical filters track the diagonal:
+
+![ROC and precision-recall curves on the public corpus](figs/roc_pr.png)
+
 ### 3.2 De-obfuscation ablation (obfuscated attacks)
 
 Attacks re-encoded with Base64 / ROT13 / leetspeak / homoglyphs:
@@ -250,7 +262,12 @@ Attacks re-encoded with Base64 / ROT13 / leetspeak / homoglyphs:
 **0.55 → 0.84** (+29 points). On *clean* traffic (§3.1) the same aggressive
 decoding raises FPR (0.02 → 0.27). De-obfuscation is therefore a **targeted**
 control for channels where encoded payloads are expected, not an always-on
-default — a trade-off we report rather than tune away.
+default — a trade-off we report rather than tune away. The ladder below shows the
+trade-off across settings (off → triggered → always-on) for both a mirror and an
+*independent* obfuscator; **triggered** is the sweet spot — it recovers most of the
+recall while keeping clean-traffic FPR near baseline:
+
+![De-obfuscation recall ladder vs. clean-traffic FPR cost](figs/deobf_ladder.png)
 
 ### 3.3 Healthcare / PHI panel
 
@@ -341,6 +358,13 @@ Per-prompt agreement with the Llama 3.1 baseline (Cohen's κ): Llama 3.2 85.5%
    chain-of-thought model is the wrong tool even when its underlying judgment is
    sound.
 
+(We also evaluated **Qwen3 8B** as a compact, non-reasoning alternative: P 1.00 /
+R 0.90 / **F1 0.947** / FPR 0.00 at p50 4.0 s — a viable judge, unlike the verbose
+Qwen 3.6.) The figure below shows the spread at a glance — the F1 cluster, Llama
+3.2's lone FPR spike, and the 0.4 s → 7.2 s latency range:
+
+![Judge-model F1, FPR, and latency](figs/judge_bars.png)
+
 **Takeaway.** QFIRE's deterministic detectors (regex/Aho/entropy/DeBERTa) are
 model-independent and reproducible, but any chain containing a `judge` node
 inherits the backing model's calibration and output-format behavior. We therefore
@@ -348,6 +372,40 @@ record the judge model in every run manifest and node version string
 (`judge/<provider>:<model>`), and recommend validating the precision/recall and
 abstain rate of a candidate judge model on a labeled subset before deployment —
 exactly the procedure this ablation demonstrates.
+
+### 3.6 Multi-judge majority voting: an accuracy/latency/robustness trade-off
+
+If one judge model can be miscalibrated (§3.5), can an **ensemble** of judges be
+more robust? QFIRE expresses this declaratively: a single rule with three `judge`
+nodes, each pinned to a different model, under the engine's `aggregate`
+short-circuit, which evaluates all nodes **concurrently** and collapses them by
+confidence-weighted majority — a hard 2-of-3 vote. Because the judges run in
+parallel, the measured latency is the **slowest** member, not the sum. We
+benchmark the ensemble (Llama 3.1 + Gemma 4 + Qwen3 8B) on the same
+100-attack/100-benign subset, and additionally compute every *k*-of-*n* majority
+combination from the aligned per-prompt decisions.
+
+| Configuration | Prec. | Rec. | F1 | FPR | p50 (parallel) |
+|---|---|---|---|---|---|
+| Best single judge (Llama 3.1) | 1.00 | 0.99 | 0.995 | 0.00 | **0.4 s** |
+| Llama 3.2 (miscalibrated) | 0.78 | 1.00 | 0.877 | 0.28 | 0.6 s |
+| Qwen3 8B | 1.00 | 0.90 | 0.947 | 0.00 | 4.0 s |
+| **3-model majority vote** | **1.00** | **1.00** | **1.000** | **0.00** | 7.1 s (p95 13 s) |
+
+![Cost-accuracy frontier: single judges vs. k-of-n majority votes](figs/ensemble_frontier.png)
+
+**Finding (honest framing).** The majority vote reaches a **perfect F1 (1.000)** —
+higher than any single judge. But the cost-accuracy frontier tells the real story:
+the best *single* model, Llama 3.1, already attains **F1 0.995 at 0.4 s**, roughly
+**16× faster** than the 7 s ensemble. So voting does **not** buy meaningful raw
+accuracy here. What it buys is **robustness**: the F1=1.000 ensembles *include the
+miscalibrated Llama 3.2* (FPR 0.28 alone), whose 28% benign false-positives are
+**outvoted** by the two well-calibrated judges. Majority voting therefore lets a
+deployer safely fold in a model they do not fully trust — converting a single
+model's silent failure mode (§3.5) into a recoverable minority vote — at a latency
+premium set by the slowest member. The practical recommendation: prefer a single
+validated judge for latency-critical inline use, and reserve majority voting for
+settings where judge calibration is uncertain or must be defended in audit.
 
 ## 4. Discussion & limitations
 
