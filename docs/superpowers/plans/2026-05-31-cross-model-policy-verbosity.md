@@ -8,6 +8,8 @@
 
 **Tech Stack:** existing `qfire` CLI (`bench`, `QFIRE_JUDGE_MODEL` env override), bash, Python 3 stdlib + matplotlib (already used for `scripts/plot_policy_length.py`), local Ollama.
 
+> **⚠️ Amendment (during execution — the committed scripts are authoritative over the code blocks below).** The grid changed: `qwen3:4b`/`qwen3:8b` proved unusable as fast one-line judges (reasoning models that ramble and never emit `IN/OUT SCOPE`, ~10s/call, abstain→allow). Final 6-model grid: `llama3.2` (reused slice), `phi3.5:3.8b`, `llama3.1:8b`, `gemma2:9b`, `gemma4:latest`, `deepseek-r1:latest` (added at user request as a *working* but slow reasoning judge, ~4.1s/call). The attack subset was trimmed 300→**150** and renamed `attacks_subset` (count-agnostic) to keep the run ~9h. Task 1 (pull qwen3:8b) is moot — phi3.5/gemma2/deepseek-r1 were already installed. Slice rows are now **200** (150+50), not 350. See the design's "Grid revision" note for rationale.
+
 ---
 
 ## ⚠️ Critical constraints (read first)
@@ -40,8 +42,8 @@
 |------|------------------|----------------|
 | `scripts/make_attack_subset.py` | Create | Seeded 300-of-929 attack subset: writes the subset JSONL + the chosen sorted indices JSON. Pure helper `pick_indices` unit-tested. |
 | `scripts/test_make_attack_subset.py` | Create | Tests for `pick_indices` (determinism, count, sorted, in-range). |
-| `corpora/policy_length/attacks_sample300/attacks_sample300.jsonl` | Create (output) | The shared 300-attack subset. |
-| `corpora/policy_length/attacks_sample300/indices.json` | Create (output) | The 300 sorted attack indices (for the llama3.2 slice). |
+| `corpora/policy_length/attacks_subset/attacks_subset.jsonl` | Create (output) | The shared 300-attack subset. |
+| `corpora/policy_length/attacks_subset/indices.json` | Create (output) | The 300 sorted attack indices (for the llama3.2 slice). |
 | `scripts/slice_llama32_dumps.py` | Create | Positionally slice existing llama3.2 dumps → `bench-out/policy_length_llama3.2/`. Pure helper `slice_rows` unit-tested. |
 | `scripts/test_slice_llama32_dumps.py` | Create | Tests for `slice_rows`. |
 | `scripts/run_cross_model.sh` | Create | Per-model driver (QFIRE_JUDGE_MODEL, 4 domains × 4 rungs, --no-cache, --dump). |
@@ -141,7 +143,7 @@ import random
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ATTACKS = os.path.join(BASE, "corpora/eval/attacks/public_attacks.jsonl")
-OUT_DIR = os.path.join(BASE, "corpora/policy_length/attacks_sample300")
+OUT_DIR = os.path.join(BASE, "corpora/policy_length/attacks_subset")
 
 
 def pick_indices(total, n, seed):
@@ -166,7 +168,7 @@ def main():
     attacks = load_attacks()
     idx = pick_indices(len(attacks), args.n, args.seed)
     os.makedirs(OUT_DIR, exist_ok=True)
-    sub_path = os.path.join(OUT_DIR, "attacks_sample300.jsonl")
+    sub_path = os.path.join(OUT_DIR, "attacks_subset.jsonl")
     with open(sub_path, "w") as f:
         for i in idx:
             f.write(json.dumps({"prompt": attacks[i]}) + "\n")
@@ -191,13 +193,13 @@ Expected: 3 passed.
 - [ ] **Step 5: Build the subset**
 
 Run: `python3 scripts/make_attack_subset.py --n 300 --seed 42`
-Expected: `wrote 300 attacks -> …/attacks_sample300.jsonl`, indices written, `SUBSET_DONE`.
-Verify: `wc -l < corpora/policy_length/attacks_sample300/attacks_sample300.jsonl` → 300.
+Expected: `wrote 300 attacks -> …/attacks_subset.jsonl`, indices written, `SUBSET_DONE`.
+Verify: `wc -l < corpora/policy_length/attacks_subset/attacks_subset.jsonl` → 300.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add scripts/make_attack_subset.py scripts/test_make_attack_subset.py corpora/policy_length/attacks_sample300
+git add scripts/make_attack_subset.py scripts/test_make_attack_subset.py corpora/policy_length/attacks_subset
 git commit -m "feat(xmodel): seeded 300-attack subset + indices for cross-model ablation"
 ```
 
@@ -266,7 +268,7 @@ import os
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_ROOT = os.path.join(BASE, "bench-out/policy_length")
 DST_ROOT = os.path.join(BASE, "bench-out/policy_length_llama3.2")
-IDX_PATH = os.path.join(BASE, "corpora/policy_length/attacks_sample300/indices.json")
+IDX_PATH = os.path.join(BASE, "corpora/policy_length/attacks_subset/indices.json")
 DOMAINS = ["marketing", "healthcare", "code", "sql"]
 RUNGS = ["t0", "t1", "t2", "t3"]
 
@@ -344,7 +346,7 @@ cd "$(dirname "$0")/.."
 
 QFIRE=./target/release/qfire
 SEED=42
-ATTACKS=corpora/policy_length/attacks_sample300
+ATTACKS=corpora/policy_length/attacks_subset
 
 cargo build --release
 
@@ -384,7 +386,7 @@ Run (qwen3:4b, 2 rungs, 3 prompts — proves wiring + per-model dump path + benc
 ```bash
 QFIRE_JUDGE_MODEL=qwen3:4b ./target/release/qfire bench \
   --chain pl_marketing_t0 --chain pl_marketing_t3 \
-  --attacks corpora/policy_length/attacks_sample300 \
+  --attacks corpora/policy_length/attacks_subset \
   --benign corpora/policy_length/marketing/benign \
   --seed 42 --no-cache --limit 3 \
   --dump bench-out/policy_length_qwen3_4b/_smoke/dump \
@@ -574,7 +576,7 @@ git commit -m "feat(xmodel): cross-model analyzer (accuracy from dumps + latency
 
 Run:
 ```bash
-ls corpora/policy_length/attacks_sample300/attacks_sample300.jsonl
+ls corpora/policy_length/attacks_subset/attacks_subset.jsonl
 ls bench-out/policy_length_llama3.2/marketing/dump/pl_marketing_t0.jsonl
 ollama list | grep -E 'qwen3:4b|qwen3:8b|llama3.1:8b|gemma4'
 ```

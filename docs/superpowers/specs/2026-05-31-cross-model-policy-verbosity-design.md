@@ -22,11 +22,27 @@ Chosen to span ~3B→~12B across three families for a size×family×latency spre
 
 | model (Ollama tag) | ~size | family | role | data source |
 |---|---|---|---|---|
-| `llama3.2:latest` | ~3B | Llama | small/fast baseline | **reuse** existing full dumps, sliced to the 300-attack subset |
-| `qwen3:4b` | ~4B | Qwen | small | run (≈2.2 s/call, clean one-line verdict) |
+| `llama3.2:latest` | ~3B | Llama | small/fast baseline | **reuse** existing full dumps, sliced to the attack subset |
+| `phi3.5:3.8b` | ~3.8B | Phi | small/fast | run (~1–1.5 s/call, clean one-line verdict) |
 | `llama3.1:8b` | ~8B | Llama | mid | run |
-| `qwen3:8b` | ~8B | Qwen | mid | pull (~5 GB), then run |
-| `gemma4:latest` | ~12B | Gemma | large/slow anchor | run (≈9.5 s/call — the latency extreme) |
+| `gemma2:9b` | ~9B | Gemma | mid | run |
+| `gemma4:latest` | ~12B | Gemma | large | run (~3.2 s/call warm) |
+| `deepseek-r1:latest` | ~7B (reasoning) | DeepSeek | reasoning anchor | run (~4.1 s/call warm; accurate but slow) |
+
+> **Grid revision (during execution).** The original grid named `qwen3:4b` and
+> `qwen3:8b`. On test they proved **unusable as fast one-line judges**: qwen3 is a
+> reasoning model that emits a long "Thinking…" monologue and does not produce the
+> required `IN/OUT SCOPE` line even with `think:false` (~10 s/call, mostly
+> abstain→allow → garbage verdicts). One rung had not finished in 17 min. This
+> replicates the qwen3.6 finding in the separate judge-model ablation. They were
+> replaced with `phi3.5:3.8b` and `gemma2:9b` (fast, instruction-following,
+> clean verdicts). At the user's request, `deepseek-r1:latest` was added as a
+> *working* reasoning judge (it DOES emit clean verdicts — attacks→0.85 block,
+> benign→0.15 allow — just slowly at ~4.1 s/call), giving the latency×accuracy
+> Pareto an accurate-but-slow corner. DeepSeek-V3.2 was requested but is not
+> runnable locally (~600B+, not in Ollama). The attack subset was trimmed
+> 300→**150** to keep the 6-model (5-run) sweep to ~9 h; the subset dir is named
+> `attacks_subset` (count-agnostic).
 
 ## Fixed design (inherited, unchanged)
 
@@ -44,7 +60,7 @@ are sampled to **300 of the 929**, built **once** and shared by all models:
 
 - `scripts/make_attack_subset.py`: seeded (seed 42) random selection of 300
   **sorted indices** from `corpora/eval/attacks/public_attacks.jsonl`; writes
-  `corpora/policy_length/attacks_sample300/attacks_sample300.jsonl` in sorted-index
+  `corpora/policy_length/attacks_subset/attacks_subset.jsonl` in sorted-index
   order. Deterministic and reproducible.
 - The 4 new models bench against this subset file → their dumps are in subset
   order.
@@ -77,7 +93,7 @@ writeup calls out where it appears.
 
 - `scripts/run_cross_model.sh`: for each model in the grid (except llama3.2),
   loop the 4 domains running `qfire bench` with the 4 rungs as `--chain` flags,
-  `--attacks corpora/policy_length/attacks_sample300`, `--benign
+  `--attacks corpora/policy_length/attacks_subset`, `--benign
   corpora/policy_length/<domain>/benign`, `--seed 42 --no-cache`, `--dump` and
   `--out` under `bench-out/policy_length_<model_slug>/<domain>/`, with
   `QFIRE_JUDGE_MODEL=<tag>` exported. Model slug = tag with `:`/`.` → `_`.
@@ -133,7 +149,7 @@ whichever way the interaction goes.
 
 ## Artifacts
 
-- `scripts/make_attack_subset.py` (+ test) → `corpora/policy_length/attacks_sample300/`
+- `scripts/make_attack_subset.py` (+ test) → `corpora/policy_length/attacks_subset/`
 - llama3.2 sliced dumps → `bench-out/policy_length_llama3.2/`
 - `scripts/run_cross_model.sh`
 - `scripts/analyze_cross_model.py` (+ test), `scripts/plot_cross_model.py`
