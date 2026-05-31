@@ -286,7 +286,12 @@ over-blocking destroys utility.
 - **LLM judge (Ollama):** the only network-cost node; under local Ollama every
   call is \$0, so firewall overhead is reported as latency. The healthcare chain
   (10 judge rules) shows p95 ≈ 2.8 s, motivating cheap-before-expensive ordering
-  and judicious rule counts.
+  and judicious rule counts. **Judge latency is highly model-dependent** (§3.5):
+  per single judge call we measured p50 ≈ 0.4 s (Llama 3.1 8B) and 0.6 s
+  (Llama 3.2), but **7.2 s for Gemma 4 and 25 s (p95 40 s) for Qwen 3.6** — the
+  verbose reasoning models spend their budget on internal chain-of-thought. For an
+  inline firewall this makes a compact, format-obedient judge model a latency
+  requirement, not just an accuracy one.
 - **Caveat (measurement integrity):** within a *single* `bench` invocation the
   verdict cache is shared across chains, so chains evaluated after the
   DeBERTa-only chain read cached classifier verdicts and report artificially low

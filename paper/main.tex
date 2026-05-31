@@ -413,7 +413,12 @@ costs ${\approx}81$\,ms mean / $255$\,ms p95 (cold) and is paid only when the
 cheap detectors abstain. The LLM judge is the only network-cost node; under local
 Ollama every call is \$0, so overhead is reported as latency, and the
 ten-judge healthcare chain reaches a p95 of ${\approx}2.8$\,s---motivating
-cheap-before-expensive ordering and modest rule counts.
+cheap-before-expensive ordering and modest rule counts. Judge latency is also
+strongly model-dependent (\S\ref{sec:judgeabl}): a single judge call costs
+p50~${\approx}0.4$--$0.6$\,s for the Llama models but $7.2$\,s for Gemma~4 and
+$25$\,s (p95~$40$\,s) for Qwen~3.6, whose chain-of-thought consumes the generation
+budget---so a compact, format-obedient judge model is a latency requirement for an
+inline firewall, not merely an accuracy one.
 \emph{Measurement integrity:} within a single \texttt{bench} invocation the
 verdict cache is shared across chains, so chains evaluated after the DeBERTa-only
 chain read cached classifier verdicts and report artificially low latency. We
