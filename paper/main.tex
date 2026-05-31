@@ -82,11 +82,48 @@ a necessary control~\cite{llamafirewall2025,oneshield2025}.
 
 This work extends the Healthcare AI Agents Regulatory Framework
 (HAARF)~\cite{haarf2026}, a security-verification standard for autonomous AI
-systems in clinical environments from the same group. Where HAARF specifies
-\emph{what} security controls a clinical AI agent must satisfy, QFIRE is a
-concrete, measured \emph{enforcement} layer that hardens those controls at
-runtime---in particular the scope-restriction and PHI-handling requirements that,
-as we show, generic prompt-injection detectors structurally cannot meet.
+systems in clinical environments from the same group. HAARF specifies \emph{what}
+security controls a clinical AI agent must satisfy but is deliberately
+implementation-agnostic; QFIRE is a concrete, measured \emph{enforcement} layer
+that hardens specific HAARF controls at runtime. The mapping is direct
+(Table~\ref{tab:haarf}): QFIRE's injection-defense pack and benchmark harness
+discharge the prompt-injection adversarial-robustness requirement (C3.2.1); its
+regex/Aho-Corasick/entropy filters and de-obfuscation pass implement prompt-layer
+input validation and sanitization (C3.2.3, which QFIRE addresses at the prompt
+level rather than at the HL7/DICOM/FHIR parsing layer); its 18-identifier HIPAA
+Safe-Harbor PHI detector provides the detection-and-redaction component of PHI
+handling and access control (C3.6.1, complementing encryption controls QFIRE does
+not itself provide); its inline proxy with positive-security scope rules
+provides the real-time, clinical-context-aware threat monitoring HAARF asks for
+(C3.4.1, C3.4.4); its declared per-chain scope with fail-closed blocking
+implements autonomy authority boundaries whose violations are automatically
+detected and logged (C6.3.1, C6.3.4); and its immutable, attributable audit log of
+every decision---timestamp, prompt hash, per-node verdicts, confidence, terminal
+decision---satisfies the clinical decision audit-trail requirement (C2.5.1) and
+supplies the evidence trail HAARF verification expects. The controls HAARF most
+emphasizes for clinical agents---scope restriction and PHI handling---are
+precisely the threats that, as we show, generic prompt-injection detectors
+structurally cannot meet.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{p{2.6cm}p{5.4cm}p{4.6cm}}
+\toprule
+HAARF control & Requirement (abridged) & QFIRE mechanism \\
+\midrule
+C3.2.1 & Prompt-injection adversarial-robustness testing on clinical AI assistants & Injection-defense rule pack, embedded DeBERTa classifier, \texttt{qfire bench} harness \\
+C3.2.3 & Input validation/sanitization at integration points (prompt layer) & Regex/Aho-Corasick/entropy detectors + de-obfuscation normalization \\
+C3.4.1,\,C3.4.4 & Real-time threat monitoring with clinical-context awareness & Inline proxy verdicts + positive-security scope rules \\
+C3.6.1 & PHI handling/access control (detection \& redaction component) & 18-identifier HIPAA Safe-Harbor PHI detector/redactor \\
+C2.5.1 & Immutable audit trail: timestamp, input, decision, confidence & Append-only attributable audit log + explainable per-node trace \\
+C6.3.1,\,C6.3.4 & Authority boundaries; violations auto-detected and logged & Declared per-chain scope, fail-closed BLOCK, audit escalation \\
+\bottomrule
+\end{tabular}
+\caption{QFIRE as a concrete enforcement layer for specific HAARF~\cite{haarf2026}
+controls. HAARF defines the verification requirement; QFIRE is the runtime
+mechanism that satisfies it and produces the measured evidence.}
+\label{tab:haarf}
+\end{table}
 
 A recurring tension in this literature is \emph{security robustness versus
 latency}. Heavy semantic verifiers and model-based auditors achieve strong
@@ -617,8 +654,24 @@ over-blocking explicitly.
 \section{Conclusion}
 QFIRE shows that a Rust, parallel, positive-security firewall can combine
 low-latency local inference, de-obfuscation, and scope constraining in one
-reproducible toolchain. All artifacts and the \texttt{make paper} pipeline are
-released for independent verification.
+reproducible toolchain. Its central empirical result is that generic
+prompt-injection detection---even the SOTA PromptGuard-2---is necessary but not
+sufficient in healthcare: on QFIRE-HealthBench the strongest classifier recovers
+only $0.40$ recall, while QFIRE's combined scope+PHI chain reaches $0.83$, because
+most clinical threats carry no injection signal.
+
+Beyond the benchmark, QFIRE gives the HAARF framework~\cite{haarf2026} a concrete,
+testable enforcement layer (Table~\ref{tab:haarf}): the abstract controls for
+adversarial robustness (C3.2), input sanitization (C3.2.3), PHI protection
+(C3.6.1), real-time monitoring (C3.4), autonomy authority boundaries (C6.3), and
+immutable audit trails (C2.5.1) are each realized as a versioned rule, a detector
+node, or the audit log---and, crucially, are \emph{measured} rather than asserted.
+A compliance reviewer can read the YAML that satisfies a control, run
+\texttt{qfire rules test} to check it, and inspect the audit log for evidence.
+This is what we believe a security-verification standard needs to become
+operational: not more conceptual requirements, but inspectable mechanisms with
+benchmarked false-positive and recall rates. All artifacts and the
+\texttt{make paper} pipeline are released for independent verification.
 
 \appendix
 \section{Detailed result tables}\label{app:tables}

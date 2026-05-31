@@ -418,12 +418,22 @@ closes the gap (0.40/0.57/0.59 → 0.83 recall).
 
 **Relationship to HAARF.** This work operationalizes the Healthcare AI Agents
 Regulatory Framework (HAARF) [Schwoebel et al., medRxiv 2026]. HAARF defines *what*
-security controls a clinical AI agent must satisfy (scope restriction,
-minimum-necessary access, PHI protection, auditable refusal); QFIRE is a runtime
-*enforcement and measurement* layer where each control maps to a declarative rule
-or chain, and the immutable audit log is the evidence trail HAARF verification
-expects. The HealthBench result quantifies *why* such a framework cannot rely on a
-generic injection classifier alone.
+security controls a clinical AI agent must satisfy but is implementation-agnostic;
+QFIRE is the concrete runtime *enforcement and measurement* layer. The mapping is
+direct:
+
+| HAARF control | Requirement | QFIRE mechanism |
+|---|---|---|
+| **C3.2.1** | prompt-injection adversarial-robustness testing | injection-defense pack + DeBERTa + `qfire bench` |
+| **C3.2.3** | input validation/sanitization (prompt layer) | regex/Aho/entropy + de-obfuscation pass |
+| **C3.6.1** | PHI handling/access control (detect+redact component) | 18-identifier HIPAA Safe-Harbor PHI detector |
+| **C3.4.1/4.4** | real-time, clinical-context-aware threat monitoring | inline proxy + positive-security scope rules |
+| **C6.3.1/3.4** | authority boundaries; violations auto-detected/logged | declared scope + fail-closed BLOCK + audit |
+| **C2.5.1** | immutable audit trail (timestamp/input/decision/confidence) | append-only attributable audit log + per-node trace |
+
+Each abstract control becomes a versioned rule, a detector node, or the audit log
+— and is *measured* rather than asserted. The HealthBench result quantifies *why*
+such a framework cannot rely on a generic injection classifier alone.
 
 **Why a declarative language matters in regulated settings.** A hospital security
 officer can read, diff, review, and unit-test a chain (`qfire rules test`) without
@@ -452,10 +462,22 @@ inspectable data, not code/weights.
 
 A Rust, parallel, positive-security firewall can combine low-latency local
 inference, de-obfuscation, and scope constraining in one reproducible toolchain.
-QFIRE's hybrid matches/edges the open-SOTA detector while the lexical baselines
-lag, and the de-obfuscation and healthcare results give actionable, honest
-guidance on when each control helps or hurts. All artifacts and the
-`make paper` pipeline are released.
+QFIRE's central empirical result is that generic prompt-injection detection — even
+SOTA PromptGuard-2 — is necessary but not sufficient in healthcare: it recovers
+only 0.40 recall on QFIRE-HealthBench versus QFIRE's 0.83, because most clinical
+threats carry no injection signal.
+
+Beyond the benchmark, QFIRE gives the HAARF framework a concrete, testable
+enforcement layer: its abstract controls for adversarial robustness (C3.2), input
+sanitization (C3.2.3), PHI protection (C3.6.1), real-time monitoring (C3.4),
+autonomy authority boundaries (C6.3), and immutable audit trails (C2.5.1) are each
+realized as a versioned rule, a detector node, or the audit log — and *measured*
+rather than asserted. A reviewer can read the YAML that satisfies a control, run
+`qfire rules test` to check it, and inspect the audit log for evidence. This is
+what a security-verification standard needs to become operational: not more
+conceptual requirements, but inspectable mechanisms with benchmarked
+false-positive and recall rates. All artifacts and the `make paper` pipeline are
+released.
 
 ## 6. Round 2: addressing an agent peer review
 

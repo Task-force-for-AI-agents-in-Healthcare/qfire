@@ -17,3 +17,4 @@ paper/*.synctex.gz
 scripts/__pycache__/
 *.orig
 **/.DS_Store
+/haarf/
