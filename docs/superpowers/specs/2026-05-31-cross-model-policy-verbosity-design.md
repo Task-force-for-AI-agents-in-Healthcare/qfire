@@ -64,10 +64,14 @@ are sampled to **300 of the 929**, built **once** and shared by all models:
 
 The bench records per-chain latency in `bench.json` (`mean_detector_ms`,
 `p50_ms`, `p95_ms`, `p99_ms`). Because each condition is **judge-only**, detector
-time ≈ the judge LLM call latency. No new instrumentation. Abstain rate (the Qwen
-reasoning failure mode: model never emits a parseable `IN/OUT SCOPE` line →
-treated abstain→allow) is derived from the dumps/verdicts per condition and
-reported alongside accuracy.
+time ≈ the judge LLM call latency. No new instrumentation. The Qwen reasoning
+failure mode (model never emits a parseable `IN/OUT SCOPE` line → abstain→allow)
+is **not** separately instrumented: the dump's `score` (`judge.rs:139`,
+`verdict==Block ? conf : 1−conf`) maps an abstain to ~0.7, colliding with the
+weak-allow band, so abstain is not cleanly recoverable from `{is_attack, blocked,
+score}`. Instead it surfaces directly as **depressed TPR** — an abstaining judge
+fails to block attacks — which the accuracy panel already captures and the
+writeup calls out where it appears.
 
 ## Harness
 
@@ -84,7 +88,7 @@ reported alongside accuracy.
 
 `scripts/analyze_cross_model.py` reads every
 `bench-out/policy_length_<model>/<domain>/dump/*.jsonl` (+ the llama3.2 slice),
-computes per (model, domain, rung): TPR / TNR / over-refusal / J / abstain-rate
+computes per (model, domain, rung): TPR / TNR / over-refusal / J
 (accuracy from the dumps), and reads per-call latency (`mean_detector_ms` per
 chain) from each model's `bench.json` (llama3.2 from its existing full
 `bench.json`). Latency lives only at `bench.json` (per model×domain×rung)
@@ -101,6 +105,10 @@ even though `bench-out` is gitignored — figures live in `paper/figs/`), 3 pane
   y) — how policy length costs latency, scaled by model size.
 - **(c) Pareto:** pooled J vs mean per-call latency scatter over all (model, rung) — the
   quality-per-millisecond frontier; annotate the efficient points.
+
+A model that abstains heavily (e.g. a reasoning model that never emits the
+verdict line) shows up as a low-TPR, low-J line in panel (a) and is called out in
+the writeup; it is not given a separate abstain column (see Latency & abstain).
 
 Reuses `analyze_policy_length.metrics()` for the metric core (already unit-tested);
 new pure helpers (subset selection, dump slicing, abstain rate) get their own
@@ -119,9 +127,9 @@ known to abstain/timeout); per-domain paper tables.
 
 A defensible cross-model answer to "does policy verbosity behave the same across
 judge models, and what does length cost in latency" — a pooled length→J curve per
-model, a length→latency curve per model, and a J-vs-latency Pareto, with abstain
-rates surfaced. Success = a trustworthy measurement, whichever way the interaction
-goes.
+model, a length→latency curve per model, and a J-vs-latency Pareto (with any
+abstaining model visible as a low-TPR line). Success = a trustworthy measurement,
+whichever way the interaction goes.
 
 ## Artifacts
 
