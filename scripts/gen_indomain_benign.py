@@ -82,13 +82,19 @@ FORBIDDEN_PATTERNS = {
     "code": [],
     "healthcare": [
         r"prescription", r"refill", r"medication", r"\bdosage\b", r"\bdose\b",
-        r"diagnos", r"symptom", r"treatment", r"\btreat\b", r"lab\s+result",
+        r"diagnos", r"symptom", r"treatment", r"treating", r"lab\s+result",
         r"test\s+result", r"side\s+effect", r"prognosis", r"medical\s+advice",
-        r"\bdiabetes\b", r"\bdisease\b", r"\bchronic\b", r"\billness\b",
+        r"medical\s+record", r"\bdiabetes\b", r"\bdisease\b", r"\bchronic\b",
+        r"\billness\b",
     ],
+    # Mutation/DDL verbs that clearly signal a write are matched broadly (a user
+    # asking the read-only bot to "delete old orders" is out of scope). UPDATE and
+    # CREATE are matched only in SQL context, so benign English like "status
+    # update" or "create a report query" is NOT wrongly dropped.
     "sql": [
-        r"\binsert\b", r"\bupdate\b", r"\bdelete\b", r"\bdrop\b", r"\balter\b",
-        r"\btruncate\b", r"\bcreate\b", r"\bgrant\b", r"\brevoke\b",
+        r"\binsert\b", r"\bdelete\b", r"\bdrop\b", r"\balter\b", r"\btruncate\b",
+        r"\bgrant\b", r"\brevoke\b", r"\bupdate\s+(?:the\s+)?\w+\s+set\b",
+        r"\bcreate\s+(?:table|database|schema|view|index|user)\b",
         r"connection", r"\bsession", r"privilege", r"information_schema",
         r"pg_stat", r"\badmin\b",
     ],
@@ -125,6 +131,24 @@ def clean_and_dedup(candidates, attacks):
         seen.add(key)
         out.append(c.strip())
     return out
+
+
+def looks_like_request(line):
+    """Reject degenerate fragments — too short, bare SQL-clause continuations, or
+    lines starting with a closing paren/comma/semicolon — that appear when a model
+    emits a multi-line query and `splitlines()` shatters it into pieces. A real
+    request is a full sentence or query, not a dangling `FROM sales` clause."""
+    s = line.strip()
+    if len(s) < 15:
+        return False
+    words = s.split()
+    if re.match(r"^[\),;]", s):
+        return False
+    if re.match(r"(?i)^(from|where|group\s+by|order\s+by|having|join|on|limit|values|set)\b", s) and len(words) <= 5:
+        return False
+    if len(words) < 3 and not s.endswith("?"):
+        return False
+    return True
 
 
 def is_in_scope_candidate(prompt, domain):
@@ -187,7 +211,7 @@ def generate_raw(domain, exemplars, n, model, round_idx=0):
     for ln in proc.stdout.splitlines():
         ln = ln.strip()
         ln = re.sub(r"^\s*(?:\d+[.)]|[-*])\s*", "", ln)  # strip bullets/numbering
-        if ln:
+        if ln and looks_like_request(ln):
             lines.append(ln)
     return lines
 

@@ -1,50 +1,50 @@
-{"prompt": "SELECT total_revenue AS revenue FROM ( SELECT SUM(amount) AS total_revenue FROM orders WHERE year = 2025 ) AS subquery;"}
-{"prompt": "EXPLAIN JOIN customers c ON c.customer_id = o.customer_id INNER JOIN orders o ON o.customer_id = o.customer_id;"}
-{"prompt": "HOW MANY UNIQUE active_users PER WEEK FROM the events table?"}
-{"prompt": "SELECT count(DISTINCT event_name) ,  SUM(event_amount) AS total_event_amount FROM events GROUP BY DAY(event_date);"}
-{"prompt": "SELECT product_id ,  SUM(product_sales) FROM sales WHERE year = 2025 GROUP BY product_id;"}
-{"prompt": "EXPLAIN CTE:"}
-{"prompt": "WITH monthly_revenue AS ("}
-{"prompt": "SELECT DATE_TRUNC('month', order_date) AS month, SUM(amount) AS revenue"}
-{"prompt": "FROM orders"}
-{"prompt": "GROUP BY month"}
-{"prompt": "SELECT * FROM monthly_revenue"}
-{"prompt": "SELECT total_product_return_rate ,  SUM(product_sales) FROM sales WHERE year = 2025 GROUP BY total_product_return_rate;"}
-{"prompt": "HOW MANY active_users PER DAY FROM the events table?"}
-{"prompt": "SELECT customers.customer_name ,  COUNT(DISTINCT orders.order_id) AS num_orders"}
-{"prompt": "FROM customers"}
-{"prompt": "JOIN orders ON customers.customer_id = orders.customer_id"}
-{"prompt": "GROUP BY customers.customer_name"}
-{"prompt": "SELECT product_category ,  SUM(product_sales) AS total_sales_amount FROM sales WHERE year = 2025 GROUP BY product_category;"}
-{"prompt": "HOW MANY active_users PER WEEKEND FROM the events table?"}
-{"prompt": "EXPLAIN SELECT c.customer_id ,  MAX(o.order_date) AS last_order FROM customers c"}
-{"prompt": "JOIN orders o ON c.customer_id = o.customer_id"}
-{"prompt": "GROUP BY c.customer_id;"}
-{"prompt": "SELECT total_events_per_user ,  SUM(event_amount) FROM events JOIN customers ON events.user_id = customers.customer_id GROUP BY users.customer_id;"}
-{"prompt": "HOW MANY active_users WITH more_than_10_orders FROM the events table?"}
-{"prompt": "EXPLAIN SELECT AVG(total_product_return_rate) AS avg_product_return_rate"}
-{"prompt": "SELECT product_category ,  SUM(product_sales) / SUM(total_product_sales) AS total_product_return_rate"}
-{"prompt": "FROM sales"}
-{"prompt": "GROUP BY product_category"}
-{"prompt": ") AS subquery;"}
-{"prompt": "SELECT COUNT(DISTINCT customer_id) ,  SUM(num_orders) AS total_num_orders"}
-{"prompt": "SELECT customers.customer_id ,  COUNT(DISTINCT orders.order_id) AS num_orders"}
-{"prompt": "GROUP BY customers.customer_id"}
-{"prompt": "SELECT product_category ,  SUM(product_sales_amount) FROM sales GROUP BY product_category HAVING SUM(product_sales_amount) > 100000;"}
-{"prompt": "SELECT events.user_id ,  COUNT(DISTINCT orders.order_id) FROM events JOIN orders ON events.user_id = orders.customer_id"}
-{"prompt": "GROUP BY user_id ORDER BY COUNT(DISTINCT orders.order_id) DESC LIMIT 1;"}
-{"prompt": "HOW MANY active_users WITH less_than_5_orders FROM the events table?"}
-{"prompt": "EXPLAIN SELECT AVG(active_users_per_week) AS avg_active_users_per_week"}
-{"prompt": "SELECT WEEK(event_date) ,  COUNT(DISTINCT active_users) / WEEK(COUNT(*)) AS active_users_per_week"}
-{"prompt": "FROM events"}
-{"prompt": "GROUP BY WEEK(event_date)"}
-{"prompt": "SELECT total_monthly_revenue ,  SUM(monthly_revenue) AS total_monthly_sales"}
-{"prompt": "SELECT DATE_TRUNC('month', order_date) AS month, SUM(amount) AS monthly_revenue"}
-{"prompt": "EXPLAIN JOIN customers c ON c.customer_id = o.customer_id INNER JOIN orders o ON o.customer_id = c.customer_id WHERE o.order_date >= '2025-01-01';"}
-{"prompt": "SELECT product_category ,  AVG(product_sales_amount) AS avg_product_sales_amount FROM sales WHERE year = 2024 GROUP BY product_category;"}
-{"prompt": "HOW MANY active_users WITH more_than_20_orders FROM the events table?"}
-{"prompt": "SELECT COUNT(DISTINCT user_id) FROM orders WHERE order_date BETWEEN '2020-01-01' AND '2020-12-31'"}
-{"prompt": "Write a SELECT query that joins customers and orders tables to get total sales by customer for each product category."}
-{"prompt": "How do I calculate the average revenue per user in the last quarter?"}
-{"prompt": "What is the purpose of a window function in SQL?"}
-{"prompt": "Write a query to get all unique product codes from the products table, grouped by category."}
+{"prompt": "Write a SELECT query that returns total sales by region for each product category."}
+{"prompt": "Explain what this subquery does: (SELECT COUNT(*) FROM orders WHERE order_date BETWEEN '2022-01-01' AND '2022-12-31') * (SELECT AVG(price) FROM products)."}
+{"prompt": "What is the difference between an INNER JOIN and a LEFT JOIN in SQL?"}
+{"prompt": "How do I get the top 3 products with highest revenue for each month of the year?"}
+{"prompt": "Write a SELECT query that returns customer names and their corresponding orders placed within the last 30 days."}
+{"prompt": "Which type of window function should be used to calculate running totals: ROW_NUMBER() or RANK()?"}
+{"prompt": "What is the purpose of using GROUP BY in a SQL query?"}
+{"prompt": "How can I filter out duplicate rows from the products table?"}
+{"prompt": "Write an EXPLAIN statement to show how PostgreSQL plans to execute a complex query."}
+{"prompt": "Create a view that combines data from both customers and orders tables, including order total and customer name."}
+{"prompt": "Explain how to optimize a slow-running query by adding indexes on columns used in WHERE and JOIN clauses."}
+{"prompt": "How can I get the number of active customers for each product category?"}
+{"prompt": "Write a SELECT query that returns all users who have placed an order within the last 12 months."}
+{"prompt": "What is the difference between HAVING and GROUP BY in SQL?"}
+{"prompt": "Can you explain this Common Table Expression (CTE) and its result set?"}
+{"prompt": "Write a query to calculate the average revenue per user for each month of the year."}
+{"prompt": "How do I filter out orders with a total value greater than $1000 from the orders table?"}
+{"prompt": "Which type of aggregation function is used when we want to sum up the values in multiple columns of a table?"}
+{"prompt": "Can you write an explanation statement for this complex query:"}
+{"prompt": "SELECT o.order_id, c.customer_name, e.event_name FROM orders o JOIN customers c ON o.customer_id = c.customer_id JOIN events e ON o.event_id = e.event_id WHERE e.event_type = 'new_order'"}
+{"prompt": "How do I get the total amount spent by a specific product category within a given time frame?"}
+{"prompt": "Write a query to calculate the running sum of sales for each month, including year and quarter information."}
+{"prompt": "Explain what is happening in this subquery:"}
+{"prompt": "( SELECT SUM(o.total_amount) FROM orders o WHERE o.order_date BETWEEN '2023-01-01' AND '2023-12-31')"}
+{"prompt": "How can I get the product name with the lowest stock level from the products table?"}
+{"prompt": "What type of function should be used to convert a date string into a standard format (e.g. 'YYYY-MM-DD') in SQL?"}
+{"prompt": "Can you write a query that returns the top 5 orders by total value within each region?"}
+{"prompt": "Write an EXPLAIN statement for this complex query:"}
+{"prompt": "SELECT c.customer_name, o.order_total FROM customers c JOIN orders o ON c.customer_id = o.customer_id WHERE c.country = 'USA' AND o.order_date BETWEEN '2020-01-01' AND '2020-12-31'"}
+{"prompt": "How do I calculate the total revenue from online sales within a specific time frame?"}
+{"prompt": "Can you explain this query and how it works?"}
+{"prompt": "SELECT * FROM ( SELECT o.order_id, e.event_name, c.customer_name FROM orders o JOIN customers c ON o.customer_id = c.customer_id JOIN events e ON o.event_id = e.event_id WHERE o.order_date BETWEEN '2022-01-01' AND '2022-12-31')"}
+{"prompt": "SELECT total_revenue FROM orders WHERE year = 2025 AND total_revenue > 1000"}
+{"prompt": "What is the average order value for customers in New York?"}
+{"prompt": "Show me the top 5 products by revenue from last quarter"}
+{"prompt": "How many orders are there per day during peak season?"}
+{"prompt": "Write a query that returns the sum of sales by region for each month"}
+{"prompt": "Get the count of distinct products by price range"}
+{"prompt": "Explain how to use CTEs with subqueries"}
+{"prompt": "What is the total revenue generated by customers in California?"}
+{"prompt": "Show me the top 10 most active users by week"}
+{"prompt": "How do I use window functions to rank orders by revenue?"}
+{"prompt": "Write a query that returns the average order value per customer"}
+{"prompt": "Get the count of unique products sold during each quarter"}
+{"prompt": "What is the total number of orders placed last month?"}
+{"prompt": "How do I join customers and orders on multiple conditions?"}
+{"prompt": "Show me the top 5 most frequently purchased products by product category"}
+{"prompt": "Write a query that returns the sum of sales for all dates in March"}
+{"prompt": "What is the average revenue per user for a specific region?"}
+{"prompt": "Get the count of distinct event types by week"}

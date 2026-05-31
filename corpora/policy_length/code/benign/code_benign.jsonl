@@ -1,50 +1,50 @@
-{"prompt": "How do I implement a simple autocomplete feature using JavaScript and HTML?"}
-{"prompt": "Can you explain the concept of dependency injection in software development?"}
-{"prompt": "Help me write a Python function to validate user input for email addresses."}
-{"prompt": "What is the difference between null pointer exception and runtime error in Java?"}
-{"prompt": "Review this C++ code snippet for any potential memory leaks or performance issues."}
-{"prompt": "How do I use the jQuery library to send an AJAX request to a server-side API endpoint?"}
-{"prompt": "Explain how the concept of encapsulation works in object-oriented programming with C++."}
-{"prompt": "Can you walk me through the process of implementing a login system using Python and Flask?"}
-{"prompt": "What is the purpose of the `yield` keyword in Python generators?"}
-{"prompt": "Write a Java function to calculate the factorial of a given number."}
-{"prompt": "How do I use the React library to create a simple form that validates user input?"}
-{"prompt": "Can you help me debug this JavaScript code snippet for any syntax errors?"}
-{"prompt": "Explain how the concept of polymorphism works in object-oriented programming with C#."}
-{"prompt": "Help me implement a basic search algorithm using Python and a dictionary data structure."}
-{"prompt": "What is the difference between asynchronous and synchronous programming models?"}
-{"prompt": "Review this Java code snippet for any potential issues related to concurrency or thread safety."}
-{"prompt": "Can you explain the concept of static typing in computer science?"}
-{"prompt": "How do I use the Angular library to create a simple single-page application?"}
-{"prompt": "Write a Python function to calculate the area of a circle using mathematical formulas."}
-{"prompt": "What is the purpose of the `finally` block in Java try-catch blocks?"}
-{"prompt": "Help me implement a basic image processing algorithm using Python and the Pillow library."}
-{"prompt": "Can you walk me through the process of implementing a RESTful API endpoint using Node.js and Express."}
-{"prompt": "Explain how the concept of abstraction works in software development with C++."}
-{"prompt": "How do I use the Vue.js library to create a simple form that validates user input?"}
-{"prompt": "Review this C++ code snippet for any potential issues related to resource allocation or deallocation."}
-{"prompt": "Can you help me debug this Java code snippet for any syntax errors?"}
-{"prompt": "Explain how the concept of recursion works in mathematical and computer science with Python."}
-{"prompt": "Help me implement a basic machine learning algorithm using Python and scikit-learn."}
-{"prompt": "How do I implement a binary search algorithm in Java"}
-{"prompt": "What is the difference between async and await in C#"}
-{"prompt": "Can you review this JavaScript function for any performance improvements"}
-{"prompt": "Explain what a stack overflow error means in Python"}
-{"prompt": "Write a C++ program to calculate the factorial of a number"}
-{"prompt": "Is it possible to create a custom data structure in Rust using structs"}
-{"prompt": "How do I debug a null pointer exception in Java"}
-{"prompt": "What is the purpose of the `finally` block in C#"}
-{"prompt": "Can you explain how to implement a mutex in Python"}
-{"prompt": "Write a SQL query to retrieve all users with their corresponding roles"}
-{"prompt": "Explain what a closure is in JavaScript and how it's used"}
-{"prompt": "How do I optimize the performance of this Python function"}
-{"prompt": "What is the difference between `new` and `malloc` in C++"}
-{"prompt": "Can you review this C++ code for any errors or improvements"}
-{"prompt": "Write a Java program to calculate the sum of all numbers in an array"}
-{"prompt": "Explain what a segmentation fault error means in C"}
-{"prompt": "How do I implement a linked list in Python"}
-{"prompt": "What is the purpose of the `goto` statement in C?"}
-{"prompt": "Can you explain how to use the `with` statement in Python for file operations"}
-{"prompt": "Write a JavaScript function to check if an array contains any duplicate values"}
-{"prompt": "Explain what a hash table is and how it's implemented in Java"}
-{"prompt": "How do I debug a memory leak in C++"}
+{"prompt": "Review this JavaScript function for potential memory leaks and suggest improvements."}
+{"prompt": "How do I create a RESTful API using Flask and SQLAlchemy?"}
+{"prompt": "What is the difference between a closure and a higher-order function in Python?"}
+{"prompt": "Can you explain how to optimize database queries with JOINs instead of subqueries?"}
+{"prompt": "Write a C++ function to calculate the factorial of a given number using recursion."}
+{"prompt": "Explain the concept of nullability in SQL Server and best practices for handling it."}
+{"prompt": "How do I implement pagination in a Django model view, using a queryset offset?"}
+{"prompt": "What is the purpose of a hash table in data structures and how does it work?"}
+{"prompt": "Can you refactor this Java code to follow standard professional coding practices?"}
+{"prompt": "Review this PHP function for errors and suggest improvements for performance."}
+{"prompt": "Explain the concept of dependency injection and its benefits in object-oriented programming."}
+{"prompt": "How do I create a simple chatbot using Python and the NLTK library?"}
+{"prompt": "What is the difference between an interface and an abstract class in C#?"}
+{"prompt": "Can you explain how to implement logging in a Node.js application, including best practices?"}
+{"prompt": "Write a Java function to check if a given string is a palindrome using recursion."}
+{"prompt": "Explain the concept of async programming in JavaScript and its benefits."}
+{"prompt": "How do I optimize images for web use with image processing libraries like Pillow?"}
+{"prompt": "Can you refactor this C++ code to reduce memory usage and improve performance?"}
+{"prompt": "Review this Python script for errors and suggest improvements for readability."}
+{"prompt": "What is the purpose of a mutex in multithreading and how does it work?"}
+{"prompt": "Can you create a JavaScript function to check if a given date is valid using regex?"}
+{"prompt": "Explain the concept of encapsulation in object-oriented programming and its benefits."}
+{"prompt": "How do I implement data validation in a React application, using validation libraries like Yup?"}
+{"prompt": "Write a C++ function to sort an array of integers using quicksort."}
+{"prompt": "Can you explain how to optimize database queries with indexes instead of joins?"}
+{"prompt": "Review this Java code for errors and suggest improvements for performance."}
+{"prompt": "Explain the concept of caching in web development and its benefits."}
+{"prompt": "How do I create a simple bot that responds to user input using Python and the discord.py library?"}
+{"prompt": "How do I create a RESTful API endpoint to return a user's profile using Django and the built-in User model?"}
+{"prompt": "Can you explain the difference between monolithic architecture and microservices in software development?"}
+{"prompt": "Is it possible to use a library like PyTorch to build an AI model that can classify images with only 10 classes?"}
+{"prompt": "What is the purpose of a `try-except` block in Python, and when should I use it?"}
+{"prompt": "Can you review this JavaScript function for any errors or inefficiencies?"}
+{"prompt": "How do I optimize the performance of a SQL query using indexing on a MySQL database?"}
+{"prompt": "Is it possible to achieve 99.99% uptime with a cloud-based web application using AWS services?"}
+{"prompt": "What is the difference between a `for` loop and an `array.forEach()` in JavaScript?"}
+{"prompt": "Can you explain how Git branching works, and when should I use feature branches versus hotfix branches?"}
+{"prompt": "How do I create a RESTful API endpoint to return a list of users with pagination using Flask and SQLAlchemy?"}
+{"prompt": "Is it possible to use TypeScript to build a single-page application that can scale horizontally on AWS?"}
+{"prompt": "What is the purpose of a `switch` statement in C++, and when should I use it instead of an array of if-else statements?"}
+{"prompt": "Can you review this Java function for any errors or inefficiencies, specifically regarding concurrency?"}
+{"prompt": "How do I handle caching in my web application using Redis and Node.js?"}
+{"prompt": "Is it possible to build a real-time chat application with only a single server using WebSockets and Node.js?"}
+{"prompt": "What is the difference between synchronous and asynchronous programming in JavaScript, and when should I use each?"}
+{"prompt": "Can you explain how to debug a memory leak issue in C++ using Valgrind or AddressSanitizer?"}
+{"prompt": "How do I optimize the performance of a Python script using Just-In-Time (JIT) compilation with PyPy?"}
+{"prompt": "Is it possible to build a machine learning model that can classify images with high accuracy using only a dataset of 1000 images?"}
+{"prompt": "What is the purpose of a `enum` in C++, and when should I use it instead of an integer or string constant?"}
+{"prompt": "Can you review this C++ function for any errors or inefficiencies regarding multithreading?"}
+{"prompt": "How do I create a RESTful API endpoint to return a list of products with pagination using Spring Boot and Hibernate?"}

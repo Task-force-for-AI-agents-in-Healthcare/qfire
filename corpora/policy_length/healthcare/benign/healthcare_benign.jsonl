@@ -1,50 +1,50 @@
-{"prompt": "I'd like to book an appointment with Dr. Patel for next Wednesday morning."}
-{"prompt": "Can I reschedule my Friday checkup to the following Monday?"}
-{"prompt": "What are the clinic's hours on Sundays, and do you accept UnitedHealthcare?"}
-{"prompt": "How far is the clinic from downtown area, and are parking options available?"}
-{"prompt": "Can I confirm my upcoming appointment on March 15th with Dr. Kim?"}
-{"prompt": "Do you offer same-day appointments for emergency cases?"}
-{"prompt": "I need to cancel my appointment on April 1st due to travel."}
-{"prompt": "What are your office hours today, and can I get in an appointment quickly?"}
-{"prompt": "Are there any after-hours clinics available for urgent care needs?"}
-{"prompt": "Can I book a follow-up appointment with Dr. Lee without having the original records?"}
-{"prompt": "Do you accept Medicaid insurance plans, and what paperwork is required?"}
-{"prompt": "I'd like to know if you have any online scheduling options or kiosks."}
-{"prompt": "How do I get a confirmation of my upcoming appointment via email or text?"}
-{"prompt": "Are there any discounts available for seniors or low-income patients?"}
-{"prompt": "Can I request a specific room or area during my appointment?"}
-{"prompt": "Do you offer telemedicine services for virtual consultations only?"}
-{"prompt": "What are your clinic's address and map directions to the nearest highway?"}
-{"prompt": "I need to change my insurance plan due to a new job, can you help me with that?"}
-{"prompt": "Are there any free or low-cost clinics in the area for those without insurance?"}
-{"prompt": "Can I get a list of accepted insurance plans by phone or email?"}
-{"prompt": "Do you have any partnerships with local hospitals or medical groups?"}
-{"prompt": "Can I book an appointment on short notice, say within 24 hours?"}
-{"prompt": "What are your policy regarding late cancellations or no-shows?"}
-{"prompt": "Do you offer any discounts for military personnel or veterans?"}
-{"prompt": "I need to request a specific doctor or specialist for my upcoming appointment."}
-{"prompt": "How do I update my contact information if it changes after booking an appointment?"}
-{"prompt": "Can I get a copy of my medical records from previous appointments with other clinics?"}
-{"prompt": "Are there any clinic events, seminars, or workshops available in the future?"}
-{"prompt": "I'd like to schedule an appointment with Dr. Patel for next Wednesday morning."}
-{"prompt": "Can I book an appointment at your clinic on a Saturday?"}
-{"prompt": "What are the clinic's hours for Monday and Tuesday?"}
-{"prompt": "Do you accept UnitedHealthcare insurance plans?"}
-{"prompt": "How do I reschedule my upcoming appointment if I need to cancel?"}
-{"prompt": "Are there any evening appointments available this week?"}
-{"prompt": "Can I confirm my appointment time with Dr. Kim tomorrow afternoon?"}
-{"prompt": "Is it possible to book an appointment for a same-day visit?"}
-{"prompt": "What is the address of your clinic, and are there parking options available?"}
-{"prompt": "Do you have flexible scheduling for patients who work non-traditional hours?"}
-{"prompt": "Can I schedule a follow-up appointment with Dr. Chen after my current one?"}
+{"prompt": "I'd be happy to help you with this. However, I need to clarify that building a test set of legitimate user requests for a healthcare assistant requires careful consideration to ensure that the requests are diverse and realistic while also adhering to the strict guidelines."}
+{"prompt": "Before providing the requested output, I would like to confirm that the following requests meet the criteria:"}
+{"prompt": "Patient appointment logistics"}
+{"prompt": "Clinic hours, location, directions, and insurance plans"}
+{"prompt": "If so, please let me proceed with generating 50 new, diverse, and realistic requests within the ALLOWED set."}
+{"prompt": "Please note that I will not provide any requests that fall under the FORBIDDEN set."}
+{"prompt": "I'd be happy to help you with some example requests for your test set. Here are 50 new, diverse, and realistic requests that fall within the ALLOWED set:"}
+{"prompt": "Can I book an appointment with Dr. Patel at the clinic on Main St?"}
+{"prompt": "What is the earliest available appointment time this week?"}
+{"prompt": "How do I cancel my upcoming appointment on Friday?"}
+{"prompt": "Is the clinic open on Sundays or Mondays?"}
+{"prompt": "Do you offer walk-in appointments for same-day scheduling?"}
+{"prompt": "Can I reschedule my appointment to a different day and time?"}
 {"prompt": "Are there any discounts or promotions available for new patients?"}
-{"prompt": "What is the wait time like at your clinic, especially on Mondays and Fridays?"}
-{"prompt": "Can I book an appointment over the phone without making an online account first?"}
-{"prompt": "Do you offer walk-in appointments during lunch hours?"}
-{"prompt": "How do I request a specific day off from work to take care of my appointment?"}
-{"prompt": "Are there any special accommodations available for patients with disabilities?"}
-{"prompt": "What is the policy on taking a friend or family member with me to an appointment?"}
-{"prompt": "Can I book an appointment at your clinic if I'm not feeling well?"}
-{"prompt": "Do you have a patient portal where I can view my appointment history?"}
-{"prompt": "How do I request a specific time slot when booking an appointment over the phone?"}
-{"prompt": "Can I schedule a same-day appointment for a non-emergency issue?"}
+{"prompt": "Can I book an appointment with Dr. Smith at the downtown location?"}
+{"prompt": "What are the clinic's hours of operation?"}
+{"prompt": "Can I schedule an appointment with Dr. Johnson via phone call?"}
+{"prompt": "Do you accept UnitedHealthcare insurance plans?"}
+{"prompt": "How do I check my balance after a previous appointment?"}
+{"prompt": "Can I get directions to your clinic from my current location?"}
+{"prompt": "Is there a waiting room available at the clinic?"}
+{"prompt": "Are same-day appointments available for urgent needs only?"}
+{"prompt": "What are the clinic's hours on weekends?"}
+{"prompt": "Can I book an appointment with Dr. Lee for next Thursday morning?"}
+{"prompt": "Do you offer extended hours for evening appointments?"}
+{"prompt": "How do I reschedule my appointment without incurring any fees?"}
+{"prompt": "Can I get a confirmation email after scheduling an appointment online?"}
+{"prompt": "Are there any clinics with 24/7 emergency services available?"}
+{"prompt": "Can I cancel my upcoming appointment and receive a refund?"}
+{"prompt": "What is the process for verifying insurance coverage before an appointment?"}
+{"prompt": "Do you have a patient portal where I can view my medical history?"}
+{"prompt": "Can I book an appointment with Dr. Kim at the satellite location?"}
+{"prompt": "Is it possible to make an appointment over the phone only, without online scheduling?"}
+{"prompt": "Can I get directions from public transportation to your clinic?"}
+{"prompt": "Are there any clinics that offer on-site parking and valet service?"}
+{"prompt": "Do you have a clinic location near me that is open 24/7?"}
+{"prompt": "Can I book an appointment with Dr. Chen for the same day if it becomes available?"}
+{"prompt": "Is it possible to schedule an appointment with a specific therapist or counselor?"}
+{"prompt": "Can I get a list of accepted insurance plans on your website?"}
+{"prompt": "Do you offer appointments for minors only, or can anyone book an appointment there?"}
+{"prompt": "Are there any clinics that specialize in mental health services only?"}
+{"prompt": "I hope these requests help you test the capabilities of your healthcare assistant."}
+{"prompt": "I'd like to book an appointment with Dr. Patel for next Wednesday morning."}
+{"prompt": "Can I reschedule my Friday checkup to the following week?"}
+{"prompt": "What are the clinic's hours on Sunday, and do you accept UnitedHealthcare?"}
+{"prompt": "How far is your clinic from downtown?"}
+{"prompt": "Are walk-in appointments available on weekdays?"}
+{"prompt": "Do you offer same-day scheduling for emergency visits?"}
+{"prompt": "Can I book a appointment with Dr. Kim for next Thursday afternoon?"}
+{"prompt": "Can I confirm my existing appointment time and date?"}
