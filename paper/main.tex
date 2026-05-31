@@ -4,6 +4,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{afterpage}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
@@ -79,6 +80,29 @@ context, instruction-override, role-play jailbreak, and adversarial-suffix
 attacks remain effective despite model alignment~\cite{perez2022,greshake2023}.
 Runtime gateways that intercept prompts before they reach the model are therefore
 a necessary control~\cite{llamafirewall2025,oneshield2025}.
+
+A review of recent runtime guardrails reveals several distinct architectural
+philosophies (Table~\ref{tab:related}). LlamaFirewall~\cite{llamafirewall2025}
+chains modular Python detectors (PromptGuard~2, AlignmentCheck, CodeShield) for
+deep multi-stage auditing; OneShield~\cite{oneshield2025} runs a parallelized
+multi-detector gateway for enterprise policy and PII; the Cognitive
+Firewall~\cite{cognitivefirewall2026} splits computation between fast edge lexical
+screening and cloud semantic verification for browser agents;
+PSG-Agent~\cite{psgagent2025} builds per-user personality profiles to adapt safety
+thresholds to intent drift; and Semantic Firewalls~\cite{semanticfirewall2026}
+transform prompts into a type-safe closed vocabulary to eliminate syntactic
+bypasses. Across these designs a single tension recurs: \emph{security robustness
+is tightly coupled to latency}. Heavy semantic verifiers and model-based auditors
+achieve strong detection but add hundreds of milliseconds of Python-hosted
+inference, while deterministic lexical filters run in sub-milliseconds yet miss
+obfuscated or semantically disguised payloads~\cite{llamafirewall2025,greshake2023}.
+A second gap is orthogonal to latency: these systems are tuned for \emph{generic}
+injection and policy violations, not for the scope-restriction and
+protected-health-information (PHI) obligations of clinical deployment---threats
+that, as we show, carry no injection signal at all. QFIRE targets both gaps with
+an ultra-low-latency, zero-trust parallel prompt firewall in Rust that adds
+positive-security scope constraining and a HIPAA PHI panel to the inline-proxy
+design.
 
 This work extends the Healthcare AI Agents Regulatory Framework
 (HAARF)~\cite{haarf2026}, a security-verification standard for autonomous AI
@@ -170,27 +194,48 @@ injection~\cite{greshake2023}). The defender controls a network position
 purpose and (b) detect injection/jailbreak attempts, while preserving throughput.
 Table~\ref{tab:related} situates QFIRE against representative recent systems.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering\small
-\begin{tabular}{p{2.5cm}p{4.0cm}p{4.5cm}p{3.0cm}}
+\begin{tabular}{p{2.3cm}p{3.5cm}p{3.3cm}p{3.4cm}p{3.0cm}}
 \toprule
-Framework & Design & Advantage & Limitation \\
+Framework & Core design & Threat focus & Primary advantage & Operational limitation \\
 \midrule
-LlamaFirewall~\cite{llamafirewall2025} & Python middleware (PromptGuard~2,
-AlignmentCheck, CodeShield) & Deep multi-stage auditing & Python/PyTorch
-inference latency \\
-OneShield~\cite{oneshield2025} & Parallel multi-detector gateway & Dynamic
-scale-out, parallel execution & External API management \\
-garak~\cite{garak2024} & Vulnerability scanner / probe suite & Broad attack
-coverage & Offline scanner, not an inline filter \\
-\textbf{QFIRE (ours)} & Rust async detector graph + positive scope & Low-latency
-local inference, de-obfuscation, scope constraining & Single-node;
-judge cost grows with rules \\
+LlamaFirewall~\cite{llamafirewall2025} & Modular Python middleware interceptor &
+Prompt injection, goal hijacking, insecure code generation & Deep multi-stage
+auditing (PromptGuard~2, AlignmentCheck, CodeShield) & High latency from Python /
+PyTorch inference \\
+OneShield~\cite{oneshield2025} & Standalone parallelized multi-detector gateway &
+Enterprise policy violations, PII leakage, copyright & Dynamic scale-out; unified
+parallel low-latency execution & Reliance on external API management and standard
+datasets \\
+Cognitive Firewall~\cite{cognitivefirewall2026} & Split-computing edge-to-cloud
+architecture & Indirect injection in autonomous browser agents & Fast lexical
+edge screening minimizes local load & Cloud semantic verification raises privacy
+and latency issues \\
+PSG-Agent~\cite{psgagent2025} & Training-free personalized runtime guardrail &
+Adaptive user-specific risk, intent drift over turns & Per-user profiling tailors
+safety thresholds & High compute cost; hard to deploy stateless \\
+Semantic Firewalls~\cite{semanticfirewall2026} & Abstractive protocol transformer
+/ online ensemble & Contextual data leakage, tool-parameter and syntax bypass &
+Type-safety, closed vocabularies, string isolation & Demands structured,
+application-specific translation schemas \\
+garak~\cite{garak2024} & Vulnerability scanner / probe suite & Broad red-team
+attack coverage & Comprehensive offline attack library & Offline scanner, not an
+inline filter \\
+\textbf{QFIRE (ours)} & Rust async detector graph + positive scope, inline proxy &
+Injection \emph{and} out-of-scope/PHI drift in clinical agents & Low-latency local
+inference, de-obfuscation, declarative scope constraining, no Python in the hot
+path & Single-node; LLM-judge cost grows with rule count \\
 \bottomrule
 \end{tabular}
-\caption{QFIRE relative to representative guardrail/red-team systems.}
+\caption{QFIRE relative to representative guardrail and red-team systems. Existing
+inline guardrails optimize either deep auditing (LlamaFirewall), parallel
+scale-out (OneShield), edge offloading (Cognitive Firewall), per-user adaptation
+(PSG-Agent), or type-safe protocol translation (Semantic Firewalls); none target
+the low-latency, declarative, positive-security scope+PHI enforcement QFIRE
+provides for clinical agents.}
 \label{tab:related}
-\end{table}
+\end{table*}
 
 \begin{figure}[t]
 \centering
@@ -227,19 +272,24 @@ representation; the firewall evaluates the extracted prompt and, on \textsc{allo
 transparently forwards the original request downstream. Figure~\ref{fig:arch}
 shows the end-to-end path: SDKs reach QFIRE by changing only their base URL, the
 engine evaluates the selected chain on a Tokio runtime, and every decision is
-written to an immutable audit log before a request is forwarded or refused.
+written to an immutable audit log before a request is forwarded or refused
+(Figure~\ref{fig:arch}, shown full-page next).
 
-\begin{figure*}[t]
+\afterpage{%
+\clearpage
+\begin{figure}[p]
 \centering
-\includegraphics[width=0.96\textwidth]{figs/architecture.png}
-\caption{QFIRE system architecture. Wire-compatible adapters accept native
-OpenAI/Anthropic/Gemini/Ollama traffic; requests are normalized, routed to a
+\includegraphics[height=0.94\textheight,keepaspectratio]{figs/architecture.png}
+\caption{QFIRE system architecture (top to bottom). Wire-compatible adapters accept
+native OpenAI/Anthropic/Gemini/Ollama traffic; requests are normalized, routed to a
 chain, and evaluated by an asynchronous detector graph with a verdict cache.
 On \textsc{allow} the original request is forwarded (and the response streamed
 back); on \textsc{block} a refusal envelope with an explainable trace is returned.
 Every decision is appended to an immutable audit log.}
 \label{fig:arch}
-\end{figure*}
+\end{figure}
+\clearpage
+}
 
 \subsection{Rules, chains, and collapse}
 A \emph{rule} declares a natural-language scope and an ordered \emph{detector
@@ -394,7 +444,7 @@ precision, recall, F1, false-positive rate, accuracy with 95\% Wilson score
 intervals~\cite{wilson1927}, ROC--AUC (from continuous detector scores), and
 latency percentiles (p50/p95/p99). Runs are seeded and described by a manifest.
 
-\section{Results}
+\section{Results}\label{sec:results}
 \subsection{Head-to-head detection}
 Figure~\ref{fig:rocpr} shows the detector curves on the public corpus; the exact
 numbers are in Table~\ref{tab:main} (Appendix~\ref{app:tables}). On generic
@@ -674,6 +724,39 @@ declarative rule or chain (e.g.\ minimum-necessary $\rightarrow$
 trail HAARF verification expects. The HealthBench result quantifies why such a
 framework cannot rely on a generic injection classifier alone: the controls HAARF
 most cares about are precisely the threats that carry no injection signal.
+
+\paragraph{Positioning against other guardrail architectures.}
+QFIRE makes deliberate trade-offs relative to the systems in
+Table~\ref{tab:related}, with clear wins and clear costs. Versus
+\textbf{LlamaFirewall}~\cite{llamafirewall2025}, QFIRE gives up LlamaFirewall's
+deepest auditing stage (AlignmentCheck's chain-of-thought reasoning audit) but
+eliminates the Python/PyTorch latency tax by running detection in a single Rust
+binary with embedded ONNX---and, on generic injection, its hybrid is statistically
+even with the PromptGuard-2 model LlamaFirewall is built around
+(\S\ref{sec:results}). Versus \textbf{OneShield}~\cite{oneshield2025}, QFIRE shares
+the parallel multi-detector design but removes the dependence on external API
+management and replaces opaque classifiers with declarative, unit-testable YAML
+policy; OneShield's enterprise-scale dynamic scale-out is something QFIRE's
+single-node design does not attempt. Versus the \textbf{Cognitive
+Firewall}~\cite{cognitivefirewall2026}, QFIRE keeps \emph{all} computation local,
+which matters under HIPAA---the Cognitive Firewall's cloud semantic stage raises
+exactly the privacy and latency concerns a clinical deployment must avoid---at the
+cost of not exploiting edge/cloud offloading for scale. Versus
+\textbf{PSG-Agent}~\cite{psgagent2025}, QFIRE is stateless and per-request rather
+than per-user-adaptive: it cannot model intent drift across a user's history, but
+it deploys trivially in stateless, audit-friendly environments where PSG-Agent's
+profiling is impractical. Versus \textbf{Semantic
+Firewalls}~\cite{semanticfirewall2026}, QFIRE accepts free-form prompts and natural
+scope descriptions rather than demanding an application-specific type-safe protocol,
+trading the strongest syntactic-bypass guarantees for drop-in adoption (only the
+base URL changes). The common thread: QFIRE's contribution is not a single stronger
+detector but the combination of \emph{low-latency local execution},
+\emph{declarative auditable policy}, and \emph{positive-security scope+PHI
+enforcement}---a point in the design space none of these systems occupies, and the
+one clinical agents need. The flip side is honest: QFIRE is single-node, its
+LLM-judge cost grows with rule count, and it does not provide the cross-turn
+reasoning audits, per-user adaptation, or formal protocol guarantees that
+specialized systems do.
 
 \paragraph{Why a declarative language matters in regulated settings.}
 The baselines encode policy in Python and model weights; QFIRE encodes it in
