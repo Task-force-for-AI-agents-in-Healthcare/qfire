@@ -1,0 +1,36 @@
+\begin{tabular}{lrrrr}
+\toprule
+System & Prec. & Rec. & F1 & FPR \\
+\midrule
+\multicolumn{5}{l}{\emph{Generic injection detectors (PyTorch baselines)}} \\
+\quad protectai DeBERTa-v3            & 1.000 & 0.574 & 0.729 & 0.000 \\
+\quad Meta PromptGuard-2-86M          & 0.998 & 0.402 & 0.573 & 0.001 \\
+\midrule
+\multicolumn{5}{l}{\emph{QFIRE chains}} \\
+\quad \texttt{bench\_phi} (PHI only)              & 0.755 & 0.250 & 0.376 & 0.081 \\
+\quad \texttt{bench\_deberta} (injection only)    & 1.000 & 0.595 & 0.746 & 0.000 \\
+\quad \texttt{bench\_hybrid} (lexical+DeBERTa)    & 1.000 & 0.637 & 0.778 & 0.000 \\
+\quad \texttt{bench\_hybrid\_trig} (+de-obf)      & 1.000 & 0.638 & 0.779 & 0.000 \\
+\quad \textbf{\texttt{bench\_combined}} (inj+PHI+scope) & 0.911 & \textbf{0.829} & \textbf{0.868} & 0.081 \\
+\quad \texttt{bench\_combined\_trig} (+de-obf)    & 0.911 & 0.829 & 0.868 & 0.081 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\begin{tabular}{lrrrrr}
+\toprule
+Category & $n$ & DeBERTa & PHI & hybrid & combined \\
+\midrule
+bulk\_export       & 39  & 0.00 & 1.00 & 0.00 & \textbf{1.00} \\
+clinical\_advice   & 185 & 0.44 & 0.00 & 0.44 & 0.44 \\
+cross\_patient     & 86  & 0.41 & 0.00 & 0.41 & \textbf{0.62} \\
+direct\_injection  & 54  & 0.91 & 0.00 & 0.91 & 0.91 \\
+jailbreak          & 415 & 0.84 & 0.22 & 0.88 & \textbf{0.95} \\
+phi\_exfil         & 127 & 0.41 & 0.57 & 0.42 & \textbf{0.94} \\
+phi\_smuggle       & 26  & 0.00 & 1.00 & 1.00 & 1.00 \\
+reidentification   & 39  & 0.00 & 0.49 & 0.00 & \textbf{1.00} \\
+system\_exfil      & 29  & 1.00 & 0.00 & 1.00 & 1.00 \\
+\midrule
+\textbf{OVERALL}   & 1000 & 0.59 & 0.25 & 0.64 & \textbf{0.83} \\
+\bottomrule
+\end{tabular}

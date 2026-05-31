@@ -24,10 +24,15 @@ cheap-before-expensive short-circuiting; and (iii) a **de-obfuscation
 normalization pass**. It ships ~100 versioned rules, an 18-identifier HIPAA
 Safe-Harbor PHI panel, and runs `protectai/deberta-v3-base-prompt-injection`
 locally via embedded ONNX Runtime. On 1,968 public prompt-injection/jailbreak
-prompts, QFIRE's deterministic hybrid attains **F1 0.86**, edging the open-SOTA
-DeBERTa-v3 detector (F1 0.84) while the lexical-only baselines lag (F1
-0.16–0.50). We report precision/recall/F1 with 95% Wilson intervals, ROC–AUC,
-and latency percentiles; everything regenerates from `make paper`.
+prompts, QFIRE's deterministic hybrid attains **F1 0.86** — statistically on par
+with Meta's **PromptGuard-2-86M** (F1 0.86, the strongest single classifier we
+measured) and above the protectai DeBERTa-v3 detector (F1 0.83), while
+lexical-only baselines lag (F1 0.16–0.50). QFIRE's larger and more decisive gains
+are on **healthcare scope/PHI** (QFIRE-HealthBench, §7): the same SOTA
+PromptGuard-2 recovers only **0.40 recall** there (DeBERTa 0.57), versus **0.83**
+for QFIRE's combined scope+PHI chain, because most healthcare threats carry no
+injection signal. We report precision/recall/F1 with 95% Wilson intervals,
+ROC–AUC, and latency percentiles; everything regenerates from `make paper`.
 
 ## 1. Introduction & contributions
 
@@ -49,7 +54,9 @@ and latency percentiles; everything regenerates from `make paper`.
 - **Baselines:** `protectai/deberta-v3-base-prompt-injection` — the de-facto
   open detector and the engine inside Protect AI LLM Guard — run by QFIRE via
   Rust ONNX (identical weights); lexical regex / Aho-Corasick / entropy filters;
-  Meta `Llama-Prompt-Guard-2-86M` (gated; reported by citation).
+  and Meta `Llama-Prompt-Guard-2-86M` (PromptGuard-2), run locally in PyTorch on
+  the identical corpus (gate accepted; weights downloaded with an authorized HF
+  token) — no longer reported by citation but measured head-to-head.
 - **Metrics:** attack = positive class; precision, recall, F1, FPR, accuracy
   with 95% Wilson intervals, ROC–AUC (continuous detector score), and latency.
 
@@ -64,6 +71,7 @@ and latency percentiles; everything regenerates from `make paper`.
 | Entropy heuristic | 0.83 | 0.09 | 0.16 | 0.02 | 0.78 | <0.1 ms |
 | DeBERTa-v3 (protectai, PyTorch baseline) | 0.98 | 0.72 | 0.83 | 0.01 | — | 193 ms (p95) |
 | **DeBERTa-v3 (real ONNX, ours)** | 0.98 | 0.74 | 0.84 | 0.02 | **0.925** | 255 ms (p95) |
+| **PromptGuard-2-86M (Meta, PyTorch)** | **1.00** | 0.76 | **0.86** | **0.00** | — | 47 ms (p50) |
 | **QFIRE hybrid** | 0.97 | 0.77 | **0.86** | 0.02 | — † | short-circuited ‡ |
 | Hybrid + de-obf (forced, clean traffic) | 0.73 | 0.83 | 0.78 | 0.27 | — † | 279 ms (p95) |
 
@@ -72,11 +80,15 @@ chains the terminal "score" mixes 0/1 lexical signals with the classifier
 probability and is not a calibrated ranking, so we omit it.
 ‡ See §3.4 on latency and the cross-chain cache caveat.
 
-**Finding.** The QFIRE deterministic hybrid (Aho-Corasick → regex → entropy →
-DeBERTa, stop-on-first-block) attains the best F1 (**0.86**), narrowly above the
-open-SOTA DeBERTa-v3 detector alone (0.84), by letting cheap detectors raise
-recall before the classifier; lexical-only filters are precise but low-recall
-(F1 0.16–0.50), confirming the "fast-but-blind" gap.
+**Finding.** On generic injection the QFIRE deterministic hybrid (Aho-Corasick →
+regex → entropy → DeBERTa, stop-on-first-block) and Meta's PromptGuard-2 are
+**statistically tied at the top (F1 0.86)**, both above the protectai DeBERTa-v3
+detector alone (0.84). PromptGuard-2 reaches that F1 with the cleanest precision
+(1.00, FPR 0.00); QFIRE matches it by letting cheap detectors raise recall before
+its own classifier. Lexical-only filters are precise but low-recall (F1
+0.16–0.50), confirming the "fast-but-blind" gap. We do **not** claim QFIRE beats
+PromptGuard-2 on generic injection — they are even; QFIRE's distinguishing value
+is the scope/PHI and latency-budget story (§3.3, §7), not a generic-detector win.
 
 **Accuracy with 95% Wilson confidence intervals** (QFIRE chains):
 
@@ -150,11 +162,17 @@ over-blocking destroys utility.
   reports near-perfect accuracy on its own test split; on this mixed public
   corpus the same weights score F1 0.84. We report a public, mixed corpus and
   release the snapshot; single-corpus claims do not transfer.
-- **PromptGuard-2 (Meta)** weights are gated; we did not obtain a local run and
-  report it by citation rather than fabricate numbers.
-- **Python DeBERTa baseline** could not be loaded in this environment due to a
-  `torch`/`torchvision` operator clash unrelated to the model; the Rust ONNX run
-  uses the identical weights, so detector accuracy is unaffected.
+- **PromptGuard-2 (Meta)** is now run locally head-to-head (gate accepted): on the
+  same 1,968-prompt corpus it scores **P 0.997 / R 0.755 / F1 0.859 / FPR 0.002**,
+  the strongest single classifier and statistically even with QFIRE's hybrid
+  (F1 0.856). This sharpens, rather than weakens, the paper's thesis: a strong
+  generic injection classifier still leaves the **scope/PHI** gap that QFIRE's
+  positive-security chains close (§7), and QFIRE delivers comparable generic
+  detection from a single Rust binary with no Python runtime.
+- **Python DeBERTa baseline** is reported from a clean PyTorch run (the earlier
+  `torch`/`torchvision` operator clash was resolved by removing torchvision); the
+  Rust ONNX run uses the identical weights, and the near-identical P/R/F1 confirms
+  the integration is faithful.
 - **Positive-security over-blocking** is real (§3.3) and must be calibrated.
 
 ## 5. Conclusion
@@ -245,9 +263,65 @@ requests (general health info, scheduling, admin, records-access-for-self). All
 identifiers are **synthetic**; this is a defensive benchmark (dataset card:
 `corpora/healthcare_bench/README.md`).
 
-_HealthBench benchmark results (overall, per-category, and the de-obfuscation
-mirror-vs-independent comparison) are inserted here from the run; see
-`bench-out/healthbench*`._
+### 7.1 Overall (HealthBench, 1,000 attack / 1,000 benign)
+
+| Chain | Prec. | Rec. | F1 | FPR |
+|---|---|---|---|---|
+| `bench_phi` (PHI detector only) | 0.76 | 0.25 | 0.38 | 0.08 |
+| `bench_deberta` (injection classifier only) | 1.00 | 0.59 | 0.75 | 0.00 |
+| `bench_hybrid` (lexical + DeBERTa) | 1.00 | 0.64 | 0.78 | 0.00 |
+| `bench_hybrid_trig` (+ triggered de-obf) | 1.00 | 0.64 | 0.78 | 0.00 |
+| **`bench_combined` (injection + PHI + scope)** | 0.91 | **0.83** | **0.87** | 0.08 |
+| `bench_combined_trig` (+ triggered de-obf) | 0.91 | 0.83 | 0.87 | 0.08 |
+
+**Baselines on the identical HealthBench corpus** (PyTorch, scored as pure
+injection detectors):
+
+| Baseline | Prec. | Rec. | F1 | FPR |
+|---|---|---|---|---|
+| protectai DeBERTa-v3 (PyTorch) | 1.000 | 0.574 | 0.729 | 0.000 |
+| Meta PromptGuard-2-86M (PyTorch) | 0.998 | **0.402** | 0.573 | 0.001 |
+
+**Finding (the central healthcare result).** An injection classifier alone caps
+far below QFIRE on healthcare threats — and, strikingly, **Meta's PromptGuard-2,
+the strongest generic injection detector we measured (F1 0.86 on public
+injection), recovers only 0.40 recall here**; protectai DeBERTa reaches 0.57; and
+QFIRE's own classifier-only chain 0.59. The reason is structural: most healthcare
+threats are *not* injection — they are PHI exfiltration, cross-patient access,
+re-identification, bulk export, and out-of-scope clinical advice that contain no
+jailbreak token. Adding the PHI detector and positive-security scope rules
+(`bench_combined`) lifts recall to **0.83** (F1 0.73 → 0.87) at a modest,
+calibrated FPR of 0.08. This is the quantitative case for QFIRE's thesis:
+**generic prompt-injection detection — even SOTA — is necessary but not sufficient
+in healthcare; scope + PHI controls close a gap a classifier structurally
+cannot.** Note PromptGuard-2 *outscores* QFIRE on generic injection yet *trails it
+by 43 recall points* on healthcare threats: the two evaluations measure different
+capabilities, and the firewall's value is the second.
+
+### 7.2 Per-category recall (why the combined chain wins)
+
+| Category | n | DeBERTa | PHI | hybrid | **combined** |
+|---|---|---|---|---|---|
+| bulk_export | 39 | 0.00 | 1.00 | 0.00 | **1.00** |
+| clinical_advice | 185 | 0.44 | 0.00 | 0.44 | **0.44** |
+| cross_patient | 86 | 0.41 | 0.00 | 0.41 | **0.62** |
+| direct_injection | 54 | 0.91 | 0.00 | 0.91 | **0.91** |
+| jailbreak | 415 | 0.84 | 0.22 | 0.88 | **0.95** |
+| phi_exfil | 127 | 0.41 | 0.57 | 0.42 | **0.94** |
+| phi_smuggle | 26 | 0.00 | 1.00 | 1.00 | **1.00** |
+| reidentification | 39 | 0.00 | 0.49 | 0.00 | **1.00** |
+| system_exfil | 29 | 1.00 | 0.00 | 1.00 | **1.00** |
+| **OVERALL** | **1000** | **0.59** | **0.25** | **0.64** | **0.83** |
+| obfuscated-only | 300 | 0.77 | 0.04 | 0.78 | **0.79** |
+
+**Reading the table.** The detectors are complementary, not redundant: DeBERTa
+owns `direct_injection`/`system_exfil`/`jailbreak`; the PHI engine owns
+`bulk_export`/`phi_smuggle` (which carry no injection signal at all — DeBERTa
+0.00); and only the **combined** chain covers `re-identification` (0.00 → 1.00),
+`phi_exfil` (0.41 → 0.94), and `cross_patient` (0.41 → 0.62). The lone weak spot,
+`clinical_advice` (0.44), is the hardest class — disguised out-of-scope dosing/
+diagnosis requests with no lexical or PHI marker — and is exactly where the
+LLM-judge scope chain (§3.3) is intended, at higher latency.
 
 ## Reproducibility
 

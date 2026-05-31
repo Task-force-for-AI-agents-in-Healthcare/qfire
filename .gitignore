@@ -5,3 +5,4 @@ models/
 .DS_Store
 /audit.jsonl
 /bench-out/
+corpora/healthcare_bench/subset/
