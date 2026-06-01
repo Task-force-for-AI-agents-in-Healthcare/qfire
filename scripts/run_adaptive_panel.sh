@@ -15,13 +15,15 @@ PG_PY=/tmp/qbase/bin/python
 cargo build --release --features onnx
 mkdir -p "$OUT"
 
-# adaptive set -> QFIRE scope chain (healthcare uses scope+PHI; injection uses default)
-declare -A SCOPE_CHAIN=(
-  [impersonation_healthcare]=bench_combined
-  [paraphrase_evaded]=bench_combined
-  [encoded_healthcare]=bench_combined
-  [encoded_injection]=default
-)
+# adaptive set -> QFIRE scope chain. Uses a case (not an associative array) for
+# macOS bash 3.2 compatibility — `declare -A` is unsupported there and errors under set -u.
+# healthcare uses scope+PHI (bench_combined); injection uses the positive-security default.
+scope_chain_for() {
+  case "$1" in
+    encoded_injection) echo default ;;
+    *) echo bench_combined ;;
+  esac
+}
 
 # Phase-1 impersonation is healthcare-only (free-form injection camouflage dilutes the
 # attack / trips gemma2 safety — see results doc); injection adaptive coverage comes from
@@ -31,7 +33,7 @@ for set in impersonation_healthcare paraphrase_evaded encoded_healthcare encoded
   [ -f "$ATK/attacks.jsonl" ] || { echo "skip $set (no corpus)"; continue; }
   echo "=== panel: $set ==="
   # QFIRE chains + DeBERTa (local ONNX). bench_phi + judge_scope add detail.
-  for chain in bench_deberta "${SCOPE_CHAIN[$set]}" bench_phi judge_scope; do
+  for chain in bench_deberta "$(scope_chain_for "$set")" bench_phi judge_scope; do
     "$QFIRE" bench --chain "$chain" --attacks "$ATK" --benign "$BEN" \
       --seed "$SEED" --no-cache --out "$OUT/${set}__${chain}" >/dev/null 2>&1
   done
