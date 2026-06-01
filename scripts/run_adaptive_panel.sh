@@ -34,8 +34,15 @@ for set in impersonation_healthcare paraphrase_evaded encoded_healthcare encoded
   echo "=== panel: $set ==="
   # QFIRE chains + DeBERTa (local ONNX). bench_phi + judge_scope add detail.
   for chain in bench_deberta "$(scope_chain_for "$set")" bench_phi judge_scope; do
+    # Cap the slow LLM judge on the large encoded corpora (1000/929 base64/ROT13
+    # gibberish); a 200-prompt sample estimates its block-rate fine. Other chains
+    # (sub-ms regex / ONNX deberta) stay full.
+    extra=""
+    if [ "$chain" = "judge_scope" ]; then
+      case "$set" in encoded_*) extra="--limit 200" ;; esac
+    fi
     "$QFIRE" bench --chain "$chain" --attacks "$ATK" --benign "$BEN" \
-      --seed "$SEED" --no-cache --out "$OUT/${set}__${chain}" >/dev/null 2>&1
+      --seed "$SEED" --no-cache $extra --out "$OUT/${set}__${chain}" >/dev/null 2>&1
   done
   # PromptGuard-2 (+HF DeBERTa) — conditional.
   if [ -n "${HF_TOKEN:-}" ] && [ -x "$PG_PY" ]; then
