@@ -49,4 +49,24 @@ for c in sc_gated sc_always; do
     --seed "$SEED" --no-cache --dump "$OUT/C_${c}/dump" --out "$OUT/C_${c}" >/dev/null 2>&1
 done
 echo "Part C done"
+
+# --- Part A-IO: I/O-bound fan-out (judge nodes; needs a running Ollama with the
+# default judge model). Concurrent judge (network) calls overlap, so wall << summed
+# at engine-concurrency 16 — the parallel payoff that CPU-bound deberta (Part A)
+# cannot get. Small --limit since each judge call is ~1-2 s. ---
+IO_BEN=corpora/policy_length/marketing/benign
+if command -v ollama >/dev/null 2>&1; then
+  for ec in 1 16; do
+    for k in 1 2 4 8 16; do
+      for rep in $(seq 1 $REPS); do
+        "$QFIRE" bench --chain "judge_k$k" --attacks "$IO_BEN" --benign "$IO_BEN" \
+          --seed "$SEED" --no-cache --engine-concurrency "$ec" --limit 3 \
+          --out "$OUT/A_io_judge_k${k}_ec${ec}_r${rep}" >/dev/null 2>&1
+      done
+    done
+  done
+  echo "Part A-IO done"
+else
+  echo "Part A-IO skipped (no ollama)"
+fi
 echo "THROUGHPUT_RUN_DONE"

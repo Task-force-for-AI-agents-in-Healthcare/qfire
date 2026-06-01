@@ -52,6 +52,23 @@ def part_a():
     return rows
 
 
+def part_a_io():
+    """Judge fan-out (I/O-bound nodes): {(K, ec): {'wall', 'summed'}} median over reps.
+    Unlike CPU-bound deberta, concurrent judge (network) calls overlap, so wall << summed."""
+    by = {}
+    for d in glob.glob(os.path.join(ROOT, "A_io_judge_k*_ec*_r*")):
+        m = re.search(r"A_io_judge_k(\d+)_ec(\d+)_r\d+$", d)
+        if not m:
+            continue
+        k, ec = int(m.group(1)), int(m.group(2))
+        o = _overall(os.path.join(d, "bench.json"))["overall"]
+        by.setdefault((k, ec), {"wall": [], "summed": []})
+        by[(k, ec)]["wall"].append(o["mean_wall_ms"])
+        by[(k, ec)]["summed"].append(o["mean_detector_ms"])
+    return {key: {"wall": median(v["wall"]), "summed": median(v["summed"])}
+            for key, v in by.items()}
+
+
 def part_b():
     """{N: {'qps': median, 'p95': median, 'p99': median}}"""
     by = {}
@@ -86,18 +103,26 @@ def part_c():
 
 
 def main():
-    a, b, c = part_a(), part_b(), part_c()
+    a, aio, b, c = part_a(), part_a_io(), part_b(), part_c()
     lines = ["# E2 — Throughput & Concurrency Scaling — Results", ""]
     mt = os.path.join(ROOT, "machine.txt")
     if os.path.exists(mt):
         lines.append(open(mt).read().strip()); lines.append("")
-    lines += ["## Part A — latency vs #rules (median over reps)", "",
+    lines += ["## Part A — CPU-bound fan-out: latency vs #rules (deterministic deberta path; median over reps)", "",
               "| K (rules) | engine-conc | wall ms (parallel) | summed ms (serial-equiv) | speedup |",
               "|---|---|---|---|---|"]
     for (k, ec) in sorted(a):
         v = a[(k, ec)]
         lines.append(f"| {k} | {ec} | {v['wall']:.2f} | {v['summed']:.2f} | "
                      f"{speedup(v['summed'], v['wall']):.2f}x |")
+    if aio:
+        lines += ["", "## Part A-IO — I/O-bound fan-out: latency vs #judge nodes (network judge path; median over reps)", "",
+                  "| K (judge nodes) | engine-conc | wall ms (parallel) | summed ms (serial-equiv) | speedup |",
+                  "|---|---|---|---|---|"]
+        for (k, ec) in sorted(aio):
+            v = aio[(k, ec)]
+            lines.append(f"| {k} | {ec} | {v['wall']:.1f} | {v['summed']:.1f} | "
+                         f"{speedup(v['summed'], v['wall']):.2f}x |")
     lines += ["", "## Part B — throughput vs in-flight concurrency (median over reps)", "",
               "| load-concurrency N | QPS | p95 ms | p99 ms |", "|---|---|---|---|"]
     for n in sorted(b):
@@ -114,6 +139,7 @@ def main():
         f.write("\n".join(lines) + "\n")
     with open(os.path.join(ROOT, "summary.json"), "w") as f:
         json.dump({"A": {f"{k}_{ec}": v for (k, ec), v in a.items()},
+                   "A_IO": {f"{k}_{ec}": v for (k, ec), v in aio.items()},
                    "B": b, "C": c}, f, indent=1)
     print("wrote", os.path.join(ROOT, "results.md"))
     print("ANALYZE_THROUGHPUT_DONE")

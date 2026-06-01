@@ -2,7 +2,7 @@
 
 cores: 12
 
-## Part A — latency vs #rules (median over reps)
+## Part A — CPU-bound fan-out: latency vs #rules (deterministic deberta path; median over reps)
 
 | K (rules) | engine-conc | wall ms (parallel) | summed ms (serial-equiv) | speedup |
 |---|---|---|---|---|
@@ -18,6 +18,21 @@ cores: 12
 | 16 | 16 | 197.22 | 193.36 | 0.98x |
 | 21 | 1 | 290.03 | 285.90 | 0.99x |
 | 21 | 16 | 277.11 | 273.29 | 0.99x |
+
+## Part A-IO — I/O-bound fan-out: latency vs #judge nodes (network judge path; median over reps)
+
+| K (judge nodes) | engine-conc | wall ms (parallel) | summed ms (serial-equiv) | speedup |
+|---|---|---|---|---|
+| 1 | 1 | 186.7 | 186.7 | 1.00x |
+| 1 | 16 | 190.0 | 190.0 | 1.00x |
+| 2 | 1 | 488.8 | 488.7 | 1.00x |
+| 2 | 16 | 404.9 | 635.1 | 1.57x |
+| 4 | 1 | 1351.6 | 1351.5 | 1.00x |
+| 4 | 16 | 1303.0 | 3523.4 | 2.70x |
+| 8 | 1 | 2975.3 | 2975.2 | 1.00x |
+| 8 | 16 | 3017.2 | 13828.7 | 4.58x |
+| 16 | 1 | 6241.1 | 6240.9 | 1.00x |
+| 16 | 16 | 6432.6 | 55981.0 | 8.70x |
 
 ## Part B — throughput vs in-flight concurrency (median over reps)
 
