@@ -15,6 +15,19 @@
 \usepackage{multirow}
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
 
+% Make captions visually distinct from body text: smaller font, and a bold
+% colored ``Figure N:'' / ``Table N:'' label so the reader instantly sees that the
+% text belongs to the float, not the surrounding paragraph.
+\usepackage{caption}
+\definecolor{captionlabel}{RGB}{176,124,0} % dark amber/yellow, legible on white
+\captionsetup{
+  font=small,
+  labelfont={bf,color=captionlabel},
+  labelsep=colon,
+  textfont=normalcolor,
+  skip=6pt,
+}
+
 % Give every \includegraphics a thin black frame so figures read as distinct
 % panels and never visually bleed into the surrounding text.
 \let\oldincludegraphics\includegraphics
