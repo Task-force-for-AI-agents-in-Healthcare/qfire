@@ -101,7 +101,8 @@ pub async fn run_bench(app: &App, args: &crate::cli::BenchArgs, json: bool) -> c
     // Build a dedicated engine so the verdict cache can be disabled for honest,
     // un-warmed per-chain latency (and so chains don't share cached verdicts).
     let engine = crate::engine::Engine::new(app.engine.providers().clone())
-        .with_cache(!args.no_cache);
+        .with_cache(!args.no_cache)
+        .with_concurrency(args.engine_concurrency);
 
     let mut reports = Vec::new();
     for chain_name in &args.chains {

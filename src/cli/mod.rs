@@ -167,6 +167,12 @@ pub struct BenchArgs {
     /// for paired statistics (McNemar, bootstrap CIs).
     #[arg(long)]
     pub dump: Option<PathBuf>,
+    /// Max concurrently-running detector nodes (engine semaphore). Default 16.
+    #[arg(long, default_value_t = 16)]
+    pub engine_concurrency: usize,
+    /// Number of prompt evaluations in flight (in-process load test). 1 = sequential.
+    #[arg(long, default_value_t = 1)]
+    pub load_concurrency: usize,
 }
 
 #[derive(Subcommand)]
