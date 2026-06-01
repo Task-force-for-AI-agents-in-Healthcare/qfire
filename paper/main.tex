@@ -15,14 +15,14 @@
 \usepackage{multirow}
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
 
-% Make captions visually distinct from body text: smaller font, and a bold
-% colored ``Figure N:'' / ``Table N:'' label so the reader instantly sees that the
-% text belongs to the float, not the surrounding paragraph.
+% Make captions visually distinct from body text: smaller font, and a bold +
+% underlined ``Figure N:'' / ``Table N:'' label so the reader instantly sees that
+% the text belongs to the float, not the surrounding paragraph.
 \usepackage{caption}
-\definecolor{captionlabel}{RGB}{176,124,0} % dark amber/yellow, legible on white
+\DeclareCaptionLabelFormat{boldunder}{\underline{\textbf{#1~#2}}}
 \captionsetup{
   font=small,
-  labelfont={bf,color=captionlabel},
+  labelformat=boldunder,
   labelsep=colon,
   textfont=normalcolor,
   skip=6pt,
