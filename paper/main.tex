@@ -334,6 +334,53 @@ $\mathrm{sha256}(P)$ plus node identity lets repeated or replayed prompts skip
 recomputation. The terminal decision is a collapsible boolean over per-node block
 states.
 
+\paragraph{Measured scaling (Figure~\ref{fig:throughput}).}
+The parallelism payoff depends entirely on whether the bottleneck is CPU or I/O.
+\emph{(a) CPU-bound fan-out (deterministic DeBERTa path):} wall time $\approx$
+summed serial time at every rule count $K$; at $K{=}21$ rules the speedup is
+$0.99\times$ even at engine-concurrency~16, because concurrent ONNX inferences
+contend for the same saturated cores---task concurrency cannot speed up
+CPU-bound work.
+\emph{(b) I/O-bound fan-out (network judge path):} the engine overlaps the
+network/inference wait of concurrent judge calls, so speedup rises with $K$:
+$1.57\times$ ($K{=}2$), $2.70\times$ ($K{=}4$), $4.58\times$ ($K{=}8$), and
+$\mathbf{8.70\times}$ at $K{=}16$---56\,s of serial judge work completes in 6.4\,s
+wall time. At engine-concurrency~1 the speedup is $1.00\times$ at every $K$, as
+expected. This is the parallel low-latency payoff for the expensive node that
+dominates deployment cost.
+\emph{(c) Throughput and tail latency:} on the deterministic hybrid chain, QPS is
+flat at ${\approx}16$\,req/s across in-flight concurrency $N{=}1$\textendash$64$
+(bottlenecked by the serialized ONNX classifier), while p99 latency rises
+monotonically from $291$\,ms ($N{=}1$) to $6{,}211$\,ms ($N{=}64$)---a $>21\times$
+tail blow-up with zero throughput gain. Operators should bound in-flight
+concurrency to the point where the p99 SLA is met; past that point additional
+concurrency only queues work.
+\emph{(d) Short-circuit (CPU path):} gating DeBERTa behind a cheap regex
+pre-filter saves $22.1\%$ of expensive-classifier work (gated $68.4$\,ms vs
+always $87.8$\,ms per prompt) at equal or better recall (block-rate $0.76$ vs
+$0.74$). For the CPU-bound path, short-circuiting is the real latency lever;
+fan-out parallelism is the lever for I/O-bound judge nodes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figs/throughput_scaling.png}
+\caption{Async detector graph scaling on a 12-core machine (E2 experiment). (a)
+CPU-bound fan-out (deterministic DeBERTa path): wall $\approx$ summed at every
+$K$---concurrent ONNX tasks saturate the same cores, so engine-concurrency 16
+gives no speedup over 1 ($0.99\times$ at $K{=}21$). (b) I/O-bound fan-out
+(network judge path): at engine-concurrency 16 the engine overlaps the
+network/inference wait of all $K$ judge calls, yielding $8.70\times$ speedup at
+$K{=}16$ (56\,s serial $\to$ 6.4\,s wall); at engine-concurrency 1 it is
+$1.00\times$ at every $K$. (c) Throughput vs in-flight concurrency on the hybrid
+chain: QPS $\approx$16\,req/s flat across $N{=}1$\textendash$64$ while p99
+balloons from $291$\,ms to $6{,}211$\,ms---the ONNX classifier is the CPU
+bottleneck; additional concurrency only queues. (d) Cheap-before-expensive
+short-circuit: a regex gate saves 22.1\% of DeBERTa calls (68.4\,ms vs
+87.8\,ms/prompt) at equal recall---for CPU-bound paths, skip-the-expensive-node
+is the latency lever, not fan-out.}
+\label{fig:throughput}
+\end{figure}
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.60\linewidth,keepaspectratio]{figs/architecture.png}

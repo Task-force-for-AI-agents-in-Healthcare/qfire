@@ -303,7 +303,7 @@ over-blocking destroys utility.
 - **LLM judge (Ollama):** the only network-cost node; under local Ollama every
   call is \$0, so firewall overhead is reported as latency. The healthcare chain
   (10 judge rules) shows p95 ≈ 2.8 s, motivating cheap-before-expensive ordering
-  and judicious rule counts. **Judge latency is highly model-dependent** (§3.5):
+  and judicious rule counts. **Judge latency is highly model-dependent** (§3.6):
   per single judge call we measured p50 ≈ 0.4 s (Llama 3.1 8B) and 0.6 s
   (Llama 3.2), but **7.2 s for Gemma 4 and 25 s (p95 40 s) for Qwen 3.6** — the
   verbose reasoning models spend their budget on internal chain-of-thought. For an
@@ -316,7 +316,61 @@ over-blocking destroys utility.
   the hybrid qualitatively: short-circuiting means most overtly-malicious prompts
   are caught by lexical detectors (sub-ms) and never reach the classifier.
 
-### 3.5 Judge-model ablation: does the backend model matter?
+### 3.5 Async detector graph scaling: where parallelism helps and where it doesn't
+
+The async detector graph (§1.2) claims a parallelism benefit — but that benefit is
+not uniform. We ran a dedicated scaling experiment (E2) measuring four scenarios on
+a 12-core machine.
+
+![E2 throughput scaling: CPU fan-out, I/O fan-out, throughput/tail, short-circuit](figs/throughput_scaling.png)
+
+**Full results:** `docs/superpowers/specs/2026-06-01-throughput-scaling-results.md`
+
+**(a) CPU-bound fan-out (deterministic DeBERTa path) — parallelism does NOT help.**
+Wall time ≈ summed serial time at every rule count K. At K=21 rules the speedup is
+**0.99x** at both engine-concurrency 1 and 16. At K=8 it is 0.95x at both. Concurrent
+ONNX inferences contend for the same saturated cores; task concurrency cannot speed up
+CPU-bound work.
+
+**(b) I/O-bound fan-out (network judge path) — parallelism IS the payoff.**
+At engine-concurrency 16, the Tokio engine overlaps the network/inference wait of
+concurrent judge calls:
+
+| K | speedup (ec=16) |
+|---|---|
+| 2 | 1.57x |
+| 4 | 2.70x |
+| 8 | 4.58x |
+| 16 | **8.70x** |
+
+At K=16, **55,981 ms of serial judge work completes in 6,433 ms wall time** — an
+8.70x speedup. At engine-concurrency 1 the speedup is 1.00x at every K (serial).
+This is the parallel low-latency payoff for the expensive node that dominates
+deployment cost. A healthcare chain with 16 judge rules that would take ~56 s
+evaluated serially completes in ~6.4 s at ec=16 (possible because Ollama serves
+concurrent requests in parallel).
+
+**(c) Throughput and tail latency — bound in-flight concurrency.**
+On the deterministic hybrid chain, QPS is flat at ~15–17 req/s across N=1..64
+(bottleneck: ONNX classifier). Meanwhile p99 rises from **291 ms (N=1)** to
+**6,211 ms (N=64)** — a >21x tail blow-up with zero throughput gain. Past the CPU
+saturation point, adding more in-flight requests only queues work and inflates tail
+latency.
+
+**(d) Cheap-before-expensive short-circuit — the CPU-path lever.**
+A regex gate before DeBERTa saves **22.1%** of expensive classifier work (gated
+68.4 ms vs always 87.8 ms per prompt) at equal or better recall (block-rate gated
+0.761 vs always 0.744). For the CPU-bound path, skipping the expensive node
+entirely (short-circuit) is the real latency lever — not fan-out parallelism.
+Fan-out is the lever for I/O-bound judge nodes.
+
+**Summary.** The async detector graph's parallelism is a genuine win for I/O-bound
+nodes (8.70x at K=16 judge calls) and neutral for CPU-bound ones (wall=sum). The
+right operating principle: run the ONNX classifier with a cheap-before-expensive
+gate to minimize calls, bound in-flight concurrency to meet the p99 SLA, and rely
+on fan-out for the judge path where I/O is the bottleneck.
+
+### 3.6 Judge-model ablation: does the backend model matter?
 
 The LLM scope-judge node delegates the in-scope/out-of-scope decision to a backing
 model. Does swapping that model change firewall behavior? We hold everything else
@@ -373,9 +427,9 @@ record the judge model in every run manifest and node version string
 abstain rate of a candidate judge model on a labeled subset before deployment —
 exactly the procedure this ablation demonstrates.
 
-### 3.6 Multi-judge majority voting: an accuracy/latency/robustness trade-off
+### 3.7 Multi-judge majority voting: an accuracy/latency/robustness trade-off
 
-If one judge model can be miscalibrated (§3.5), can an **ensemble** of judges be
+If one judge model can be miscalibrated (§3.6), can an **ensemble** of judges be
 more robust? QFIRE expresses this declaratively: a single rule with three `judge`
 nodes, each pinned to a different model, under the engine's `aggregate`
 short-circuit, which evaluates all nodes **concurrently** and collapses them by
@@ -402,12 +456,12 @@ accuracy here. What it buys is **robustness**: the F1=1.000 ensembles *include t
 miscalibrated Llama 3.2* (FPR 0.28 alone), whose 28% benign false-positives are
 **outvoted** by the two well-calibrated judges. Majority voting therefore lets a
 deployer safely fold in a model they do not fully trust — converting a single
-model's silent failure mode (§3.5) into a recoverable minority vote — at a latency
+model's silent failure mode (§3.6) into a recoverable minority vote — at a latency
 premium set by the slowest member. The practical recommendation: prefer a single
 validated judge for latency-critical inline use, and reserve majority voting for
 settings where judge calibration is uncertain or must be defended in audit.
 
-### 3.7 Policy-verbosity ablation: does a wordier scope help?
+### 3.8 Policy-verbosity ablation: does a wordier scope help?
 
 A scope policy can be written tersely (`"Marketing content only."`) or as a long
 structured firewall (role, allowed/forbidden lists, adversarial-defense clause,
@@ -440,7 +494,7 @@ guidance: enumerate both what is allowed and what is forbidden in a short paragr
 model-generated benign sets add noise to absolute per-domain TNR but cancel in the
 paired ΔJ contrasts.) Full results: `docs/superpowers/specs/2026-05-31-policy-verbosity-ablation-results.md`.
 
-### 3.8 Across judge models: capability substitutes for verbosity
+### 3.9 Across judge models: capability substitutes for verbosity
 
 We repeat the ablation across six judge models spanning ~3B–12B and four families
 (Llama 3.2, Phi-3.5 3.8B, Llama 3.1 8B, Gemma 2 9B, Gemma 4, and the reasoning model

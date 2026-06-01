@@ -53,7 +53,7 @@ generators + an "evasion success" metric (judge ALLOWs an attack).
 ---
 
 ## E2 — Concurrency / throughput scaling of the async detector graph
-**Status:** [ ] not started
+**Status:** [x] done — results: [2026-06-01-throughput-scaling-results.md](2026-06-01-throughput-scaling-results.md); figure: `paper/figs/throughput_scaling.png`; paper subsection added in `paper/main.tex` §System Design and `paper/PAPER.md` §3.4
 **Reviewer concern it closes:** Contribution (ii) (parallel, low-latency Tokio
 graph) is currently evidenced only by *per-call* p50/p95/p99 — not the parallelism
 payoff. "Where's the benefit of the async graph?"
