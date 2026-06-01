@@ -61,6 +61,27 @@ pub struct Manifest {
     pub attack_in_prompt: bool,
 }
 
+/// Run `f` over `items` with up to `concurrency` futures in flight, returning
+/// results in the original input order. `concurrency <= 1` runs sequentially.
+pub async fn map_concurrent<T, R, Fut, F>(items: Vec<T>, concurrency: usize, f: F) -> Vec<R>
+where
+    F: Fn(T) -> Fut,
+    Fut: std::future::Future<Output = R>,
+{
+    use futures::stream::StreamExt;
+    let n = concurrency.max(1);
+    let mut indexed: Vec<(usize, R)> = futures::stream::iter(items.into_iter().enumerate())
+        .map(|(i, item)| {
+            let fut = f(item);
+            async move { (i, fut.await) }
+        })
+        .buffer_unordered(n)
+        .collect()
+        .await;
+    indexed.sort_by_key(|(i, _)| *i);
+    indexed.into_iter().map(|(_, r)| r).collect()
+}
+
 /// Run the benchmark across the requested chains and write artifacts.
 pub async fn run_bench(app: &App, args: &crate::cli::BenchArgs, json: bool) -> crate::Result<()> {
     let mut attacks = load_prompts(&args.attacks)?;
@@ -244,6 +265,25 @@ fn sample_from(decision: &crate::engine::Decision, is_attack: bool) -> Sample {
         wall_clock_ms: decision.trace.wall_clock_ms,
         summed_detector_ms: decision.trace.summed_detector_ms,
         rule_verdicts,
+    }
+}
+
+#[cfg(test)]
+mod concurrency_tests {
+    use super::map_concurrent;
+
+    #[tokio::test]
+    async fn preserves_order_and_count() {
+        let out = map_concurrent(vec![1, 2, 3, 4, 5], 8, |x| async move { x * 2 }).await;
+        assert_eq!(out, vec![2, 4, 6, 8, 10]); // order preserved despite concurrency
+        assert_eq!(out.len(), 5);
+    }
+
+    #[tokio::test]
+    async fn concurrency_does_not_change_results() {
+        let seq = map_concurrent(vec![1, 2, 3, 4, 5], 1, |x| async move { x * 2 }).await;
+        let par = map_concurrent(vec![1, 2, 3, 4, 5], 8, |x| async move { x * 2 }).await;
+        assert_eq!(seq, par);
     }
 }
 
