@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{afterpage}
+\usepackage[section]{placeins}  % keep floats within their section (\FloatBarrier)
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
@@ -13,6 +14,19 @@
 \usepackage{url}
 \usepackage{multirow}
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+% Make captions visually distinct from body text: smaller font, and a bold
+% colored ``Figure N:'' / ``Table N:'' label so the reader instantly sees that the
+% text belongs to the float, not the surrounding paragraph.
+\usepackage{caption}
+\definecolor{captionlabel}{RGB}{176,124,0} % dark amber/yellow, legible on white
+\captionsetup{
+  font=small,
+  labelfont={bf,color=captionlabel},
+  labelsep=colon,
+  textfont=normalcolor,
+  skip=6pt,
+}
 
 % Give every \includegraphics a thin black frame so figures read as distinct
 % panels and never visually bleed into the surrounding text.
@@ -34,7 +48,13 @@ Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare\\
 \large \textbf{QFIRE} --- a parallel, low-latency Rust firewall benchmarked
 against PromptGuard-2 and DeBERTa-v3}
 
-\author{Task Force for AI Agents in Healthcare}
+\author{
+James Schwoebel\thanks{Quome Inc.} \and
+Martin G. Frasch, MD, PhD\thanks{University of Washington} \and
+Rome Thorstenson\thanks{Rafter Inc.} \and
+Manish Bhatt\thanks{Independent}\\[2pt]
+\normalsize Task Force for AI Agents in Healthcare
+}
 \date{\today}
 
 \begin{document}
@@ -880,12 +900,9 @@ injection-blocking; its effect is on over-refusal. (\S\ref{sec:verbabl})}
   {\footnotesize (c) QFIRE --- parallel detector graph with positive-security
   scope + PHI nodes}
 \end{minipage}
-\caption{How the three approaches decide to block. The two SOTA baselines (a, b)
-are single-classifier injection detectors: a prompt is blocked only if one model
-labels it an injection, so healthcare threats with no injection signal pass
-through---why PromptGuard-2 reaches only $0.40$ recall on QFIRE-HealthBench. QFIRE
-(c) fans out across lexical, classifier, PHI, and scope detectors and collapses
-them into one explainable decision, lifting recall to $0.83$.}
+\caption{How the three approaches decide to block. The SOTA baselines (a, b) block
+only on an injection signal; QFIRE (c) also fans out to PHI and scope detectors,
+catching threats the classifiers miss.}
 \label{fig:approaches}
 \end{figure}
 
@@ -929,6 +946,10 @@ Every table is generated from benchmark JSON by \texttt{scripts/make\_tables.py}
 \texttt{make paper} runs the build, fetches the corpus snapshot, executes the
 benchmark matrix and baselines, and compiles this document. The run manifest
 (seed, model and rule/detector/corpus versions) is embedded in each artifact.
+
+% Flush every pending appendix float (tables/figures) before the bibliography so
+% none drift into or past the references.
+\clearpage
 
 \bibliographystyle{plain}
 \bibliography{refs}
