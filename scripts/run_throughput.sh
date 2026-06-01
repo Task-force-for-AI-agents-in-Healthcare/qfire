@@ -22,8 +22,11 @@ KS=$(ls chains/bench/scaling/ | grep -oE 'scale_k[0-9]+' | sort -u)
 for ec in 1 16; do
   for k in $KS; do
     for rep in $(seq 1 $REPS); do
+      # --limit caps prompts: Part A is deberta-fanout heavy (17/21 rules carry a
+      # deberta node, no short-circuit on benign), so the full corpus would take
+      # hours; per-prompt latency medians are stable well under 100 prompts.
       "$QFIRE" bench --chain "$k" --attacks "$BENIGN" --benign "$BENIGN" \
-        --seed "$SEED" --no-cache --engine-concurrency "$ec" \
+        --seed "$SEED" --no-cache --engine-concurrency "$ec" --limit 100 \
         --out "$OUT/A_${k}_ec${ec}_r${rep}" >/dev/null 2>&1
     done
   done
