@@ -39,7 +39,9 @@ def _promptguard(set_name):
     if not os.path.exists(p):
         return None
     d = json.load(open(p))
-    for k, v in d.items():
+    # baselines.py nests per-model metrics under "results"; fall back to top-level.
+    res = d.get("results", d)
+    for k, v in res.items():
         if isinstance(v, dict) and "recall" in v and "promptguard" in k.lower():
             return v["recall"]
     return None

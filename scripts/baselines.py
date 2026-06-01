@@ -24,10 +24,17 @@ MODELS = [
 
 
 def load(path, label):
+    """Load {"prompt"} JSONL. `path` may be a file or a directory (all *.jsonl in it)."""
+    import glob
     rows = []
-    if not os.path.exists(path):
+    if os.path.isdir(path):
+        files = sorted(glob.glob(os.path.join(path, "*.jsonl")))
+    elif os.path.exists(path):
+        files = [path]
+    else:
         return rows
-    with open(path) as f:
+    for fp in files:
+      with open(fp) as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -113,7 +120,20 @@ def run_model(name, repo, prompts, labels):
 
 
 def main():
-    data = load(ATTACKS, "attack") + load(BENIGN, "benign")
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--attacks", default=ATTACKS, help="file or directory of {prompt} JSONL")
+    ap.add_argument("--benign", default=BENIGN, help="file or directory of {prompt} JSONL")
+    ap.add_argument("--out", default=OUT)
+    ap.add_argument("--models", default="", help="comma list; substring-match model keys; empty=all")
+    ap.add_argument("--load-existing", action="store_true", help="ignored (compat)")
+    args = ap.parse_args()
+    out_path = args.out
+    models = MODELS
+    if args.models:
+        wanted = [m.strip() for m in args.models.split(",") if m.strip()]
+        models = [(n, r) for (n, r) in MODELS if any(w in n for w in wanted)]
+    data = load(args.attacks, "attack") + load(args.benign, "benign")
     if CAP:
         atk = [d for d in data if d[1] == "attack"][:CAP]
         ben = [d for d in data if d[1] == "benign"][:CAP]
@@ -122,7 +142,7 @@ def main():
     labels = [d[1] for d in data]
     print(f"corpus: {len(prompts)} ({labels.count('attack')} atk / {labels.count('benign')} ben)", flush=True)
     results = {}
-    for name, repo in MODELS:
+    for name, repo in models:
         try:
             results[name] = run_model(name, repo, prompts, labels)
             r = results[name]
@@ -131,11 +151,11 @@ def main():
         except Exception as e:
             results[name] = {"error": str(e), "model": repo}
             print(f"[{name}] SKIPPED: {e}", flush=True)
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w") as f:
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w") as f:
         json.dump({"corpus_size": len(prompts), "attacks": labels.count("attack"),
                    "benign": labels.count("benign"), "results": results}, f, indent=2)
-    print(f"wrote {OUT}", flush=True)
+    print(f"wrote {out_path}", flush=True)
     print("BASELINES_DONE", flush=True)
 
 
