@@ -28,6 +28,13 @@ pub fn render_console(manifest: &Manifest, reports: &[ChainReport]) -> String {
         if let Some(aip) = &r.attack_in_prompt {
             row(&mut out, "  [attack-in-prompt]", aip);
         }
+        // after the existing per-chain summary line(s)
+        if r.throughput_qps > 0.0 {
+            let _ = out.push_str(&format!(
+                "  {} : {:.1} prompts/s ({:.0} ms total wall)\n",
+                r.chain, r.throughput_qps, r.total_wall_ms
+            ));
+        }
         let _ = writeln!(out, "{}", "-".repeat(96));
     }
     out

@@ -46,6 +46,10 @@ pub struct ChainReport {
     pub per_rule: Vec<(String, Metrics)>,
     /// Attack-in-prompt (camouflaged) metrics, when that mode was run.
     pub attack_in_prompt: Option<Metrics>,
+    /// Wall-clock seconds to evaluate the whole corpus for this chain.
+    pub total_wall_ms: f64,
+    /// Prompts per second = corpus size / total wall (load-test throughput).
+    pub throughput_qps: f64,
 }
 
 /// The run manifest embedded in every artifact for reproducibility.
@@ -159,14 +163,33 @@ async fn bench_chain(
     let compiled = app.compile_for(&chain)?;
     let referenced = chain.referenced_rules()?;
 
-    let mut samples: Vec<Sample> = Vec::new();
-    for (prompts, is_attack) in [(attacks, true), (benign, false)] {
-        for p in prompts {
-            let req = LlmRequest::user("bench", p);
-            let decision = engine.evaluate(&chain, &compiled, &req).await?;
-            samples.push(sample_from(&decision, is_attack));
-        }
-    }
+    // Labeled work list in corpus order (attacks then benign).
+    let mut work: Vec<(String, bool)> = Vec::with_capacity(attacks.len() + benign.len());
+    work.extend(attacks.iter().map(|p| (p.clone(), true)));
+    work.extend(benign.iter().map(|p| (p.clone(), false)));
+
+    let wall_start = std::time::Instant::now();
+    let results: Vec<crate::Result<Sample>> = map_concurrent(
+        work,
+        args.load_concurrency,
+        |(prompt, is_attack)| {
+            let chain_ref = &chain;
+            let compiled_ref = &compiled;
+            let req = LlmRequest::user("bench", &prompt);
+            async move {
+                let decision = engine.evaluate(chain_ref, compiled_ref, &req).await?;
+                Ok(sample_from(&decision, is_attack))
+            }
+        },
+    )
+    .await;
+    let total_wall_ms = wall_start.elapsed().as_secs_f64() * 1000.0;
+    let samples: Vec<Sample> = results.into_iter().collect::<crate::Result<Vec<_>>>()?;
+    let throughput_qps = if total_wall_ms > 0.0 {
+        samples.len() as f64 / (total_wall_ms / 1000.0)
+    } else {
+        0.0
+    };
 
     // Optional per-prompt prediction dump (corpus order: attacks then benign),
     // for paired tests (McNemar) and bootstrap CIs across chains.
@@ -226,6 +249,8 @@ async fn bench_chain(
         overall,
         per_rule,
         attack_in_prompt,
+        total_wall_ms,
+        throughput_qps,
     })
 }
 
