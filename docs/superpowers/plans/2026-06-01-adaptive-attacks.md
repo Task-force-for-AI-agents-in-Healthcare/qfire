@@ -225,7 +225,7 @@ Expected: ~120 each, `GEN_ADAPTIVE_DONE`. Read 5 lines of each and confirm they 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add scripts/gen_adaptive_attacks.py scripts/test_gen_adaptive_attacks.py corpora/adaptive/impersonation_healthcare corpora/adaptive/impersonation_injection
+git add scripts/gen_adaptive_attacks.py scripts/test_gen_adaptive_attacks.py corpora/adaptive/impersonation_healthcare
 git commit -m "feat(E1): scope-impersonation attack generator + corpora (Phase 1)"
 ```
 
@@ -517,13 +517,15 @@ mkdir -p "$OUT"
 # adaptive set -> QFIRE scope chain (healthcare uses scope+PHI; injection uses default)
 declare -A SCOPE_CHAIN=(
   [impersonation_healthcare]=bench_combined
-  [impersonation_injection]=default
   [paraphrase_evaded]=bench_combined
   [encoded_healthcare]=bench_combined
   [encoded_injection]=default
 )
 
-for set in impersonation_healthcare impersonation_injection paraphrase_evaded encoded_healthcare encoded_injection; do
+# Phase-1 impersonation is healthcare-only (free-form injection camouflage dilutes the
+# attack / trips gemma2 safety — see results doc); injection adaptive coverage comes from
+# paraphrase_evaded (intent-preserving) + encoded_injection.
+for set in impersonation_healthcare paraphrase_evaded encoded_healthcare encoded_injection; do
   ATK="corpora/adaptive/$set"
   [ -f "$ATK/attacks.jsonl" ] || { echo "skip $set (no corpus)"; continue; }
   echo "=== panel: $set ==="
@@ -614,10 +616,9 @@ import os
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.join(BASE, "bench-out/adaptive")
-SETS = ["impersonation_healthcare", "impersonation_injection",
+SETS = ["impersonation_healthcare",
         "paraphrase_evaded", "encoded_healthcare", "encoded_injection"]
 SCOPE_CHAIN = {"impersonation_healthcare": "bench_combined",
-               "impersonation_injection": "default",
                "paraphrase_evaded": "bench_combined",
                "encoded_healthcare": "bench_combined",
                "encoded_injection": "default"}
@@ -755,7 +756,7 @@ import matplotlib.pyplot as plt
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 S = json.load(open(os.path.join(BASE, "bench-out/adaptive/summary.json")))
 OUT = os.path.join(BASE, "paper/figs/adaptive_robustness.png")
-SETS = ["impersonation_healthcare", "impersonation_injection",
+SETS = ["impersonation_healthcare",
         "paraphrase_evaded", "encoded_healthcare", "encoded_injection"]
 DETS = [("deberta", "DeBERTa", "#C44E52"),
         ("promptguard2", "PromptGuard-2", "#DD8452"),
