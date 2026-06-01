@@ -440,6 +440,34 @@ guidance: enumerate both what is allowed and what is forbidden in a short paragr
 model-generated benign sets add noise to absolute per-domain TNR but cancel in the
 paired ΔJ contrasts.) Full results: `docs/superpowers/specs/2026-05-31-policy-verbosity-ablation-results.md`.
 
+### 3.8 Across judge models: capability substitutes for verbosity
+
+We repeat the ablation across six judge models spanning ~3B–12B and four families
+(Llama 3.2, Phi-3.5 3.8B, Llama 3.1 8B, Gemma 2 9B, Gemma 4, and the reasoning model
+DeepSeek-R1) on a seeded 150-attack subset (Llama 3.2 reused by slicing its full-run
+dumps to the same subset). Each model judges all 16 conditions; J is pooled across
+domains per rung and per-call latency is read from each run's manifest.
+
+![Policy verbosity across six judge models: J vs rung, latency vs rung, and the quality-vs-latency Pareto](figs/policy_length_xmodel.png)
+
+**Finding.** *The "T2 sweet-spot" is an artifact of weak judges; judge capability,
+not policy verbosity, sets the ceiling.* The non-monotone length curve appears only
+for the weak judges — Llama 3.2 peaks at T2, and Phi-3.5 rises monotonically
+(J 0.34→0.24→0.64→0.71), over-refusing badly when terse (T0/T1 pass rate 0.45/0.27)
+and needing the full policy to behave. The capable mid-size judges are nearly
+**length-invariant** and already excellent at the 3-word T0: Gemma 2 9B holds
+J≈0.92–0.96 at every rung (best at T0), Llama 3.1 8B 0.95/0.84/0.93/0.87. A better
+judge doesn't need a verbose policy; a weak one can't be rescued by one (Phi-3.5
+tops out at 0.71). Two deployment corollaries: (i) **bigger/slower is not better** —
+Gemma 4 (~12B, ~4.2s/call) and DeepSeek-R1 (reasoning, ~4.8s/call) are
+Pareto-dominated (lower J at 4–5× the latency) by Gemma 2 9B / Llama 3.1 8B at
+~0.85s; the reasoning judge even blocks fewer attacks (TPR ~0.83–0.87 vs ≥0.97);
+(ii) longer policies cost latency monotonically within every model (Gemma 4
+T0→T2: 3.2→5.2s/call) for no accuracy gain on capable judges — verbose policies are
+a pure latency tax once the judge is competent. Recipe: a competent mid-size
+instruct judge with a short, explicit (T0–T2) policy — not a larger or reasoning
+judge, and not a maximal firewall prompt.
+
 ## 4. Discussion & limitations
 
 **Detectors are complementary, not redundant.** The §7.1 heatmap is block-diagonal:

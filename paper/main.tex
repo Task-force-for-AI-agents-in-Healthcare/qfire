@@ -647,10 +647,39 @@ best or tied-best rung in every domain; the maximal firewall (T3) regresses from
 its aggressive ``respond only with the refusal'' framing making the judge
 trigger-happy at no gain in already-saturated TPR. The practical guidance:
 enumerate both what is allowed and what is forbidden in a short paragraph---neither
-a bald one-liner nor a maximal defensive wall. (Caveats: a single $3$B judge; a
-larger model may follow long policies more faithfully. The model-generated benign
-sets add noise to absolute per-domain TNR but cancel in the paired $\Delta J$
-contrasts that carry the finding.)
+a bald one-liner nor a maximal defensive wall. (The model-generated benign sets
+add noise to absolute per-domain TNR but cancel in the paired $\Delta J$ contrasts
+that carry the finding. The dependence on judge capability---a single $3$B judge
+here---is exactly what the next ablation tests.)
+
+\subsubsection{Across judge models: capability substitutes for verbosity}\label{sec:verbablx}
+We repeat the ablation across six judge models spanning ${\sim}3$B--$12$B and four
+families (Llama~3.2, Phi-3.5~3.8B, Llama~3.1~8B, Gemma~2~9B, Gemma~4, and the
+reasoning model DeepSeek-R1), on a seeded $150$-attack subset (Llama~3.2 reused by
+slicing its full-run dumps to the same subset). Each model judges all $16$
+conditions; we pool $J$ across domains per rung and read per-call latency from each
+run's manifest (Figure~\ref{fig:verbablx}).
+
+\noindent\textbf{Finding.} \emph{The ``T2 sweet-spot'' is an artifact of weak
+judges; judge capability, not policy verbosity, sets the ceiling.} The non-monotone
+length curve appears only for the small/weak judges: Llama~3.2 peaks at T2, and
+Phi-3.5 rises monotonically ($J$ $0.34\rightarrow0.24\rightarrow0.64\rightarrow0.71$)
+because when terse it over-refuses badly (T0/T1 pass rate $0.45$/$0.27$) and needs
+the full policy to behave. The capable mid-size judges are by contrast nearly
+\emph{length-invariant} and already excellent at the $3$-word T0: Gemma~2~9B holds
+$J\approx0.92$--$0.96$ at every rung (best at T0) and Llama~3.1~8B
+$0.95$/$0.84$/$0.93$/$0.87$. A better judge simply does not need a verbose policy; a
+weak one cannot be rescued by one (Phi-3.5 tops out at $0.71$). Two corollaries for
+deployment. (i) \emph{Bigger and slower is not better}: Gemma~4 (${\sim}12$B,
+${\sim}4.2$\,s/call) and DeepSeek-R1 (reasoning, ${\sim}4.8$\,s/call) are
+Pareto-dominated---lower $J$ at $4$--$5\times$ the latency---by Gemma~2~9B and
+Llama~3.1~8B at ${\sim}0.85$\,s; the reasoning judge even blocks fewer attacks
+(TPR ${\sim}0.83$--$0.87$ vs.\ ${\geq}0.97$). (ii) Within every model, longer
+policies cost latency monotonically (e.g.\ Gemma~4 T0$\rightarrow$T2
+$3.2\rightarrow5.2$\,s/call) for no accuracy gain on the capable judges---verbose
+policies are a pure latency tax once the judge is competent. The practical recipe
+is therefore a competent mid-size instruct judge with a short, explicit
+(T0--T2) policy---not a larger or reasoning judge, and not a maximal firewall prompt.
 
 \section{Discussion and Limitations}
 
@@ -881,6 +910,22 @@ true-positive rate (attacks blocked) is flat at $0.98$ across all rungs, while t
 true-negative rate carries all the variation. Policy verbosity barely affects
 injection-blocking; its effect is on over-refusal. (\S\ref{sec:verbabl})}
 \label{fig:verbabl}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/policy_length_xmodel.png}
+\caption{Policy verbosity across six judge models (pooled over the four domains;
+$150$-attack subset). (a) Youden's $J$ vs.\ rung: the non-monotone ``T2 sweet-spot''
+is a property of the \emph{weak} judges (Llama~3.2 peaks at T2; Phi-3.5 rises
+monotonically, needing every word), whereas the capable mid-size judges
+(Gemma~2~9B, Llama~3.1~8B) are nearly length-invariant and already best at the
+terse T0. (b) Per-call latency (log) rises with both model size and rung. (c)
+Quality-vs-latency Pareto over all $24$ (model, rung) points: Gemma~2~9B and
+Llama~3.1~8B dominate---higher $J$ at ${\sim}0.85$\,s/call---while the large
+Gemma~4 and the reasoning DeepSeek-R1 cost $4$--$5\times$ the latency for
+\emph{lower} $J$. (\S\ref{sec:verbablx})}
+\label{fig:verbablx}
 \end{figure}
 
 \begin{figure}[h]
