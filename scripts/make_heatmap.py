@@ -25,8 +25,8 @@ OUT = os.path.join(BASE, "paper/figs/heatmap.png")
 CHAINS = [
     ("bench_deberta", "DeBERTa\n(injection)"),
     ("bench_phi", "PHI\ndetector"),
-    ("bench_hybrid", "hybrid\n(lex+DeBERTa)"),
-    ("bench_combined", "combined\n(inj+PHI+scope)"),
+    ("bench_hybrid", "hybrid\n(lex +\nDeBERTa)"),
+    ("bench_combined", "combined\n(inj + PHI\n+ scope)"),
 ]
 
 CAT_ORDER = [
@@ -71,11 +71,11 @@ def main():
             b = blocked[dump]
             M[i, j] = sum(1 for k in idx if b[k]) / max(len(idx), 1)
 
-    fig, ax = plt.subplots(figsize=(7.2, 6.4))
+    fig, ax = plt.subplots(figsize=(7.6, 6.8))
     im = ax.imshow(M, cmap="RdYlGn", vmin=0.0, vmax=1.0, aspect="auto")
 
     ax.set_xticks(range(len(CHAINS)))
-    ax.set_xticklabels([lbl for _, lbl in CHAINS], fontsize=10)
+    ax.set_xticklabels([lbl for _, lbl in CHAINS], fontsize=9.5)
     ax.set_yticks(range(len(present)))
     ax.set_yticklabels([f"{CAT_LABEL[c]}  (n={counts[c]})" for c in present], fontsize=10)
 

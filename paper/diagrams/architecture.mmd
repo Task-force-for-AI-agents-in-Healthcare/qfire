@@ -1,45 +1,26 @@
-%%{init: {'theme':'base','themeVariables':{'fontSize':'20px','primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','lineColor':'#475569'}}}%%
+%%{init: {'theme':'base','themeVariables':{'fontSize':'18px','primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','lineColor':'#475569'}}}%%
 flowchart TB
-    subgraph CLIENT["Client app / SDK"]
-      SDK["OpenAI / Anthropic / Gemini / Ollama SDK<br/>(only the base URL changes)"]
-    end
-
-    SDK -->|"HTTP request"| IN
+    CLIENT["<b>Client app / SDK</b><br/>OpenAI / Anthropic / Gemini / Ollama<br/>(only the base URL changes)"]
+    CLIENT -->|"HTTP request"| IN
 
     subgraph QFIRE["QFIRE proxy daemon &nbsp;(Rust, Tokio + axum)"]
       direction TB
-      IN["Wire adapters<br/>/v1/chat &nbsp; /v1/messages &nbsp; :generateContent &nbsp; /api/chat"]
+      IN["Wire adapters &nbsp;/v1/chat &middot; /v1/messages &middot; :generateContent &middot; /api/chat"]
       IN --> NORM["Normalize to internal request"]
       NORM --> SEL["Chain selector &nbsp;(route / header / API-key)"]
       SEL --> ENG["Engine: evaluate chain"]
-
-      subgraph ENG2["Async detector graph &nbsp;(bounded concurrency)"]
-        direction LR
-        R1["rule 1<br/>pipeline"]
-        R2["rule 2<br/>pipeline"]
-        R3["rule N<br/>pipeline"]
-        CACHE[("verdict cache<br/>sha256(P)+node")]
-      end
-      ENG --> ENG2
-      ENG2 --> COL["Collapse &nbsp;(ordered / boolean DAG)"]
-      COL --> AUD[("immutable audit log<br/>prompt hash &middot; verdicts &middot; tokens &middot; cost &middot; latency")]
+      ENG --> DG["Async detector graph &nbsp;(bounded concurrency):<br/>rule 1 &hellip; rule N pipelines, run concurrently"]
+      CACHE[("verdict cache<br/>sha256(P)+node")] -.- DG
+      DG --> COL["Collapse &nbsp;(ordered / boolean DAG)"]
+      COL --> AUD[("immutable audit log<br/>prompt hash &middot; verdicts &middot; cost &middot; latency")]
       COL --> DEC{"ALLOW ?"}
-      DEC -- "BLOCK" --> REF["Refusal envelope<br/>+ explainable trace"]
       DEC -- "ALLOW" --> FWD["Forward original request"]
+      DEC -- "BLOCK" --> REF["Refusal envelope + explainable trace"]
     end
 
-    FWD --> PROV
-
-    subgraph PROV["Downstream providers"]
-      direction LR
-      OAI["OpenAI"]
-      ANT["Anthropic"]
-      GEM["Gemini"]
-      OLL["Ollama<br/>(local, \$0)"]
-    end
-
-    PROV -->|"stream response"| SDK
-    REF -->|"refusal"| SDK
+    FWD --> PROV["<b>Downstream providers</b><br/>OpenAI &middot; Anthropic &middot; Gemini &middot; Ollama (local, \$0)"]
+    PROV -.->|"stream response"| CLIENT
+    REF -.->|"refusal"| CLIENT
 
     classDef block fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef allow fill:#dcfce7,stroke:#16a34a,color:#14532d;
