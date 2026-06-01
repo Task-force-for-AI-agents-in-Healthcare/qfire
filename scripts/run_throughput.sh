@@ -13,7 +13,7 @@ ATTACKS=corpora/eval/attacks
 BENIGN=corpora/eval/benign
 REPS=3
 
-cargo build --release
+cargo build --release --features onnx   # real ONNX deberta (the expensive node); without this it falls back to a sub-ms lexical stub and Parts A/C are meaningless
 mkdir -p "$OUT"
 echo "cores: $(sysctl -n hw.ncpu 2>/dev/null || nproc)" | tee "$OUT/machine.txt"
 
