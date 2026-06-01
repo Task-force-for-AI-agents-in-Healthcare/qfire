@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{afterpage}
+\usepackage[section]{placeins}  % keep floats within their section (\FloatBarrier)
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
@@ -935,6 +936,10 @@ Every table is generated from benchmark JSON by \texttt{scripts/make\_tables.py}
 \texttt{make paper} runs the build, fetches the corpus snapshot, executes the
 benchmark matrix and baselines, and compiles this document. The run manifest
 (seed, model and rule/detector/corpus versions) is embedded in each artifact.
+
+% Flush every pending appendix float (tables/figures) before the bibliography so
+% none drift into or past the references.
+\clearpage
 
 \bibliographystyle{plain}
 \bibliography{refs}
