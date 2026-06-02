@@ -170,6 +170,18 @@ full control-to-mechanism mapping in the Discussion (Table~\ref{tab:haarf}).
   percentiles, regenerated end-to-end by \texttt{make paper}.
 \end{enumerate}
 
+\paragraph{Positioning in the field.} A growing body of work argues that input
+\emph{classification} is a speed bump, not a barrier: detectors strong
+in-distribution degrade sharply under paraphrase and adaptive pressure, motivating a
+shift toward \emph{structural} defenses that constrain behavior by design rather than
+scoring text~\cite{camel2025,firewallsbench2026}. CaMeL~\cite{camel2025} realizes this
+with control-/data-flow separation across two isolated LLMs, and tool-boundary
+firewalls~\cite{firewallsbench2026} mediate an agent's inputs and outputs. QFIRE shares
+this positive-security philosophy but targets a different, lighter deployment point---a
+single, model-agnostic inline proxy whose declarative scope and PHI rules need no second
+model, no weight retraining, and no white-box access---and it adds the healthcare
+scope/PHI dimension those works do not address.
+
 \section{Threat Model and Positioning}
 We assume an adversary who controls all or part of the prompt reaching the model
 (direct injection) or content the agent ingests (indirect
@@ -775,7 +787,10 @@ is therefore a competent mid-size instruct judge with a short, explicit
 (T0--T2) policy---not a larger or reasoning judge, and not a maximal firewall prompt.
 
 \subsection{Adaptive-attack robustness}\label{sec:adaptive}
-Static public corpora can overstate robustness, so we built three families of
+Static public corpora can overstate robustness---injection classifiers strong
+in-distribution degrade sharply once an attacker paraphrases or adapts, and recent work
+shows static agent benchmarks are easily saturated until adaptive, cascading attacks are
+applied~\cite{firewallsbench2026}. We therefore built three families of
 \emph{adaptive} attacks---crafted with knowledge of the firewall---and scored them
 through a panel of generic injection classifiers (protectai DeBERTa-v3, Meta
 PromptGuard-2, and qualifire Sentinel---the strongest classifier on clean injection)
@@ -879,6 +894,24 @@ and the PHI detector have \emph{disjoint} blind spots, so their boolean composit
 closes the coverage gap. This is the empirical argument for QFIRE's declarative,
 multi-detector design (Figure~\ref{fig:spec})---a deployer composes the columns
 their threat model needs.
+
+\paragraph{Relation to structural defenses.}
+QFIRE belongs to an emerging line that treats prompt injection as a \emph{structural}
+problem rather than a classification one. CaMeL~\cite{camel2025} separates control flow
+from untrusted data across a privileged and a quarantined LLM; tool-boundary
+firewalls~\cite{firewallsbench2026} mediate an agent's tool inputs and outputs;
+Polymorphic Prompt Assembling~\cite{ppa2025} randomizes prompt structure to break
+attacker predictability; and methods such as Attention
+Tracker~\cite{attentiontracker2025} and SPIN~\cite{spin2024} exploit model internals or
+self-supervised reversal. These deliver strong robustness but demand two models,
+model-internal access, or fine-tuning. QFIRE occupies a complementary niche: a single,
+black-box, declarative inline proxy that enforces a positive-security \emph{scope} and a
+PHI panel with no retraining or white-box access, and---uniquely among these---targets
+the out-of-scope/PHI threats specific to clinical agents. Notably,
+\cite{firewallsbench2026} independently finds that static agent benchmarks are easily
+saturated and that only adaptive, cascading attacks expose a defense's true
+robustness---the same motivation behind our adaptive-attack evaluation
+(\S\ref{sec:adaptive}).
 
 \paragraph{Relationship to HAARF.}
 This work operationalizes the Healthcare AI Agents Regulatory Framework
