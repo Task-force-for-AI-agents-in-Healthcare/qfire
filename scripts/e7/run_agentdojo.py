@@ -57,13 +57,9 @@ QFIRE_BIN = REPO_ROOT / "target" / "release" / "qfire"
 DEBERTA_DIR = REPO_ROOT / "models" / "deberta"
 MANIFEST_PATH = REPO_ROOT / "bench-out" / "e7" / "agentdojo_manifest.json"
 
-# Suite population (agentdojo 0.1.35, suite version v1) — SETUP.md Step 4.
-SUITE_POP = {
-    "workspace": {"user": 40, "injection": 6},
-    "travel": {"user": 20, "injection": 7},
-    "banking": {"user": 16, "injection": 9},
-    "slack": {"user": 21, "injection": 5},
-}
+# Real task IDs/populations are read from the suites at runtime (see
+# real_task_ids) — slack has no injection_task_0 and travel's IDs are unordered,
+# so we must not assume <kind>_task_0..N.
 ALL_SUITES = ["workspace", "travel", "banking", "slack"]
 
 ATTACK = "important_instructions"
@@ -102,8 +98,32 @@ def http_ok(url: str, timeout: float = 2.0) -> bool:
         return False
 
 
-def task_ids(prefix: str, n: int) -> list[str]:
-    return [f"{prefix}_{i}" for i in range(n)]
+_SUITE_CACHE = None
+
+
+def _suites():
+    global _SUITE_CACHE
+    if _SUITE_CACHE is None:
+        from agentdojo.task_suite.load_suites import get_suites
+        _SUITE_CACHE = get_suites("v1")
+    return _SUITE_CACHE
+
+
+def _num_suffix(task_id: str) -> int:
+    """Numeric suffix for sorting (user_task_10 after user_task_2)."""
+    try:
+        return int(task_id.rsplit("_", 1)[1])
+    except (IndexError, ValueError):
+        return 1 << 30
+
+
+def real_task_ids(suite: str, kind: str) -> list[str]:
+    """Actual task IDs present in the suite, numerically sorted. kind in
+    {"user","injection"}. Slack has no injection_task_0; travel's are unordered —
+    so we must read the real IDs, not assume <kind>_task_0..N."""
+    s = _suites()[suite]
+    ids = list(s.user_tasks if kind == "user" else s.injection_tasks)
+    return sorted(ids, key=_num_suffix)
 
 
 def log(msg: str) -> None:
@@ -231,17 +251,18 @@ def build_subset(suites: list[str], n_user: int, n_inj: int) -> dict:
     recording the clamp (no silent caps)."""
     subset = {}
     for s in suites:
-        pop = SUITE_POP[s]
-        u = min(n_user, pop["user"])
-        i = min(n_inj, pop["injection"])
+        all_user = real_task_ids(s, "user")
+        all_inj = real_task_ids(s, "injection")
+        u = min(n_user, len(all_user))
+        i = min(n_inj, len(all_inj))
         subset[s] = {
-            "user_tasks": task_ids("user_task", u),
-            "injection_tasks": task_ids("injection_task", i),
+            "user_tasks": all_user[:u],
+            "injection_tasks": all_inj[:i],
             "user_requested": n_user,
-            "user_population": pop["user"],
+            "user_population": len(all_user),
             "user_clamped": u < n_user,
             "injection_requested": n_inj,
-            "injection_population": pop["injection"],
+            "injection_population": len(all_inj),
             "injection_clamped": i < n_inj,
         }
     return subset
