@@ -47,6 +47,8 @@ BASELINE_LABEL = [
     ("deberta-v3-injection", r"DeBERTa-v3 (protectai, PyTorch)"),
     ("promptguard-2-86m", r"PromptGuard-2 86M (Meta)"),
     ("prompt-injection-sentinel", r"Sentinel (qualifire, ModernBERT)"),
+    ("deberta-70m-int8", r"DeBERTa-70M (hlyn-labs, INT8 ONNX)"),
+    ("promptguard-2-22m", r"PromptGuard-2 22M (Meta)"),
     ("llm-judge-3.1-8b", r"LLM-judge only (llama3.1:8B)"),
 ]
 
@@ -56,10 +58,12 @@ def main():
     base = load("bench-out/baselines.json")
     # Fold the E3 head-to-head baselines (Sentinel + bare LLM-judge) into the same
     # lookup so BASELINE_LABEL rows render without overwriting the main file.
-    e3 = load("bench-out/baselines_e3_injection.json")
-    if base and e3 and e3.get("results"):
-        base.setdefault("results", {}).update(
-            {k: v for k, v in e3["results"].items() if "error" not in v})
+    for extra in ("bench-out/baselines_e3_injection.json",
+                  "bench-out/baselines_e10_injection.json"):
+        ex = load(extra)
+        if base and ex and ex.get("results"):
+            base.setdefault("results", {}).update(
+                {k: v for k, v in ex["results"].items() if "error" not in v})
     rows = chain_rows(exp1)
 
     # Table 1: main head-to-head

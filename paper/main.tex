@@ -520,9 +520,14 @@ ${\sim}2$\,s. The detector curves are in Figure~\ref{fig:rocpr} and the exact nu
 in Table~\ref{tab:main} (Appendix~\ref{app:tables}). We make no claim that QFIRE
 beats these classifiers on generic injection---Sentinel is clearly ahead, and the
 QFIRE hybrid earns its F1 by letting cheap complementary detectors raise recall
-before the classifier. QFIRE's advantage is not on generic injection but on
-healthcare scope and PHI, which we turn to next---and, as \S\ref{sec:adaptive} shows,
-on robustness once an adversary adapts to the defense.
+before the classifier. At the \emph{fast} end, a compressed INT8-ONNX detector,
+hlyn-labs DeBERTa-70M~\cite{hlyn_deberta70m}, is competitive on injection
+(F1~$0.81$) at a p50 of only ${\sim}12$\,ms---$\approx$20$\times$ faster than the
+base ONNX DeBERTa and $\approx$35$\times$ faster than Sentinel---and PromptGuard-2's
+smaller 22M variant tracks its 86M sibling (F1~$0.83$). Figure~\ref{fig:frontier}
+places every detector on a latency--F1 frontier. QFIRE's advantage is not on generic
+injection but on healthcare scope and PHI, which we turn to next---and, as
+\S\ref{sec:adaptive} shows, on robustness once an adversary adapts to the defense.
 
 \begin{figure}[t]
 \centering
@@ -531,6 +536,19 @@ on robustness once an adversary adapts to the defense.
 detectors (DeBERTa AUC~$0.89$, QFIRE hybrid) hug the top-left corner; the lexical
 filters track the diagonal, making the ``fast-but-blind'' gap visual.}
 \label{fig:rocpr}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/latency_f1_frontier.png}
+\caption{Latency (p95, log scale) vs F1 for every detector, on public injection
+(left) and QFIRE-HealthBench (right). Compressed classifiers (DeBERTa-70M,
+PromptGuard-2 22M) are cheap and competitive on injection but, like all generic
+classifiers, lose recall on healthcare; the bare LLM-judge is slowest. QFIRE
+(\textbf{$\star$}) holds high F1 at bounded latency on both---healthcare especially.
+QFIRE's HealthBench point uses the hybrid-chain p95 as a latency proxy (the combined
+chain short-circuits, so it has no single classifier p95).}
+\label{fig:frontier}
 \end{figure}
 
 \subsection{Healthcare: the central result}\label{sec:healthcare-result}

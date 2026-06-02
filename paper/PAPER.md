@@ -259,7 +259,12 @@ detector alone (0.84). A second dedicated injection classifier, **qualifire Sent
 (ModernBERT), is the strongest system here (F1 0.98, recall 0.97)** — exactly what a
 purpose-built detector should do on in-distribution overt injection. A bare
 `llama3.1:8B` judge with a generic block/allow prompt and no scaffold trails badly
-(F1 0.70, recall 0.57) at a ~2 s p95. Lexical-only filters are precise but low-recall
+(F1 0.70, recall 0.57) at a ~2 s p95. At the **fast end**, a compressed INT8-ONNX
+detector, **hlyn-labs DeBERTa-70M**, is competitive on injection (F1 0.81) at ~12 ms p50
+— ≈20× faster than the base ONNX DeBERTa and ≈35× faster than Sentinel — and
+PromptGuard-2 22M tracks its 86M sibling (F1 0.83). The latency-vs-F1 frontier
+(`figs/latency_f1_frontier.png`) places every detector; QFIRE holds high F1 at bounded
+latency, decisively so on HealthBench. Lexical-only filters are precise but low-recall
 (F1 0.16–0.50), confirming the "fast-but-blind" gap. We do **not** claim QFIRE beats
 these classifiers on generic injection — Sentinel is clearly ahead; QFIRE's
 distinguishing value is the scope/PHI, latency-budget, and adaptive-robustness story
