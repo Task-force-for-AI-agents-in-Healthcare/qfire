@@ -133,6 +133,35 @@ corpus; reuse existing metrics/calibration code.
 
 ---
 
+## E6 — NeMo Guardrails full-stack baseline (+ Phase 2: rails as QFIRE policies, deferred)
+**Status:** [~] scoped — design: [2026-06-01-e6-nemo-guardrails-baseline-design.md](2026-06-01-e6-nemo-guardrails-baseline-design.md). Not yet built.
+**Reviewer concern it closes:** "You compared to injection classifiers and a bare judge
+but never to a complete guardrails **framework**." NVIDIA **NeMo Guardrails** is the
+leading open framework and the first baseline covering all three QFIRE pillars at once:
+jailbreak detection (≈ injection), topic control (≈ positive-security scope), and
+PII/Presidio (≈ the PHI panel).
+
+**Method sketch.** Run NeMo full-stack (jailbreak + topic-control + Presidio PII) on the
+public-injection + QFIRE-HealthBench corpora and the E1 adaptive panel, head-to-head with
+QFIRE; same metrics (P/R/F1/FPR/latency + CIs). LLM-backed rails on local Ollama
+(`llama3.1:8B`, same model as the E3 bare-judge → isolates framework vs scaffold);
+Presidio local. New `scripts/run_nemo.py` + `nemo_config/` (NeMo is YAML/Colang, not an
+HF classifier, so it can't reuse `baselines.py`). Fail-closed block = any input rail
+blocks. **Phase 2 (implement NeMo rails as chainable QFIRE policies) is DEFERRED** to its
+own spec.
+
+**Success criteria.** NeMo in the head-to-head + HealthBench tables and adaptive panel
+with the same metrics; honest placement on detection (does a full framework close the
+healthcare gap?), latency (multiple LLM rails/prompt vs QFIRE's bounded path), and
+adaptive robustness. Report any axis where NeMo ties/beats QFIRE.
+
+**Feasibility.** Medium. Main risk is **latency** — several rails (≥1 LLM call) per prompt
+→ seconds/prompt → ~6k prompts is many hours; mitigate by sampling (report `n`+CIs) or
+overnight run. Config (topic-control allow-lists) must be a fair, versioned, good-faith
+scope spec.
+
+---
+
 ## Cross-cutting notes
 - Each experiment that touches the manuscript adds a figure to `paper/figs/` and a
   short subsection (mirrored in `PAPER.md`), built with `scripts/build_paper.py`.
