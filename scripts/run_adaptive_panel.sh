@@ -21,6 +21,7 @@ mkdir -p "$OUT"
 scope_chain_for() {
   case "$1" in
     encoded_injection) echo default ;;
+    impersonation_healthcare|paraphrase_evaded|encoded_healthcare) echo hipaa_phi ;;
     *) echo bench_combined ;;
   esac
 }

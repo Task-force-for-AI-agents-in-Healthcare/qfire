@@ -63,16 +63,15 @@ the same metrics + CIs as the other baselines, and the narrative honestly places
 (expected: Llama Guard decent on overt injection, weak on healthcare PHI/scope like
 the other classifiers; bare LLM-judge below QFIRE's scoped chain — quantify it).
 
-## Open questions (resolve before the plan)
-1. **Llama Guard version/tag:** `llama-guard3` (latest) vs `llama-guard3:1b`/`8b` —
-   which size? (1B is fast; 8B more accurate.)
-2. **LLM-judge model:** which backing model for the bare judge — `llama3.1:8b`
-   (the strong judge from the judge-model ablation) or match QFIRE's default `llama3.2`?
-3. **Adapter location:** extend `baselines.py` (keeps all baselines in one tool) vs a
-   separate `qfire`-side chain for the Ollama models. Recommend baselines.py for
-   table-consistency.
-4. **Scope of corpora:** both full corpora, or also the E1 adaptive sets (show Llama
-   Guard is evaded too)? Could fold E3 baselines into the E1 panel retroactively.
+## Resolved decisions (user, 2026-06-01)
+1. **Llama Guard:** `llama-guard3:8b` (full, ~1–2 s/call via Ollama — the serious
+   open-guardrail baseline).
+2. **LLM-judge-only backing model:** `llama3.1:8b` (the strong judge from the
+   judge-model ablation; isolates QFIRE's scaffold over a capable bare judge).
+3. **Adapter location:** extend `baselines.py` (Ollama branch) — keeps all baselines
+   in one tool for table-consistency.
+4. **Corpora:** both main corpora (public injection + QFIRE-HealthBench) **AND** fold
+   Llama Guard into the E1 adaptive panel sets (show it's evaded too).
 
 ## Caveats
 - Llama Guard's categories aren't injection-specific; map "unsafe" → block, and note

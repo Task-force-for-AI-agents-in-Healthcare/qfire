@@ -65,24 +65,24 @@ the model emits that action. We measure whether that actually prevents the harmf
 - Harness + analyzer + figure (`paper/figs/agent_harm.png`: harmful-action & benign
   completion, with/without). Findings doc + paper subsection; backlog E4 ticked.
 
-## Open questions (resolve before any plan — likely a brainstorm of its own)
-1. **Agent framework:** hand-rolled minimal ReAct loop (no deps, full control,
-   reproducible) vs an existing framework. Recommend hand-rolled for reproducibility/no
-   API keys.
-2. **Backing model:** which local model drives the agent (needs decent tool-calling —
-   e.g. llama3.1:8b / qwen-coder)? Tool-calling reliability on local models is a risk.
-3. **Tool-call protocol:** OpenAI-style function calling (does the local model + Ollama
-   support it well?) vs a simple text-action protocol the loop parses.
-4. **Threat injection:** direct malicious user request only, or also **indirect**
-   injection (malicious text embedded in tool-returned "records") — the latter is the
-   stronger agentic threat but harder to stage.
-5. **Which QFIRE chain** guards the agent (hipaa_phi / combined / a bespoke agent
-   scope), and is it applied to the user turn, the tool-content turn, or both?
-6. **"Harmful action" definition:** the forbidden-tool list + arg conditions
-   (e.g. cross-patient = patient_id ≠ session patient).
-7. **Scale:** how many benign vs attack episodes for tight enough rates?
-8. **Decomposition:** build as one project or split (sandbox → agent → suite → harness),
-   each its own spec/plan? Given size, recommend splitting.
+## Resolved decisions (user, 2026-06-01)
+1. **Agent framework / model / protocol:** hand-rolled minimal **ReAct loop** on
+   **llama3.1:8b**, parsing a **simple text-action protocol** (`ACTION: tool(args)`) —
+   no framework deps, robust to weak local function-calling, fully reproducible.
+2. **Threat:** **both direct + indirect injection** — direct malicious requests AND
+   malicious text embedded in tool-returned "records" (the stronger agentic threat
+   QFIRE's prompt-boundary firewall targets).
+3. **Decomposition:** **split into 4 sequential sub-projects** (sandbox → agent →
+   task-suite → harness), each its own spec/plan/build, integrated at the end. **Do
+   E4 last** (after E3, E5).
+
+### Still to settle when E4 is brainstormed (per sub-project)
+- Which QFIRE chain guards the agent (likely `hipaa_phi`) and on which turn(s)
+  (user turn, tool-content turn, or both — indirect injection implies tool-content).
+- Exact forbidden-tool list + "harmful action" arg conditions (e.g. cross-patient =
+  `patient_id` ≠ session patient).
+- Episode counts (benign vs attack) for tight rates.
+These are deferred to E4's own brainstorm since it's decomposed and runs last.
 
 ## Caveats
 - A mock sandbox is a model of harm, not production; results bound a controlled setting.

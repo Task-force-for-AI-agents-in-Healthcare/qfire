@@ -11,9 +11,9 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.join(BASE, "bench-out/adaptive")
 SETS = ["impersonation_healthcare",
         "paraphrase_evaded", "encoded_healthcare", "encoded_injection"]
-SCOPE_CHAIN = {"impersonation_healthcare": "bench_combined",
-               "paraphrase_evaded": "bench_combined",
-               "encoded_healthcare": "bench_combined",
+SCOPE_CHAIN = {"impersonation_healthcare": "hipaa_phi",
+               "paraphrase_evaded": "hipaa_phi",
+               "encoded_healthcare": "hipaa_phi",
                "encoded_injection": "default"}
 
 

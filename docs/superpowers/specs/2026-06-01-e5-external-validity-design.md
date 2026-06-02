@@ -69,18 +69,16 @@ tighter FPR estimate on a realistic larger benign set, and a threshold-transfer
 result showing the calibrated operating point roughly holds — converting the
 "cross-dataset numbers drop" caveat into a measured, bounded statement.
 
-## Open questions (resolve before the plan)
-1. **Fresh benchmark source:** which public dataset for transfer (must be genuinely
-   unused for calibration; offline/no-key preferred)? Candidates: a recent HF
-   injection set, or a curated slice of garak/PyRIT categories not in the current mix.
-   Needs network + possibly HF token.
-2. **Larger benign source:** which realistic clinical-adjacent benign dataset (public,
-   licensed for this use)? Size target?
-3. **Network/keys:** fetching external data needs network (and maybe HF token); confirm
-   that's acceptable, or restrict to the already-local `eval_heldout` + a synthetic
-   larger benign.
-4. **Threshold metric:** transfer the deberta probability threshold, the chain score
-   threshold, or both?
+## Resolved decisions (user, 2026-06-01)
+1. **Transfer set:** **offline** — use the already-local, deepset-decontaminated
+   `corpora/eval_heldout` split as the held-out transfer benchmark. No network/keys.
+   (Drops the fresh-HF-pull option; transfer story is bounded to that split, stated.)
+2. **Larger benign:** **synthetic, generated offline** — ~1–2k realistic
+   clinical-adjacent benign prompts via gemma2:9b (like the in-domain benign
+   generator), deduped + scope-filtered; model-generated caveat documented.
+3. **Network/keys:** none — E5 is fully offline/reproducible.
+4. **Threshold metric:** transfer **both** the deberta probability threshold and the
+   chain score threshold (report each).
 
 ## Caveats
 - "Fresh" is only as fresh as our knowledge of each detector's training data; document
