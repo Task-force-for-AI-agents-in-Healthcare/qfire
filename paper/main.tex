@@ -1006,7 +1006,13 @@ conservative for identifiers (names, biometrics, face photos) that are not relia
 recoverable from text alone. Finally, the LLM scope judge inherits the biases and
 failure modes of its backing model; we mitigate but do not eliminate this by
 keeping deterministic detectors ahead of it and by reporting judge-chain
-over-blocking explicitly.
+over-blocking explicitly. QFIRE is also a \emph{text-prompt} firewall: multi-modal
+injection---pixel-level perturbations, text-in-image (leetspeak/overlay) payloads, or
+instructions hidden in image metadata---bypasses any text-only inspector and is out of
+scope here. QFIRE's de-obfuscation and scope/PHI rules would apply to such payloads only
+behind an OCR/extraction front-end that lifts them into text; integrating one is future
+work. Likewise, our evaluation is single-turn (multi-turn/conversational injection is
+left to future work).
 
 \section{Conclusion}
 QFIRE shows that a Rust, parallel, positive-security firewall can combine

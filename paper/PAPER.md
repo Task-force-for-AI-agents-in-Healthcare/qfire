@@ -712,6 +712,11 @@ inspectable data, not code/weights.
   Rust ONNX run uses the identical weights, and the near-identical P/R/F1 confirms
   the integration is faithful.
 - **Positive-security over-blocking** is real (§3.3) and must be calibrated.
+- **Text-only, single-turn scope.** QFIRE inspects text prompts: multi-modal injection
+  (pixel perturbations, text-in-image/leetspeak overlays, image-metadata payloads)
+  bypasses any text-only inspector and is out of scope — de-obfuscation/scope would apply
+  only behind an OCR/extraction front-end (future work). Evaluation is single-turn;
+  multi-turn/conversational injection is also future work.
 
 ## 5. Conclusion
 

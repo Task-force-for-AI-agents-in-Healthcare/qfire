@@ -162,6 +162,47 @@ scope spec.
 
 ---
 
+## E7 — Standard agent benchmarks (AgentDojo + InjecAgent)
+**Status:** [~] scoped — design: [2026-06-02-e7-standard-agent-benchmarks-design.md](2026-06-02-e7-standard-agent-benchmarks-design.md).
+**Reviewer concern:** "E4's agent-harm result is on your own mock-EHR — does it hold on
+the community-standard benchmarks (AgentDojo, InjecAgent) that CaMeL and the firewalls
+paper use?" Run QFIRE (proxy) on **AgentDojo** (Benign Utility / Utility-Under-Attack /
+Targeted ASR) + **InjecAgent** (indirect injection), guard on/off, **complementing** the
+mock-EHR and cited alongside it. Local agent model (no paid API). Risk: local-model benign
+utility ceiling; integration effort. Medium–high.
+
+## E8 — Cascade adaptive attack (3-stage)
+**Status:** [~] scoped — design: [2026-06-02-e8-cascade-adaptive-attack-design.md](2026-06-02-e8-cascade-adaptive-attack-design.md).
+**Reviewer concern:** E1's adaptive attacks may still be too weak. Apply the 3-stage
+cascade (standard → defense-aware second-order → QFIRE-in-the-loop adaptive) from
+[firewallsbench2026], reporting a staged recall curve + a Stage-3 evasion rate / median
+iterations against the **full QFIRE chain** (`--no-cache`). Honest-negative is the goal.
+Reuses E1 infra. Medium.
+
+## E9 — Multi-turn / conversational injection
+**Status:** [~] scoped — design: [2026-06-02-e9-multiturn-injection-design.md](2026-06-02-e9-multiturn-injection-design.md).
+**Reviewer concern:** all evaluations are single-turn; single-layer filters miss ~80% of
+multi-turn injections. Build a multi-turn corpus (split-payload / context-priming /
+crescendo) and measure QFIRE per-message vs history-aware. Likely surfaces an
+architectural gap (per-message blindness) → documents the failure surface + windowed
+mitigation. Medium.
+
+## E10 — Fast/compressed classifier baselines + latency–F1 frontier
+**Status:** [~] scoped — design: [2026-06-02-e10-fast-classifier-baselines-design.md](2026-06-02-e10-fast-classifier-baselines-design.md).
+**Reviewer concern:** E3 covers strong+slow baselines but not the fast/compressed tier
+where QFIRE's ONNX DeBERTa sits. Add **hlyn-labs DeBERTa-70M** (83 MB INT8 ONNX, ~101 ms)
++ PromptGuard-2 22M (optional Sentinel-v2/Vijil Dome) and a latency-vs-F1 frontier figure.
+Needs an onnxruntime wrapper in `baselines.py` (verify the injection-class index via
+`id2label`). Easy–medium.
+
+## E11 — Multi-modal injection: **documented limitation (not an experiment)**
+**Status:** [x] resolved as a limitation (no experiment) — added to §Limitations in
+`main.tex` + `PAPER.md`. QFIRE is a text-prompt firewall; pixel/OCR/metadata payloads are
+out of scope and would require an OCR/extraction front-end (future work). Recorded here so
+it is not re-opened as a TODO.
+
+---
+
 ## Cross-cutting notes
 - Each experiment that touches the manuscript adds a figure to `paper/figs/` and a
   short subsection (mirrored in `PAPER.md`), built with `scripts/build_paper.py`.
