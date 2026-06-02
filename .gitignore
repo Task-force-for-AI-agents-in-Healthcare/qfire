@@ -22,3 +22,10 @@ scripts/__pycache__/
 # git worktrees created by Claude Code (parallel sessions)
 .claude/worktrees/
 .venv-e6/
+
+# E7 agent-benchmark artifacts
+/.venv-e7/
+/third_party/InjecAgent/
+/runs/
+/results/
+bench-out/e7/
