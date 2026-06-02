@@ -180,7 +180,7 @@ iterations against the **full QFIRE chain** (`--no-cache`). Honest-negative is t
 Reuses E1 infra. Medium.
 
 ## E9 — Multi-turn / conversational injection
-**Status:** [~] scoped — design: [2026-06-02-e9-multiturn-injection-design.md](2026-06-02-e9-multiturn-injection-design.md).
+**Status:** [x] done — design: [2026-06-02-e9-multiturn-injection-design.md](2026-06-02-e9-multiturn-injection-design.md); plan: [../plans/2026-06-02-e9-multiturn-injection.md](../plans/2026-06-02-e9-multiturn-injection.md); results: [2026-06-02-e9-multiturn-injection-results.md](2026-06-02-e9-multiturn-injection-results.md); figure `paper/figs/multiturn.png`; paper §3.10b / §Multi-turn. Headline: QFIRE's default full-transcript eval blocks 0.78–1.00 of multi-turn attacks vs 0.43–0.70 latest-turn-only (split-payload 0.90 vs 0.43), at 0.00 benign FPR — already history-aware; context-priming is the residual.
 **Reviewer concern:** all evaluations are single-turn; single-layer filters miss ~80% of
 multi-turn injections. Build a multi-turn corpus (split-payload / context-priming /
 crescendo) and measure QFIRE per-message vs history-aware. Likely surfaces an
