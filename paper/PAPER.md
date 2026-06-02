@@ -840,9 +840,9 @@ axes: the same bare judge **collapses on generic injection** (F1 0.70 vs Sentine
 it costs a **0.6–2 s p95** per prompt vs QFIRE's bounded short-circuiting path; it
 gives no per-rule audit trail or deterministic PHI/identifier guarantee; and it is **far
 less robust under adaptive pressure** — run through the adaptive families of §3.10 the
-bare judge blocks only **34–45%** (vs QFIRE's **100%** and the *scope-aware* judge's
-91–99%), because a single generic block/allow judgment is itself evadable once the
-adversary adapts. QFIRE reaches the same static-corpus recall through a structured,
+bare judge blocks only **34–59%** (just 34–45% on the three healthcare-relevant families;
+vs QFIRE's **100%** and the *scope-aware* judge's 91–99%), because a single generic
+block/allow judgment is itself evadable once the adversary adapts. QFIRE reaches the same static-corpus recall through a structured,
 auditable, fail-closed composition that also holds up when attacked.
 
 **Detector complementarity (heatmap).** The per-category recall heatmap shows the

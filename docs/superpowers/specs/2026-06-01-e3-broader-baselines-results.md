@@ -72,8 +72,9 @@ here (F1 0.70) and by far the slowest (p95 2 s).
      deterministic PHI/identifier guarantee; one opaque LLM call gives neither.
    - **Adaptive robustness (measured)** — QFIRE's positive-security scope chain is
      **uniformly 100%** under the E1 adaptive attacks; the bare judge, run through the
-     same panel, **collapses to 34–45%** (impersonation 34.2%, paraphrase 44.9%,
-     encoded-healthcare 40.4%; encoded-injection pending Ollama availability). Notably
+     same panel, **collapses to 34–59%** (impersonation 34.2%, paraphrase 44.9%,
+     encoded-healthcare 40.4%, encoded-injection 59.1% — just 34–45% on the three
+     healthcare-relevant families). Notably
      the *scope-aware* judge (90.8–98.5%) vastly outperforms the *generic* bare judge —
      so the scaffold's scope prompt, not merely "having an LLM judge," is what holds up.
      A single generic block/allow judgment is itself evadable once the adversary adapts.
@@ -85,13 +86,13 @@ here (F1 0.70) and by far the slowest (p95 2 s).
 | scope-impersonation (healthcare) | 15.0% | 12.5% | **45.0%** | 34.2% | 90.8% | 100% |
 | paraphrase-to-evade | 0.0% | 20.2% | **49.4%** | 44.9% | 98.9% | 100% |
 | encoded (healthcare) | 54.4% | 44.2% | **71.3%** | 40.4% | 96.5% | 100% |
-| encoded (injection) | 49.0% | 38.5% | **53.3%** | — (pending) | 98.5% | 100% |
+| encoded (injection) | 49.0% | 38.5% | **53.3%** | 59.1% | 98.5% | 100% |
 
 The **bare judge** that tied QFIRE on static HealthBench (recall 0.82) blocks only
-**34–45%** of adaptive attacks — below even Sentinel and far below the *scope-aware*
-judge (90.8–98.5%) and QFIRE (100%). The scaffold's value under attack is the scope
-prompt + composition, not the LLM. (encoded-injection cell pending: Ollama became
-unresponsive under contention with the parallel E4 run; fill when free.)
+**34–59%** of adaptive attacks (just 34–45% on the three healthcare-relevant families;
+59% on encoded-injection, where residual injection signal survives encoding) — far below
+the *scope-aware* judge (90.8–98.5%) and QFIRE (100%). The scaffold's value under attack
+is the scope prompt + composition, not the LLM.
 
 **Sentinel is the most robust of the three classifiers on every adaptive family** —
 consistent with it being the best classifier — **yet still leaks 29–55%** of these
@@ -114,14 +115,15 @@ of DeBERTa/PromptGuard/Sentinel).
   `scripts/make_tables.py` also updated to emit the rows on a main-repo regen.
 
 ## Open items / candidate follow-ups
-- **[done, 3/4]** Ran the **bare judge through the E1 adaptive panel** — it collapses to
-  34–45% (hypothesis confirmed: a generic judgment is evadable), converting the
-  HealthBench honest-negative into a clean scaffold win on robustness. **Remaining:** the
-  `encoded_injection` cell (4th set) is pending — Ollama went unresponsive under
-  contention with the parallel E4 run; rerun `baselines.py --models llm-judge --attacks
-  corpora/adaptive/encoded_injection --benign /tmp/empty_benign --out
-  bench-out/adaptive/encoded_injection__barejudge.json` when Ollama is free, then re-run
-  `analyze_adaptive.py`.
+- **[done, 4/4]** Ran the **bare judge through the full E1 adaptive panel** — it collapses
+  to **34–59%** (34.2 / 44.9 / 40.4 / 59.1), hypothesis confirmed: a generic judgment is
+  evadable, converting the HealthBench honest-negative into a clean scaffold win on
+  robustness. The `encoded_injection` set (the slow one) initially wedged the local Ollama
+  on a pathological 24k-char prompt (#719); completed via a resilient driver
+  (`/tmp/run_encinj_judge.py`: 60s per-call timeout + periodic runner reset + `ollama stop`
+  recovery on hang). Same model/JUDGE_SYS/parser as `baselines.py` — `ollama stop` recovery
+  treats an unprocessable prompt as not-blocked, which is the correct "judge failed to
+  block" outcome.
 
 ## Bottom line
 A second, stronger injection classifier (Sentinel) **confirms** the healthcare-gap
