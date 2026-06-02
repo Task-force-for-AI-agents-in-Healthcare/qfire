@@ -73,23 +73,21 @@ need a small load-driver harness around `qfire bench` or `qfire serve`.
 
 ---
 
-## E3 — Broader baselines (Llama Guard + LLM-judge-only)
-**Status:** [ ] not started
+## E3 — Broader baselines (Prompt-Injection Sentinel + LLM-judge-only)
+**Status:** [x] done — design: [2026-06-01-e3-broader-baselines-design.md](2026-06-01-e3-broader-baselines-design.md); plan: [../plans/2026-06-01-e3-broader-baselines.md](../plans/2026-06-01-e3-broader-baselines.md); results: [2026-06-01-e3-broader-baselines-results.md](2026-06-01-e3-broader-baselines-results.md). Headline: Sentinel tops clean injection (F1 0.98) but R=0.638 on HealthBench (>PG-2 0.40, <QFIRE 0.83) and leaks 29–55% under adaptive attack; honest-negative — a bare llama3.1:8B judge ties QFIRE recall on static HealthBench (0.82/F1 0.90) yet collapses on injection (F1 0.70), is far slower, unauditable, and untested under adaptive pressure.
 **Reviewer concern it closes:** "You compared only to PromptGuard-2 and DeBERTa —
-cherry-picked baselines." Llama Guard is the obvious citable omission.
+cherry-picked baselines."
 
-**Method sketch.** Add to the head-to-head + HealthBench tables:
-1. **Llama Guard 2/3** — runs locally via Ollama (no API key), fits reproducibility.
-2. **LLM-judge-only** — a single model judging block/allow with no QFIRE scaffold,
+**What was done.** Added to the head-to-head + HealthBench tables (and Sentinel into
+the E1 adaptive panel):
+1. **qualifire `prompt-injection-sentinel`** (gated HF ModernBERT injection classifier)
+   — a second purpose-built detector. **(Replaced the originally-proposed Llama Guard,
+   which is content-safety, not injection — a category mismatch.)**
+2. **LLM-judge-only** — a single `llama3.1:8B` block/allow call with no QFIRE scaffold,
    to isolate the scaffold's contribution.
-3. *(Optional, only if a key exists)* OpenAI moderation / a hosted moderation API.
 
-**Success criteria.** Baselines slotted into the existing comparison tables/figures
-with the same metrics (P/R/F1/FPR/AUC/latency) and CIs; narrative on where each
-lands relative to QFIRE.
-
-**Feasibility.** Easy–medium. Llama Guard via Ollama + a thin adapter in the bench;
-reuse all existing corpora/metrics.
+**Feasibility (actual).** Sentinel reused the existing HF-transformers path (just
+`MODELS` + `HF_TOKEN`); the bare judge used a thin Ollama adapter. Easy.
 
 ---
 
