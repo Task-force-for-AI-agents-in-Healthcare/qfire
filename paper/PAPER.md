@@ -594,6 +594,17 @@ conceptual requirements, but inspectable mechanisms with benchmarked
 false-positive and recall rates. All artifacts and the `make paper` pipeline are
 released.
 
+### Declaration of generative AI use
+
+During the preparation of this work the authors used Anthropic's Claude —
+specifically the **Claude Opus 4.8** model (`claude-opus-4-8`) via the Claude Code
+CLI — to assist with drafting and editing the manuscript for readability and
+clarity, and to help design, implement, run, and analyze the reproducible benchmark
+experiments and their figures. After using this tool, the authors reviewed and
+edited all content — including every result, table, and figure — verified the
+underlying measurements, and take full responsibility for the content of the
+publication.
+
 ## 6. Round 2: addressing an agent peer review
 
 We subjected the paper to an adversarial agent peer review (verdict: *major
