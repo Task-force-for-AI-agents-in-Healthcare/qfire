@@ -172,7 +172,7 @@ mock-EHR and cited alongside it. Local agent model (no paid API). Risk: local-mo
 utility ceiling; integration effort. Medium–high.
 
 ## E8 — Cascade adaptive attack (3-stage)
-**Status:** [~] scoped — design: [2026-06-02-e8-cascade-adaptive-attack-design.md](2026-06-02-e8-cascade-adaptive-attack-design.md).
+**Status:** [x] done — design: [2026-06-02-e8-cascade-adaptive-attack-design.md](2026-06-02-e8-cascade-adaptive-attack-design.md); plan: [../plans/2026-06-02-e8-cascade-adaptive-attack.md](../plans/2026-06-02-e8-cascade-adaptive-attack.md); results: [2026-06-02-e8-cascade-adaptive-attack-results.md](2026-06-02-e8-cascade-adaptive-attack-results.md); figure `paper/figs/cascade.png`. **Honest-negative:** Stage 1/2 hold (0.80→0.83 hc, 0.67→0.60 inj — defense-aware rewrites don't help) but the Stage-3 firewall-in-the-loop paraphrase loop evades the **calibrated** chain (recall 0.37/0.13, median 2 iters). Diagnostic: scope-judge-only blocks ~1.0 of Stage-2 → it's the FPR calibration that's evaded, not the scope mechanism (weight scope harder for adversarial use; strict hipaa_phi holds). Caveat: black-box paraphrase may include intent drift → evasion rate is an upper bound.
 **Reviewer concern:** E1's adaptive attacks may still be too weak. Apply the 3-stage
 cascade (standard → defense-aware second-order → QFIRE-in-the-loop adaptive) from
 [firewallsbench2026], reporting a staged recall curve + a Stage-3 evasion rate / median
