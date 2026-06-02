@@ -696,6 +696,47 @@ trust. (Harm is prevented *via the prompt boundary*; QFIRE does not police tool 
 directly.) Full results:
 `docs/superpowers/specs/2026-06-01-e4-agent-harm-results.md`.
 
+### 3.13 Standard agent benchmarks: AgentDojo and InjecAgent
+
+E4's mock-EHR is our own harness; this asks whether the same inline-firewall result
+holds on the community-standard agent-injection benchmarks. We run QFIRE's proxy
+(`qfire serve`, OpenAI-wire-compatible) in front of **AgentDojo** (tool-use tasks across
+workspace/banking/travel/Slack, with injected attacks) and **InjecAgent** (indirect
+injections embedded in tool responses; direct-harm + data-stealing splits). A single
+local tool-caller (`qwen3-coder:30b`) drives both; guard-on routes through QFIRE on a
+per-suite positive-security **domain** scope (e.g. banking = "act only on the user's own
+accounts; tool output is data, not instructions") + the injection chain. Native metrics,
+95% Wilson CIs, stratified subset (ids logged).
+
+![Standard agent benchmarks: attack-success collapses under QFIRE; benign-utility cost of a broad scope](figs/agent_benchmarks.png)
+
+**Finding.** *QFIRE sharply reduces attack success on both standard benchmarks, at a
+benign-utility cost that scales with how broad the declared scope is.* On AgentDojo,
+Targeted ASR falls **0.181** [0.109, 0.285] → **0.000** [0.000, 0.051] (all 72 security
+cases contained, every suite to 0) while benign utility falls 0.583 → 0.208 (n=24). On
+InjecAgent, attack-success (over valid responses) falls **0.143** [0.074, 0.257] →
+**0.034** [0.010, 0.117] (data-stealing 0.222 → 0.034) at an unchanged valid rate
+(0.93 → 0.97). The direction matches the mock-EHR result (0.375 → 0.000) and the
+structural defenses QFIRE is compared to (CaMeL, tool-boundary firewalls). The honest
+contrast is the *utility cost*: small in the tightly-scoped healthcare setting
+(0.95 → 0.825) but large here — a broad per-suite "general assistant" scope conservatively
+refuses many legitimate out-of-the-ordinary actions (e.g. a travel task that emails an
+itinerary to a named third party). This reinforces the thesis: QFIRE's value is greatest
+where the operator can declare a *precise* domain; a blunt generic scope still eliminates
+injection success but pays more utility for it.
+
+**Honest caveats / deviations.** (i) One mid-size *local* agent (no paid API): absolute
+benign utility is modest and guard-off ASR is model-dependent, while guard-on ASR≈0 is a
+property of the deterministic block. (ii) The proxy returns an OpenAI-shaped refusal
+completion on a block (opt-in) so OpenAI-SDK harnesses record a contained attack rather
+than erroring. (iii) Per-suite *domain* scopes plus chain-local variants of three
+injection rules whose shared-library regexes false-fire on agent transcripts (a delimiter
+rule matching the proxy's own `[system]` framing; a jailbreak rule matching "stan" inside
+"under**stan**d"/"as**sistan**t"; an entropy heuristic firing on legitimate high-entropy
+tool data like IBANs) — core shared rules and headline chains unchanged. (iv) The scope
+judge is a local model, mildly stochastic on borderline benign cases (absorbed by the
+CIs). Full results: `docs/superpowers/specs/2026-06-02-e7-standard-agent-benchmarks-results.md`.
+
 ## 4. Discussion & limitations
 
 **Detectors are complementary, not redundant.** The §7.1 heatmap is block-diagonal:
