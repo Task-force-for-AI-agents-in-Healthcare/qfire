@@ -188,7 +188,7 @@ architectural gap (per-message blindness) → documents the failure surface + wi
 mitigation. Medium.
 
 ## E10 — Fast/compressed classifier baselines + latency–F1 frontier
-**Status:** [~] scoped — design: [2026-06-02-e10-fast-classifier-baselines-design.md](2026-06-02-e10-fast-classifier-baselines-design.md).
+**Status:** [x] done — design: [2026-06-02-e10-fast-classifier-baselines-design.md](2026-06-02-e10-fast-classifier-baselines-design.md); plan: [../plans/2026-06-02-e10-fast-classifier-baselines.md](../plans/2026-06-02-e10-fast-classifier-baselines.md); results: [2026-06-02-e10-fast-classifier-baselines-results.md](2026-06-02-e10-fast-classifier-baselines-results.md); figure `paper/figs/latency_f1_frontier.png` (fig:frontier). Headline: hlyn-labs DeBERTa-70M (INT8 ONNX) F1=0.81 injection @ ~12ms (≈20-35× faster than base DeBERTa/Sentinel) but R=0.53 on HealthBench; PromptGuard-2 22M ≈ 86M; the cheap end reopens the healthcare gap → latency isn't the obstacle, missing scope/PHI is.
 **Reviewer concern:** E3 covers strong+slow baselines but not the fast/compressed tier
 where QFIRE's ONNX DeBERTa sits. Add **hlyn-labs DeBERTa-70M** (83 MB INT8 ONNX, ~101 ms)
 + PromptGuard-2 22M (optional Sentinel-v2/Vijil Dome) and a latency-vs-F1 frontier figure.
