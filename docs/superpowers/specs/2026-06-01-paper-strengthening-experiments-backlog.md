@@ -73,28 +73,26 @@ need a small load-driver harness around `qfire bench` or `qfire serve`.
 
 ---
 
-## E3 — Broader baselines (Llama Guard + LLM-judge-only)
-**Status:** [ ] not started
+## E3 — Broader baselines (Prompt-Injection Sentinel + LLM-judge-only)
+**Status:** [x] done — design: [2026-06-01-e3-broader-baselines-design.md](2026-06-01-e3-broader-baselines-design.md); plan: [../plans/2026-06-01-e3-broader-baselines.md](../plans/2026-06-01-e3-broader-baselines.md); results: [2026-06-01-e3-broader-baselines-results.md](2026-06-01-e3-broader-baselines-results.md). Headline: Sentinel tops clean injection (F1 0.98) but R=0.638 on HealthBench (>PG-2 0.40, <QFIRE 0.83) and leaks 29–55% under adaptive attack; honest-negative — a bare llama3.1:8B judge ties QFIRE recall on static HealthBench (0.82/F1 0.90) yet collapses on injection (F1 0.70), is far slower, unauditable, and untested under adaptive pressure.
 **Reviewer concern it closes:** "You compared only to PromptGuard-2 and DeBERTa —
-cherry-picked baselines." Llama Guard is the obvious citable omission.
+cherry-picked baselines."
 
-**Method sketch.** Add to the head-to-head + HealthBench tables:
-1. **Llama Guard 2/3** — runs locally via Ollama (no API key), fits reproducibility.
-2. **LLM-judge-only** — a single model judging block/allow with no QFIRE scaffold,
+**What was done.** Added to the head-to-head + HealthBench tables (and Sentinel into
+the E1 adaptive panel):
+1. **qualifire `prompt-injection-sentinel`** (gated HF ModernBERT injection classifier)
+   — a second purpose-built detector. **(Replaced the originally-proposed Llama Guard,
+   which is content-safety, not injection — a category mismatch.)**
+2. **LLM-judge-only** — a single `llama3.1:8B` block/allow call with no QFIRE scaffold,
    to isolate the scaffold's contribution.
-3. *(Optional, only if a key exists)* OpenAI moderation / a hosted moderation API.
 
-**Success criteria.** Baselines slotted into the existing comparison tables/figures
-with the same metrics (P/R/F1/FPR/AUC/latency) and CIs; narrative on where each
-lands relative to QFIRE.
-
-**Feasibility.** Easy–medium. Llama Guard via Ollama + a thin adapter in the bench;
-reuse all existing corpora/metrics.
+**Feasibility (actual).** Sentinel reused the existing HF-transformers path (just
+`MODELS` + `HF_TOKEN`); the bare judge used a thin Ollama adapter. Easy.
 
 ---
 
 ## E4 — End-to-end agent harm reduction
-**Status:** [ ] not started
+**Status:** [x] done — plan: [../plans/2026-06-01-e4-agent-harm.md](../plans/2026-06-01-e4-agent-harm.md); results: [2026-06-01-e4-agent-harm-results.md](2026-06-01-e4-agent-harm-results.md); figure `paper/figs/agent_harm.png`; paper §End-to-end agent harm reduction in `main.tex` + `PAPER.md` §3.12. Headline: a ReAct agent (llama3.1:8b) over a mock-EHR sandbox — harmful-action rate **0.375→0.000** (direct 0.45→0, indirect 0.30→0) with QFIRE (bench_combined) gating untrusted inputs, at a benign-completion cost of **0.950→0.825** (entirely the conservative outbound-email block). All 5 paper-strengthening experiments (E1–E5) now done.
 **Reviewer concern it closes:** The paper firewalls *prompts* but never shows
 blocking prevents *downstream harm* — the "so what" for the agentic framing.
 
@@ -114,7 +112,7 @@ EHR + task suite. Highest payoff for the agentic motivation.
 ---
 
 ## E5 — External validity: generalization, larger benign FPR, threshold transfer
-**Status:** [ ] not started
+**Status:** [x] done — results: [2026-06-01-e5-external-validity-results.md](2026-06-01-e5-external-validity-results.md); figure `paper/figs/external_validity.png`; paper §External validity (transfer, scale, threshold stability) in `main.tex` + `PAPER.md` §3.11. Headline: QFIRE recall transfers 0.83→0.94 (≥ DeBERTa on both splits); calibrated over-refusal **0.023 [0.016, 0.033]** on 1.3k independent benign (≤ the 0.08 claim); calibrated threshold transfers within ~0.04 FPR (0.08→0.12 chain, 0.08→0.05 DeBERTa). Note: over-refusal measured on the calibrated `bench_combined` chain (the 0.08-FPR operating point), not the strict `hipaa_phi` conjunction (which over-blocks 1.00 at scale — kept as a §3.7 calibration-necessity cross-check).
 **Reviewer concern it closes:** "In-distribution numbers; does it transfer? Is the
 calibrated FPR real?" The paper already notes cross-dataset numbers drop — make it
 a strength, not a caveat.
@@ -132,6 +130,76 @@ estimate on realistic benign, and a calibration/threshold-transfer figure.
 
 **Feasibility.** Medium. Needs sourcing a fresh external benchmark + a larger benign
 corpus; reuse existing metrics/calibration code.
+
+---
+
+## E6 — NeMo Guardrails full-stack baseline (+ Phase 2: rails as QFIRE policies, deferred)
+**Status:** [x] done (Phase 1) — design: [2026-06-01-e6-nemo-guardrails-baseline-design.md](2026-06-01-e6-nemo-guardrails-baseline-design.md); results: [2026-06-01-e6-nemo-guardrails-results.md](2026-06-01-e6-nemo-guardrails-results.md); paper §Full-stack framework baseline (`sec:nemo`) + NeMo rows in head-to-head/HealthBench tables + adaptive-panel bar. Headline: NeMo full-stack edges QFIRE on **static** HealthBench (F1 0.90 vs 0.87) but loses on generic injection (F1 0.74 vs 0.86), latency (p95 2.7s vs 0.24s, ~10×), and **collapses to 30–55% recall under adaptive attack** (QFIRE 100%) — reinforces the thesis. Phase 2 (rails→QFIRE policies) still deferred.
+**Reviewer concern it closes:** "You compared to injection classifiers and a bare judge
+but never to a complete guardrails **framework**." NVIDIA **NeMo Guardrails** is the
+leading open framework and the first baseline covering all three QFIRE pillars at once:
+jailbreak detection (≈ injection), topic control (≈ positive-security scope), and
+PII/Presidio (≈ the PHI panel).
+
+**Method sketch.** Run NeMo full-stack (jailbreak + topic-control + Presidio PII) on the
+public-injection + QFIRE-HealthBench corpora and the E1 adaptive panel, head-to-head with
+QFIRE; same metrics (P/R/F1/FPR/latency + CIs). LLM-backed rails on local Ollama
+(`llama3.1:8B`, same model as the E3 bare-judge → isolates framework vs scaffold);
+Presidio local. New `scripts/run_nemo.py` + `nemo_config/` (NeMo is YAML/Colang, not an
+HF classifier, so it can't reuse `baselines.py`). Fail-closed block = any input rail
+blocks. **Phase 2 (implement NeMo rails as chainable QFIRE policies) is DEFERRED** to its
+own spec.
+
+**Success criteria.** NeMo in the head-to-head + HealthBench tables and adaptive panel
+with the same metrics; honest placement on detection (does a full framework close the
+healthcare gap?), latency (multiple LLM rails/prompt vs QFIRE's bounded path), and
+adaptive robustness. Report any axis where NeMo ties/beats QFIRE.
+
+**Feasibility.** Medium. Main risk is **latency** — several rails (≥1 LLM call) per prompt
+→ seconds/prompt → ~6k prompts is many hours; mitigate by sampling (report `n`+CIs) or
+overnight run. Config (topic-control allow-lists) must be a fair, versioned, good-faith
+scope spec.
+
+---
+
+## E7 — Standard agent benchmarks (AgentDojo + InjecAgent)
+**Status:** [~] scoped — design: [2026-06-02-e7-standard-agent-benchmarks-design.md](2026-06-02-e7-standard-agent-benchmarks-design.md).
+**Reviewer concern:** "E4's agent-harm result is on your own mock-EHR — does it hold on
+the community-standard benchmarks (AgentDojo, InjecAgent) that CaMeL and the firewalls
+paper use?" Run QFIRE (proxy) on **AgentDojo** (Benign Utility / Utility-Under-Attack /
+Targeted ASR) + **InjecAgent** (indirect injection), guard on/off, **complementing** the
+mock-EHR and cited alongside it. Local agent model (no paid API). Risk: local-model benign
+utility ceiling; integration effort. Medium–high.
+
+## E8 — Cascade adaptive attack (3-stage)
+**Status:** [x] done — design: [2026-06-02-e8-cascade-adaptive-attack-design.md](2026-06-02-e8-cascade-adaptive-attack-design.md); plan: [../plans/2026-06-02-e8-cascade-adaptive-attack.md](../plans/2026-06-02-e8-cascade-adaptive-attack.md); results: [2026-06-02-e8-cascade-adaptive-attack-results.md](2026-06-02-e8-cascade-adaptive-attack-results.md); figure `paper/figs/cascade.png`. **Honest-negative:** Stage 1/2 hold (0.80→0.83 hc, 0.67→0.60 inj — defense-aware rewrites don't help) but the Stage-3 firewall-in-the-loop paraphrase loop evades the **calibrated** chain (recall 0.37/0.13, median 2 iters). Diagnostic: scope-judge-only blocks ~1.0 of Stage-2 → it's the FPR calibration that's evaded, not the scope mechanism (weight scope harder for adversarial use; strict hipaa_phi holds). Caveat: black-box paraphrase may include intent drift → evasion rate is an upper bound.
+**Reviewer concern:** E1's adaptive attacks may still be too weak. Apply the 3-stage
+cascade (standard → defense-aware second-order → QFIRE-in-the-loop adaptive) from
+[firewallsbench2026], reporting a staged recall curve + a Stage-3 evasion rate / median
+iterations against the **full QFIRE chain** (`--no-cache`). Honest-negative is the goal.
+Reuses E1 infra. Medium.
+
+## E9 — Multi-turn / conversational injection
+**Status:** [x] done — design: [2026-06-02-e9-multiturn-injection-design.md](2026-06-02-e9-multiturn-injection-design.md); plan: [../plans/2026-06-02-e9-multiturn-injection.md](../plans/2026-06-02-e9-multiturn-injection.md); results: [2026-06-02-e9-multiturn-injection-results.md](2026-06-02-e9-multiturn-injection-results.md); figure `paper/figs/multiturn.png`; paper §3.10b / §Multi-turn. Headline: QFIRE's default full-transcript eval blocks 0.78–1.00 of multi-turn attacks vs 0.43–0.70 latest-turn-only (split-payload 0.90 vs 0.43), at 0.00 benign FPR — already history-aware; context-priming is the residual.
+**Reviewer concern:** all evaluations are single-turn; single-layer filters miss ~80% of
+multi-turn injections. Build a multi-turn corpus (split-payload / context-priming /
+crescendo) and measure QFIRE per-message vs history-aware. Likely surfaces an
+architectural gap (per-message blindness) → documents the failure surface + windowed
+mitigation. Medium.
+
+## E10 — Fast/compressed classifier baselines + latency–F1 frontier
+**Status:** [x] done — design: [2026-06-02-e10-fast-classifier-baselines-design.md](2026-06-02-e10-fast-classifier-baselines-design.md); plan: [../plans/2026-06-02-e10-fast-classifier-baselines.md](../plans/2026-06-02-e10-fast-classifier-baselines.md); results: [2026-06-02-e10-fast-classifier-baselines-results.md](2026-06-02-e10-fast-classifier-baselines-results.md); figure `paper/figs/latency_f1_frontier.png` (fig:frontier). Headline: hlyn-labs DeBERTa-70M (INT8 ONNX) F1=0.81 injection @ ~12ms (≈20-35× faster than base DeBERTa/Sentinel) but R=0.53 on HealthBench; PromptGuard-2 22M ≈ 86M; the cheap end reopens the healthcare gap → latency isn't the obstacle, missing scope/PHI is.
+**Reviewer concern:** E3 covers strong+slow baselines but not the fast/compressed tier
+where QFIRE's ONNX DeBERTa sits. Add **hlyn-labs DeBERTa-70M** (83 MB INT8 ONNX, ~101 ms)
++ PromptGuard-2 22M (optional Sentinel-v2/Vijil Dome) and a latency-vs-F1 frontier figure.
+Needs an onnxruntime wrapper in `baselines.py` (verify the injection-class index via
+`id2label`). Easy–medium.
+
+## E11 — Multi-modal injection: **documented limitation (not an experiment)**
+**Status:** [x] resolved as a limitation (no experiment) — added to §Limitations in
+`main.tex` + `PAPER.md`. QFIRE is a text-prompt firewall; pixel/OCR/metadata payloads are
+out of scope and would require an OCR/extraction front-end (future work). Recorded here so
+it is not re-opened as a TODO.
 
 ---
 

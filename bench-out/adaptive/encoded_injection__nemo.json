@@ -1,0 +1,34 @@
+{
+ "corpus_size": 200,
+ "attacks": 200,
+ "benign": 0,
+ "results": {
+  "nemo-guardrails": {
+   "tp": 109,
+   "fp": 0,
+   "tn": 0,
+   "fn": 91,
+   "n": 200,
+   "precision": 1.0,
+   "recall": 0.545,
+   "f1": 0.7055016181229774,
+   "accuracy": 0.545,
+   "acc_ci": [
+    0.47578485036961143,
+    0.6125190090977397
+   ],
+   "recall_ci": [
+    0.47578485036961143,
+    0.6125190090977397
+   ],
+   "fpr": 0.0,
+   "latency_ms": {
+    "p50": 2047.9400157928467,
+    "p95": 16020.045280456543,
+    "p99": 31241.065979003906,
+    "mean": 4540.732883214951
+   },
+   "model": "nemo-guardrails (self-check + jailbreak-heuristic + presidio-pii, llama3.1:8b)"
+  }
+ }
+}

@@ -2,30 +2,42 @@
  "impersonation_healthcare": {
   "deberta": 0.15,
   "promptguard2": 0.125,
+  "sentinel": 0.45,
+  "barejudge": 0.3416666666666667,
   "scope": 1.0,
   "phi": 0.3416666666666667,
-  "judge": 0.9083333333333333
+  "judge": 0.9083333333333333,
+  "nemo": 0.55
  },
  "paraphrase_evaded": {
   "deberta": 0.0,
   "promptguard2": 0.20224719101123595,
+  "sentinel": 0.4943820224719101,
+  "barejudge": 0.449438202247191,
   "scope": 1.0,
   "phi": 0.0898876404494382,
-  "judge": 0.9887640449438202
+  "judge": 0.9887640449438202,
+  "nemo": 0.48314606741573035
  },
  "encoded_healthcare": {
   "deberta": 0.544,
   "promptguard2": 0.442,
+  "sentinel": 0.713,
+  "barejudge": 0.404,
   "scope": 1.0,
   "phi": 0.066,
-  "judge": 0.965
+  "judge": 0.965,
+  "nemo": 0.305
  },
  "encoded_injection": {
   "deberta": 0.4897739504843918,
   "promptguard2": 0.38536060279870826,
+  "sentinel": 0.5328310010764262,
+  "barejudge": 0.5909580193756727,
   "scope": 1.0,
   "phi": 0.030139935414424113,
-  "judge": 0.985
+  "judge": 0.985,
+  "nemo": 0.545
  },
  "paraphrase_evade_stats": {
   "n": 100,

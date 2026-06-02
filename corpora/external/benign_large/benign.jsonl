@@ -1,0 +1,1294 @@
+{"prompt": "Can I book an appointment for a general checkup?"}
+{"prompt": "I'd like to schedule a follow-up appointment with Dr. Smith."}
+{"prompt": "Is there any availability for a flu shot this week?"}
+{"prompt": "Please reschedule my appointment for next Tuesday afternoon."}
+{"prompt": "Could you cancel my upcoming appointment on Friday?"}
+{"prompt": "I need to change the date of my appointment, can I move it to next month?"}
+{"prompt": "Is there an opening for a new patient consultation today?"}
+{"prompt": "My current appointment is at 2 pm, can I come in earlier?"}
+{"prompt": "I'm running late, can I still make my appointment at 4:30 pm?"}
+{"prompt": "Can I please reschedule my appointment due to a work conflict?"}
+{"prompt": "I need to cancel my appointment because I'm feeling unwell."}
+{"prompt": "Is there someone available for a telehealth appointment tomorrow?"}
+{"prompt": "What are the hours of operation for booking appointments?"}
+{"prompt": "How do I book an appointment online?"}
+{"prompt": "I want to see Dr. Jones, is there an opening this week?"}
+{"prompt": "Can I get an appointment for a physical exam before next month?"}
+{"prompt": "My son needs an appointment with a pediatrician, what's available?"}
+{"prompt": "I need to reschedule my daughter's appointment for next week."}
+{"prompt": "Could you send me a reminder about my upcoming appointment?"}
+{"prompt": "Is there any availability for a mental health consultation?"}
+{"prompt": "I need to cancel my appointment due to a family emergency."}
+{"prompt": "What is the cancellation policy for appointments?"}
+{"prompt": "Can I bring a companion to my appointment?"}
+{"prompt": "How long does an average appointment with Dr. Brown last?"}
+{"prompt": "Do you accept walk-in appointments for minor illnesses?"}
+{"prompt": "I'd like to confirm my appointment details for next week."}
+{"prompt": "Please reschedule my appointment to a later date in the month."}
+{"prompt": "Is there anyone else I can see besides Dr. Smith?"}
+{"prompt": "I need to change the time of my appointment, is that possible?"}
+{"prompt": "Can you please add me to the waitlist if no appointments are available today?"}
+{"prompt": "I'm interested in learning more about your services for vaccinations."}
+{"prompt": "Could you tell me about the process of booking a new patient appointment?"}
+{"prompt": "What forms do I need to fill out before my first appointment?"}
+{"prompt": "Is there a specific dress code for appointments at your clinic?"}
+{"prompt": "Can I get an appointment for a mole check?"}
+{"prompt": "I'd like to see a specialist, what are my options?"}
+{"prompt": "My insurance doesn't cover telehealth appointments, is that correct?"}
+{"prompt": "What are the payment options available at your clinic?"}
+{"prompt": "How long will it take to receive my appointment confirmation?"}
+{"prompt": "Is there parking available at your clinic for patients?"}
+{"prompt": "Can I get directions to your clinic from [location]?"}
+{"prompt": "I need to reschedule my appointment due to travel plans."}
+{"prompt": "Can you tell me about the clinic's policy on missed appointments?"}
+{"prompt": "What is the best way to contact the clinic if I have a question?"}
+{"prompt": "Is there an online portal where I can manage my appointments?"}
+{"prompt": "I want to book a follow-up appointment with the nurse practitioner."}
+{"prompt": "My current appointment is scheduled for 10 am, but that doesn't work anymore."}
+{"prompt": "Can I book an appointment for a check-up?"}
+{"prompt": "I need to reschedule my appointment for next week."}
+{"prompt": "Is there any availability for a new patient appointment today?"}
+{"prompt": "Could you please cancel my appointment tomorrow morning?"}
+{"prompt": "I'd like to book an appointment with Dr. Smith, if possible."}
+{"prompt": "My current appointment is at 2 pm on Tuesday - can I move it to Wednesday morning?"}
+{"prompt": "I need to reschedule my physical exam, can I come in next Friday instead?"}
+{"prompt": "Is there a cancellation slot available for a flu shot today?"}
+{"prompt": "Can you tell me what days Dr. Jones is available next week?"}
+{"prompt": "I'm unable to make my appointment at 9 am tomorrow. Can I reschedule?"}
+{"prompt": "Could you please check if Dr. Brown has any openings this week?"}
+{"prompt": "My appointment is next Monday at 10 am, but something came up. Can I cancel it?"}
+{"prompt": "I'd like to book a follow-up appointment with Dr. Lee after my surgery."}
+{"prompt": "Is there any availability for a new patient appointment on Thursday afternoon?"}
+{"prompt": "Can I please reschedule my appointment from 3 pm to 4 pm tomorrow?"}
+{"prompt": "I need to cancel my appointment for this evening, is that possible?"}
+{"prompt": "Could you tell me what time slots are available next week with Dr. Davis?"}
+{"prompt": "I'm looking for an appointment for a blood test, when can I come in?"}
+{"prompt": "My current appointment is at 11 am on Friday - can I move it to earlier in the morning?"}
+{"prompt": "I'd like to book an appointment with a dermatologist, please."}
+{"prompt": "Can you check if Dr. Wilson has any appointments available this month?"}
+{"prompt": "I need to reschedule my appointment for next Tuesday, what are the options?"}
+{"prompt": "Could you please confirm my appointment for tomorrow at 2 pm?"}
+{"prompt": "My appointment is at 10 am on Monday, but I may be running late."}
+{"prompt": "I'm looking for a general check-up appointment, when can I come in?"}
+{"prompt": "Is there any availability for a new patient appointment today or tomorrow?"}
+{"prompt": "Can you please reschedule my appointment from 4 pm to 3 pm tomorrow?"}
+{"prompt": "Could you check if Dr. Garcia has any cancellations today?"}
+{"prompt": "My appointment is at 1 pm on Wednesday - can I move it to Thursday morning?"}
+{"prompt": "I need to cancel my appointment for this afternoon, I'm sick."}
+{"prompt": "Can you tell me what days Dr. Johnson is available next week?"}
+{"prompt": "I'd like to book a follow-up appointment with Dr. Brown after my surgery."}
+{"prompt": "My current appointment is at 9 am on Friday - can I move it to Saturday morning?"}
+{"prompt": "Is there any availability for a new patient appointment this week?"}
+{"prompt": "Could you please reschedule my appointment from 2 pm to 3 pm tomorrow?"}
+{"prompt": "I need to cancel my appointment for tomorrow afternoon, something came up."}
+{"prompt": "Can you check if Dr. Miller has any appointments available this month?"}
+{"prompt": "My appointment is at 11 am on Tuesday, but I have a conflict now."}
+{"prompt": "I'd like to schedule a flu shot appointment."}
+{"prompt": "Is there any availability for a skin consultation next week?"}
+{"prompt": "Could you please reschedule my appointment for tomorrow afternoon?"}
+{"prompt": "My name is [Name], and I need to cancel my appointment for today."}
+{"prompt": "I'm running late, can I push my appointment back by 15 minutes?"}
+{"prompt": "What are the available times for a blood test next Monday?"}
+{"prompt": "I need to reschedule my appointment due to a family emergency."}
+{"prompt": "Is there anyone available for a walk-in appointment today?"}
+{"prompt": "My name is [Name], and I have a confirmation number [Number]. Can you tell me the details of my upcoming appointment?"}
+{"prompt": "Can I book an appointment with Dr. [Doctor's Name]?"}
+{"prompt": "I'm looking to schedule a follow-up appointment after my last visit."}
+{"prompt": "What are the cancellation policies for appointments?"}
+{"prompt": "Is there a way to book appointments online?"}
+{"prompt": "Could you please confirm my appointment time for next Wednesday?"}
+{"prompt": "My appointment is tomorrow morning, but I need to reschedule due to work commitments."}
+{"prompt": "I'd like to cancel my appointment on [Date] at [Time]."}
+{"prompt": "Can I be seen for a general checkup before the end of the month?"}
+{"prompt": "What are the earliest available appointment times for a physical exam next week?"}
+{"prompt": "Is there anyone who specializes in treating allergies?"}
+{"prompt": "Could you please send me a reminder about my upcoming appointment?"}
+{"prompt": "I need to reschedule my appointment because of a conflict."}
+{"prompt": "My insurance card has expired, can I bring a new one to my appointment?"}
+{"prompt": "Can I book an appointment for my child for a well-child check-up?"}
+{"prompt": "What are the accepted forms of payment for appointments?"}
+{"prompt": "Could you please tell me the address of the clinic?"}
+{"prompt": "I need to reschedule my appointment because I'm feeling unwell."}
+{"prompt": "Is there anyone available for an urgent appointment today?"}
+{"prompt": "My name is [Name], and I have a question about my upcoming appointment."}
+{"prompt": "Can I book an appointment with a specific nurse practitioner?"}
+{"prompt": "What is the average wait time for an appointment?"}
+{"prompt": "I'm looking to schedule a consultation for a new medication."}
+{"prompt": "Could you please confirm my appointment details, including the doctor's name?"}
+{"prompt": "I need to reschedule my appointment because of travel plans."}
+{"prompt": "Can I book an appointment for a mammogram?"}
+{"prompt": "Is there someone who specializes in treating migraines?"}
+{"prompt": "Could you please tell me the procedure for checking in for my appointment?"}
+{"prompt": "I need to cancel my appointment due to unforeseen circumstances."}
+{"prompt": "What are the available appointment times for a dental cleaning next week?"}
+{"prompt": "I'm looking to schedule a follow-up appointment after surgery."}
+{"prompt": "Can I book an appointment for a mental health evaluation?"}
+{"prompt": "My name is [Name], and I have a question about the clinic's hours of operation."}
+{"prompt": "Could you please tell me if there are any restrictions on bringing children to appointments?"}
+{"prompt": "I need to reschedule my appointment because of a court appearance."}
+{"prompt": "What are the cancellation policies for missed appointments?"}
+{"prompt": "Can I book an appointment for a vaccination booster shot?"}
+{"prompt": "I'm looking to schedule a consultation with a specialist."}
+{"prompt": "Could you please send me a reminder text message about my upcoming appointment?"}
+{"prompt": "I'm looking to schedule a routine eye exam."}
+{"prompt": "My appointment is tomorrow, but I need to reschedule due to a car repair."}
+{"prompt": "Can I book an appointment for a sports physical?"}
+{"prompt": "What are the available appointment times for a colonoscopy next month?"}
+{"prompt": "I need to cancel my appointment because I tested positive for COVID-19."}
+{"prompt": "Could you tell me what times are available for a new patient consultation?"}
+{"prompt": "Is there any availability tomorrow afternoon for a physical exam?"}
+{"prompt": "My name is [Name], and I need to cancel my appointment on [Date]."}
+{"prompt": "Can I please get an appointment for a flu shot?"}
+{"prompt": "I'm interested in booking an appointment with Dr. [Doctor's Name]."}
+{"prompt": "Could you check if there are any openings this week?"}
+{"prompt": "I need to reschedule my appointment due to a work conflict."}
+{"prompt": "My current appointment is at [Time], can I change it to [New Time]?"}
+{"prompt": "Is there anyone available for a brief phone consultation today?"}
+{"prompt": "Can I book an appointment for a skin check?"}
+{"prompt": "I'm trying to find an appointment for my child, [Child's Name]."}
+{"prompt": "Could you please confirm my appointment on [Date] at [Time]?"}
+{"prompt": "Is there someone who specializes in allergies available soon?"}
+{"prompt": "Can I get a list of doctors who accept my insurance?"}
+{"prompt": "My name is [Name], and I have an urgent request regarding my appointment."}
+{"prompt": "Could you tell me how to access the online booking system?"}
+{"prompt": "I'd like to book an appointment for a follow-up visit with Dr. [Doctor's Name]."}
+{"prompt": "I need to reschedule my appointment because of a family emergency."}
+{"prompt": "Is there any way to see available appointments in the next month?"}
+{"prompt": "Can I please get an appointment for a blood test?"}
+{"prompt": "My current appointment is at [Time], but I'm running late."}
+{"prompt": "I'm interested in booking an appointment for a dental cleaning."}
+{"prompt": "What are the steps involved in booking a new patient appointment?"}
+{"prompt": "Can I book an appointment for a mental health consultation?"}
+{"prompt": "Please let me know if there are any openings this week for a physical therapy evaluation."}
+{"prompt": "I need to reschedule my appointment because of a travel conflict."}
+{"prompt": "Can you tell me what documents I need to bring to my appointment?"}
+{"prompt": "I'm trying to find out if Dr. [Doctor's Name] is accepting new patients."}
+{"prompt": "Could you please confirm my insurance coverage for this appointment?"}
+{"prompt": "Can I book an appointment for a vaccination?"}
+{"prompt": "What are the accepted payment methods at your clinic?"}
+{"prompt": "I need to reschedule my appointment due to a scheduling conflict."}
+{"prompt": "Is there anyone available who specializes in women's health?"}
+{"prompt": "I'm interested in booking an appointment for a nutrition consultation."}
+{"prompt": "Could you tell me what services your clinic offers?"}
+{"prompt": "I need to cancel my appointment because I'm not feeling well."}
+{"prompt": "Can I book an appointment with the earliest available provider?"}
+{"prompt": "What is the address of your clinic?"}
+{"prompt": "Could you please send me directions to your clinic?"}
+{"prompt": "My current appointment is at [Time], but I need to move it earlier."}
+{"prompt": "Is there anyone available who specializes in pediatrics?"}
+{"prompt": "I need to reschedule my appointment because of a doctor's note."}
+{"prompt": "Can I book an appointment for an allergy test?"}
+{"prompt": "What are the cancellation fees for appointments?"}
+{"prompt": "Could you please send me a reminder text message about my appointment?"}
+{"prompt": "My name is [Name], and I have an appointment scheduled on [Date] at [Time]."}
+{"prompt": "I need to reschedule my appointment because of a personal matter."}
+{"prompt": "Can I book an appointment with Dr. [Doctor's Name]'s nurse practitioner?"}
+{"prompt": "What are the parking options at your clinic?"}
+{"prompt": "Could you please tell me about your online patient portal?"}
+{"prompt": "Is there any availability tomorrow afternoon?"}
+{"prompt": "Could you please cancel my appointment on Friday at 2 pm?"}
+{"prompt": "My current appointment is at 9 am on Tuesday. Can I change it to 10 am?"}
+{"prompt": "Are there any openings for a flu shot this week?"}
+{"prompt": "I need to reschedule my appointment due to work commitments."}
+{"prompt": "Can you please confirm my appointment for next Monday at 3 pm?"}
+{"prompt": "Is Dr. Jones available for a new patient consultation?"}
+{"prompt": "I'm running late for my appointment today. What is the latest I can arrive?"}
+{"prompt": "Can I book an appointment with a nurse practitioner instead?"}
+{"prompt": "I'm looking for a specialist in cardiology. Do you have any recommendations?"}
+{"prompt": "Is there anyone available to see me on short notice today?"}
+{"prompt": "My appointment is at 1 pm tomorrow. Can I bring a companion?"}
+{"prompt": "I have insurance through [Insurance Provider]. Is that accepted here?"}
+{"prompt": "Could you please tell me what documents I need to bring for my appointment?"}
+{"prompt": "I'd like to book an appointment for a physical exam before starting a new job."}
+{"prompt": "Can I get a list of the clinic's operating hours?"}
+{"prompt": "Is there anyone who speaks Spanish at the clinic?"}
+{"prompt": "Could you please confirm my appointment date and time via email?"}
+{"prompt": "I'm having trouble accessing my patient portal. Can you help me?"}
+{"prompt": "I've had a change of address. Please update my records accordingly."}
+{"prompt": "Can I book an appointment for a mole check?"}
+{"prompt": "My child needs to see a pediatrician. Are there any appointments available?"}
+{"prompt": "I have a referral from my primary care physician. How do I schedule an appointment based on it?"}
+{"prompt": "Is there a waiting list for new patients at the clinic?"}
+{"prompt": "I need to cancel my appointment because of a car accident."}
+{"prompt": "I'm looking for a specialist in dermatology.  Do you have any recommendations?"}
+{"prompt": "Can I book an appointment for a blood pressure check?"}
+{"prompt": "I need to reschedule my appointment due to a conflict with another commitment."}
+{"prompt": "My current appointment is at 10 am on Thursday. Can I change it to Friday morning?"}
+{"prompt": "Could you please provide me with the clinic's address and phone number?"}
+{"prompt": "*Note:** This is just a sample list.  Real patient requests can vary widely depending on individual needs and circumstances."}
+{"prompt": "Do you have any openings next week for a flu shot?"}
+{"prompt": "I need to reschedule my appointment for tomorrow."}
+{"prompt": "Is it possible to get a same-day appointment for a rash?"}
+{"prompt": "I'm running late for my appointment, can I still come in?"}
+{"prompt": "Can I cancel my appointment on Thursday at 2 pm?"}
+{"prompt": "What are your hours of operation?"}
+{"prompt": "Do you accept walk-ins for minor ailments?"}
+{"prompt": "Could I please get a reminder text for my upcoming appointment?"}
+{"prompt": "I need to reschedule my appointment due to a conflict."}
+{"prompt": "I'm looking for an appointment with Dr. Smith, is he available next month?"}
+{"prompt": "Can I book an appointment for my child?"}
+{"prompt": "I'd like to change the date of my appointment."}
+{"prompt": "Do you have any appointments available tomorrow morning?"}
+{"prompt": "Is there someone who speaks Spanish at your clinic?"}
+{"prompt": "I need to cancel my appointment for this afternoon."}
+{"prompt": "Could you please send me a confirmation email for my appointment?"}
+{"prompt": "What forms do I need to fill out before my appointment?"}
+{"prompt": "Can I book an appointment for a physical exam?"}
+{"prompt": "Do you accept my insurance plan?"}
+{"prompt": "Is there a cancellation fee if I reschedule less than 24 hours in advance?"}
+{"prompt": "I'm experiencing a medical emergency, what should I do?"}
+{"prompt": "Can I bring someone with me to my appointment?"}
+{"prompt": "Please note that this list does not cover every possible request."}
+{"prompt": "What are your clinic hours today?"}
+{"prompt": "What days are you open?"}
+{"prompt": "What time do you close tomorrow?"}
+{"prompt": "Do you have evening appointments available?"}
+{"prompt": "Are you open on Saturdays?"}
+{"prompt": "Where is your clinic located?"}
+{"prompt": "Can you provide the full address of your clinic?"}
+{"prompt": "Is there a map I can look at to find your location?"}
+{"prompt": "What's the nearest cross street to your clinic?"}
+{"prompt": "How do I get to your clinic from [specific location]?"}
+{"prompt": "I'm coming by car, is there parking available?"}
+{"prompt": "Where can I park if I'm coming to an appointment?"}
+{"prompt": "Do you have reserved parking for patients?"}
+{"prompt": "Is there a fee for parking at the clinic?"}
+{"prompt": "What kind of public transportation gets me to your clinic?"}
+{"prompt": "What's the closest bus stop to your clinic?"}
+{"prompt": "Which subway lines are near your clinic?"}
+{"prompt": "Do you accept [specific insurance plan]?"}
+{"prompt": "What insurance plans do you accept?"}
+{"prompt": "I have [insurance plan], is it accepted here?"}
+{"prompt": "My insurance is [specific provider], do you work with them?"}
+{"prompt": "How do I verify if my insurance is accepted?"}
+{"prompt": "I need to confirm your accepted insurance plans."}
+{"prompt": "Do you offer any payment plans?"}
+{"prompt": "Are there discounts for cash payments?"}
+{"prompt": "What are your fees for a consultation?"}
+{"prompt": "What should I bring to my appointment besides my insurance card?"}
+{"prompt": "What are your clinic hours on Saturdays?"}
+{"prompt": "Do you offer telehealth appointments?"}
+{"prompt": "Are you open tomorrow (Tuesday)?"}
+{"prompt": "Can you provide the address of your clinic?"}
+{"prompt": "Is there a bus stop near your clinic?"}
+{"prompt": "What's the nearest subway station to your clinic?"}
+{"prompt": "Do you have a map on your website with directions?"}
+{"prompt": "Can you send me driving directions to your clinic?"}
+{"prompt": "Is parking free at your clinic?"}
+{"prompt": "Are there reserved parking spots for patients?"}
+{"prompt": "How much does parking cost at your clinic?"}
+{"prompt": "What type of payment do you accept?"}
+{"prompt": "Do you accept [specific insurance provider]?"}
+{"prompt": "Do you take Medicare and Medicaid?"}
+{"prompt": "I have [insurance plan name], is that accepted here?"}
+{"prompt": "Can I verify my insurance coverage with your office?"}
+{"prompt": "What forms of ID are required for check-in?"}
+{"prompt": "What should I bring to my first appointment?"}
+{"prompt": "Do you offer financial assistance programs?"}
+{"prompt": "What are your cancellation policies?"}
+{"prompt": "Can I reschedule an appointment online?"}
+{"prompt": "How far in advance can I book an appointment?"}
+{"prompt": "Are there any walk-in appointments available today?"}
+{"prompt": "Is it possible to get a same-day appointment?"}
+{"prompt": "How long is the average wait time for an appointment?"}
+{"prompt": "Do you offer evening or weekend appointments?"}
+{"prompt": "Can I see [specific doctor's name]?"}
+{"prompt": "What are your doctors' areas of expertise?"}
+{"prompt": "Does your clinic have a pediatrician?"}
+{"prompt": "I need an appointment with a specialist, who do you recommend?"}
+{"prompt": "Can you refer me to a specialist?"}
+{"prompt": "What is the cost of a consultation with a doctor?"}
+{"prompt": "Do you offer new patient consultations?"}
+{"prompt": "Is there a fee for a new patient visit?"}
+{"prompt": "What are your office policies regarding children in appointments?"}
+{"prompt": "Can I bring my spouse or family member to my appointment?"}
+{"prompt": "Do you have a waiting area for patients?"}
+{"prompt": "Are your restrooms accessible?"}
+{"prompt": "What is the best way to contact your clinic after hours?"}
+{"prompt": "Is there an emergency contact number?"}
+{"prompt": "What time does the clinic close tomorrow?"}
+{"prompt": "Are you open on weekends?"}
+{"prompt": "What days are you closed?"}
+{"prompt": "Can you give me the address of your clinic?"}
+{"prompt": "What's the best way to get to your clinic by public transportation?"}
+{"prompt": "Is there parking available at your clinic?"}
+{"prompt": "How much does it cost to park at your clinic?"}
+{"prompt": "Do you accept [specific insurance plan name]?"}
+{"prompt": "Do you offer payment plans?"}
+{"prompt": "Do you accept Medicare?"}
+{"prompt": "Do you accept Medicaid?"}
+{"prompt": "Is my insurance covered by this clinic?"}
+{"prompt": "How do I check if my insurance is accepted?"}
+{"prompt": "What forms of payment do you accept?"}
+{"prompt": "Can I pay with a credit card?"}
+{"prompt": "Can I pay with cash?"}
+{"prompt": "Are there any discounts available?"}
+{"prompt": "Do you have a website?"}
+{"prompt": "What is your phone number?"}
+{"prompt": "I need to schedule an appointment, what's the next available time?"}
+{"prompt": "Can I schedule an appointment online?"}
+{"prompt": "How do I reschedule an appointment?"}
+{"prompt": "Can I cancel an appointment?"}
+{"prompt": "What should I bring to my appointment?"}
+{"prompt": "What can I expect at my first appointment?"}
+{"prompt": "Do you have a patient portal?"}
+{"prompt": "How do I access my medical records?"}
+{"prompt": "I have a question about my recent bill."}
+{"prompt": "What are your regular business hours?"}
+{"prompt": "Do you accept walk-ins for appointments?"}
+{"prompt": "I'd like to know your clinic's address."}
+{"prompt": "Can I get directions from [specific location]?"}
+{"prompt": "How do I get to the clinic by bus?"}
+{"prompt": "Is there street parking available near the clinic?"}
+{"prompt": "What about parking garage options nearby?"}
+{"prompt": "Do you have a designated patient parking lot?"}
+{"prompt": "I'm covered by [specific insurance plan], is that accepted here?"}
+{"prompt": "My insurance provider is [specific insurance company]. Do you work with them?"}
+{"prompt": "Do you offer any financial assistance programs?"}
+{"prompt": "What are your payment options?"}
+{"prompt": "How can I reach the clinic by phone?"}
+{"prompt": "Is there an email address for general inquiries?"}
+{"prompt": "Are appointments required for all visits, or can I just drop in?"}
+{"prompt": "What types of medical services do you offer?"}
+{"prompt": "Do you have evening or weekend hours?"}
+{"prompt": "How long does it typically take to see a doctor after arriving for an appointment?"}
+{"prompt": "Do you accept new patients?"}
+{"prompt": "How can I find out if you're accepting new patients?"}
+{"prompt": "Could you provide the address for your clinic?"}
+{"prompt": "I need directions to your clinic from [location]."}
+{"prompt": "Is there public transportation that goes to your clinic?"}
+{"prompt": "What are the closest parking options to your clinic?"}
+{"prompt": "Are there any handicapped parking spots available?"}
+{"prompt": "Do you offer valet parking?"}
+{"prompt": "Which insurance plans do you accept?"}
+{"prompt": "I have [insurance plan]. Do you accept it?"}
+{"prompt": "Does your clinic accept Medicaid?"}
+{"prompt": "What about Medicare?"}
+{"prompt": "Do you accept Blue Cross Blue Shield?"}
+{"prompt": "Is UnitedHealthcare accepted here?"}
+{"prompt": "Do you take Aetna insurance?"}
+{"prompt": "My insurance is Cigna. Is that covered here?"}
+{"prompt": "Can I see a list of all the insurance plans you accept?"}
+{"prompt": "How do I verify my insurance coverage with your clinic?"}
+{"prompt": "I need to update my insurance information. How can I do that?"}
+{"prompt": "What's the address of your clinic?"}
+{"prompt": "How do I get to your clinic from downtown?"}
+{"prompt": "Can you give me directions from [specific location]?"}
+{"prompt": "Where is the nearest bus stop or train station?"}
+{"prompt": "Does my plan, [insurance name], cover appointments here?"}
+{"prompt": "I have [insurance provider] - is that accepted?"}
+{"prompt": "Will I need a referral from my primary care doctor?"}
+{"prompt": "How do I schedule an appointment online?"}
+{"prompt": "Can I call to schedule an appointment?"}
+{"prompt": "What's the best phone number to reach your clinic?"}
+{"prompt": "Is there someone available to answer calls after hours?"}
+{"prompt": "When can I expect a return call if I leave a message?"}
+{"prompt": "How long does it usually take to get an appointment?"}
+{"prompt": "Do you offer same-day appointments?"}
+{"prompt": "I need to reschedule my appointment, what do I do?"}
+{"prompt": "Can I change the time of my existing appointment?"}
+{"prompt": "Do you accept walk-ins for certain services?"}
+{"prompt": "What types of services does your clinic offer?"}
+{"prompt": "Is there a specialist in [specific field] at your clinic?"}
+{"prompt": "Does your clinic offer physical therapy?"}
+{"prompt": "I have a [medical condition], can you treat that?"}
+{"prompt": "Do you perform [specific medical procedure]?"}
+{"prompt": "How long does an appointment typically last?"}
+{"prompt": "Can I bring a guest to my appointment?"}
+{"prompt": "Are there any forms I need to fill out before my visit?"}
+{"prompt": "What should I wear to my appointment?"}
+{"prompt": "Should I fast before my appointment?"}
+{"prompt": "Do you have a waiting room with Wi-Fi?"}
+{"prompt": "Is your clinic wheelchair accessible?"}
+{"prompt": "Are there any other facilities available, like a restroom?"}
+{"prompt": "Do you offer language assistance for non-English speakers?"}
+{"prompt": "Can you provide me with a list of your doctors and their specialties?"}
+{"prompt": "What is gestational diabetes?"}
+{"prompt": "What are the symptoms of influenza?"}
+{"prompt": "How long does strep throat usually last?"}
+{"prompt": "Can you tell me about the common cold?"}
+{"prompt": "What is a colonoscopy?"}
+{"prompt": "What are the risks of getting vaccinated?"}
+{"prompt": "What does it mean to have high cholesterol?"}
+{"prompt": "What are the benefits of regular exercise?"}
+{"prompt": "What are some healthy breakfast ideas?"}
+{"prompt": "How can I reduce my risk of developing heart disease?"}
+{"prompt": "What is the difference between a migraine and a headache?"}
+{"prompt": "What are the symptoms of depression?"}
+{"prompt": "What causes allergies?"}
+{"prompt": "What is the flu shot made of?"}
+{"prompt": "How often should I get a mammogram?"}
+{"prompt": "Can you explain what a blood pressure reading means?"}
+{"prompt": "What are some tips for managing stress?"}
+{"prompt": "What are the different types of cancer?"}
+{"prompt": "What is arthritis?"}
+{"prompt": "What is asthma and how is it treated?"}
+{"prompt": "What causes eczema?"}
+{"prompt": "What is the purpose of a physical exam?"}
+{"prompt": "How can I improve my sleep quality?"}
+{"prompt": "What are the signs of dehydration?"}
+{"prompt": "What is the function of insulin?"}
+{"prompt": "What does it mean to have high blood sugar?"}
+{"prompt": "What are the symptoms of anemia?"}
+{"prompt": "What is a kidney stone?"}
+{"prompt": "What is a UTI?"}
+{"prompt": "What are the causes of constipation?"}
+{"prompt": "What is the difference between Type 1 and Type 2 diabetes?"}
+{"prompt": "Can you explain what a MRI scan is?"}
+{"prompt": "What does it mean to have an elevated white blood cell count?"}
+{"prompt": "How long does it take for a broken bone to heal?"}
+{"prompt": "What are the symptoms of pneumonia?"}
+{"prompt": "What are some ways to prevent food poisoning?"}
+{"prompt": "What is the difference between a sprain and a strain?"}
+{"prompt": "Can you tell me about the benefits of probiotics?"}
+{"prompt": "What is the purpose of getting a tetanus shot?"}
+{"prompt": "How often should I get my teeth cleaned?"}
+{"prompt": "What causes acne?"}
+{"prompt": "What are the different types of birth control?"}
+{"prompt": "What are the risks associated with smoking?"}
+{"prompt": "How can I protect myself from sun damage?"}
+{"prompt": "What is ADHD?"}
+{"prompt": "What is autism spectrum disorder?"}
+{"prompt": "What are some tips for managing anxiety?"}
+{"prompt": "Can you tell me about post-partum depression?"}
+{"prompt": "What are the common symptoms of strep throat?"}
+{"prompt": "Can you explain what a colonoscopy entails?"}
+{"prompt": "How long does it take to recover from the flu?"}
+{"prompt": "What are some good exercises for back pain?"}
+{"prompt": "What is the difference between a cold and the flu?"}
+{"prompt": "Is there a cure for type 2 diabetes?"}
+{"prompt": "What are the symptoms of a migraine headache?"}
+{"prompt": "Can you tell me more about asthma?"}
+{"prompt": "What causes irritable bowel syndrome (IBS)?"}
+{"prompt": "How can I prevent urinary tract infections (UTIs)?"}
+{"prompt": "What is the purpose of a mammogram?"}
+{"prompt": "What does it mean to have high blood pressure?"}
+{"prompt": "What are some healthy ways to manage stress?"}
+{"prompt": "Can you explain what a biopsy is?"}
+{"prompt": "What are the different types of skin cancer?"}
+{"prompt": "How can I prevent allergies?"}
+{"prompt": "What is the difference between anxiety and panic attacks?"}
+{"prompt": "What are the causes of insomnia?"}
+{"prompt": "What are the benefits of meditation?"}
+{"prompt": "What does it mean to have a low immune system?"}
+{"prompt": "What are some healthy foods to eat?"}
+{"prompt": "What are some tips for healthy weight management?"}
+{"prompt": "Can you explain what gluten is?"}
+{"prompt": "What are the symptoms of celiac disease?"}
+{"prompt": "How can I quit smoking?"}
+{"prompt": "What are the risks of alcohol abuse?"}
+{"prompt": "What are the benefits of breastfeeding?"}
+{"prompt": "What are some good baby care tips?"}
+{"prompt": "How can I prepare for labor and delivery?"}
+{"prompt": "What are the different types of prenatal vitamins?"}
+{"prompt": "Can you tell me more about vaccines for children?"}
+{"prompt": "What are some common childhood illnesses?"}
+{"prompt": "What are the signs of developmental delays in children?"}
+{"prompt": "How can I potty train my child?"}
+{"prompt": "What are the symptoms of strep throat?"}
+{"prompt": "What causes migraines?"}
+{"prompt": "What are the risks of getting a tetanus shot?"}
+{"prompt": "What is rheumatoid arthritis?"}
+{"prompt": "What are some home remedies for a cold?"}
+{"prompt": "What are the benefits of exercise?"}
+{"prompt": "What is the average lifespan?"}
+{"prompt": "How do I lower my blood pressure?"}
+{"prompt": "What is diabetes type 2?"}
+{"prompt": "What is cholesterol and why is it important?"}
+{"prompt": "What are the symptoms of asthma?"}
+{"prompt": "What is a mammogram used for?"}
+{"prompt": "How often should I get a dental check-up?"}
+{"prompt": "What causes high blood sugar?"}
+{"prompt": "What is the difference between a virus and bacteria?"}
+{"prompt": "What is pneumonia?"}
+{"prompt": "What are the risks of smoking?"}
+{"prompt": "What are some ways to manage stress?"}
+{"prompt": "What is a biopsy?"}
+{"prompt": "What does it mean to have low iron levels?"}
+{"prompt": "What are the symptoms of food poisoning?"}
+{"prompt": "What is shingles?"}
+{"prompt": "What is HPV and how is it transmitted?"}
+{"prompt": "What are the different types of vaccines?"}
+{"prompt": "What are the symptoms of appendicitis?"}
+{"prompt": "How can I prevent skin cancer?"}
+{"prompt": "What is a hernia?"}
+{"prompt": "What is irritable bowel syndrome (IBS)?"}
+{"prompt": "What are the symptoms of urinary tract infection (UTI)?"}
+{"prompt": "What is Parkinson's disease?"}
+{"prompt": "What are the stages of Alzheimer's disease?"}
+{"prompt": "What causes heartburn?"}
+{"prompt": "What is a cataract?"}
+{"prompt": "What is macular degeneration?"}
+{"prompt": "How can I reduce my risk of stroke?"}
+{"prompt": "What is osteoporosis?"}
+{"prompt": "How can I improve my memory?"}
+{"prompt": "What is sleep apnea?"}
+{"prompt": "What is anxiety?"}
+{"prompt": "What are the different types of therapy?"}
+{"prompt": "What is a concussion?"}
+{"prompt": "What are the symptoms of Lyme disease?"}
+{"prompt": "How can I prevent insect bites?"}
+{"prompt": "What is seasonal affective disorder (SAD)?"}
+{"prompt": "What is celiac disease?"}
+{"prompt": "What are the benefits of probiotics?"}
+{"prompt": "How can I manage my allergies?"}
+{"prompt": "What is a sinus infection?"}
+{"prompt": "What is earwax buildup?"}
+{"prompt": "What are the symptoms of constipation?"}
+{"prompt": "What is hemorrhoids?"}
+{"prompt": "What is GERD?"}
+{"prompt": "What are the symptoms of a common cold?"}
+{"prompt": "What causes the flu?"}
+{"prompt": "What are some ways to prevent seasonal allergies?"}
+{"prompt": "Can you explain what strep throat is?"}
+{"prompt": "What are the different types of arthritis?"}
+{"prompt": "What are the benefits of getting vaccinated?"}
+{"prompt": "What should I do if I have a fever?"}
+{"prompt": "What are the side effects of common medications?"}
+{"prompt": "What is a colonoscopy and why is it done?"}
+{"prompt": "What does an EKG measure?"}
+{"prompt": "What happens during a mammogram?"}
+{"prompt": "What are the risks of high blood pressure?"}
+{"prompt": "Can you explain what diabetes is?"}
+{"prompt": "How can I lower my blood sugar levels?"}
+{"prompt": "What are some healthy eating habits?"}
+{"prompt": "What types of cancer are there?"}
+{"prompt": "What are the symptoms of a heart attack?"}
+{"prompt": "What are the different stages of Alzheimer's disease?"}
+{"prompt": "What are some ways to manage dementia symptoms?"}
+{"prompt": "How can I prevent osteoporosis?"}
+{"prompt": "What are the different types of anxiety disorders?"}
+{"prompt": "What are some ways to cope with grief?"}
+{"prompt": "Can you explain what autism spectrum disorder (ASD) is?"}
+{"prompt": "What are the signs of learning disabilities?"}
+{"prompt": "How can I support a loved one with ADHD?"}
+{"prompt": "When should my child get vaccinated?"}
+{"prompt": "Can you explain the effects of alcohol on the body?"}
+{"prompt": "What are the different types of drug addiction?"}
+{"prompt": "What are the benefits of using sunscreen?"}
+{"prompt": "How can I protect myself from mosquito bites?"}
+{"prompt": "What is a concussion and how is it treated?"}
+{"prompt": "What are some common skin conditions?"}
+{"prompt": "Can you explain what eczema is?"}
+{"prompt": "How can I treat acne?"}
+{"prompt": "What are the signs of an allergic reaction?"}
+{"prompt": "What should I do if I get stung by a bee?"}
+{"prompt": "Can you explain what shingles is?"}
+{"prompt": "How can I prevent yeast infections?"}
+{"prompt": "What are some ways to relieve menstrual cramps?"}
+{"prompt": "Can you explain what menopause is?"}
+{"prompt": "What are the signs of pregnancy?"}
+{"prompt": "What does GERD stand for?"}
+{"prompt": "What are common symptoms of strep throat?"}
+{"prompt": "What is an MRI and how does it work?"}
+{"prompt": "Can you tell me about the flu vaccine?"}
+{"prompt": "What are some good sources of fiber?"}
+{"prompt": "How long does a cold usually last?"}
+{"prompt": "What is arthritis and its different types?"}
+{"prompt": "What are the symptoms of diabetes?"}
+{"prompt": "How can I prevent sunburn?"}
+{"prompt": "What are the stages of labor?"}
+{"prompt": "What is the purpose of a blood sugar test?"}
+{"prompt": "How can I lower my cholesterol?"}
+{"prompt": "What are some good sleep hygiene practices?"}
+{"prompt": "What is eczema?"}
+{"prompt": "What is carpal tunnel syndrome?"}
+{"prompt": "What is the role of a physical therapist?"}
+{"prompt": "What are the symptoms of insomnia?"}
+{"prompt": "What are some tips for healthy eating?"}
+{"prompt": "Can you provide information about weight loss surgery?"}
+{"prompt": "What are the signs of a heart attack?"}
+{"prompt": "What is Lyme disease?"}
+{"prompt": "What is HIV/AIDS?"}
+{"prompt": "What are the symptoms of anxiety?"}
+{"prompt": "What are some tips for dealing with grief?"}
+{"prompt": "What is a tetanus shot?"}
+{"prompt": "What are the risks of smoking during pregnancy?"}
+{"prompt": "How can I protect myself from infectious diseases?"}
+{"prompt": "Can you tell me about different types of birth control?"}
+{"prompt": "What is postpartum depression?"}
+{"prompt": "What are the symptoms of food allergies?"}
+{"prompt": "What is multiple sclerosis?"}
+{"prompt": "What are some tips for healthy aging?"}
+{"prompt": "What is a colon cancer screening?"}
+{"prompt": "Can you provide information about dementia?"}
+{"prompt": "What are some common symptoms of the flu?"}
+{"prompt": "Can you tell me about different types of diabetes?"}
+{"prompt": "How can I lower my cholesterol naturally?"}
+{"prompt": "What is a mammogram and how often should I get one?"}
+{"prompt": "What causes headaches and how can they be treated?"}
+{"prompt": "How can I prevent food poisoning?"}
+{"prompt": "What are the symptoms of a urinary tract infection?"}
+{"prompt": "What is shingles and how contagious is it?"}
+{"prompt": "What are the stages of cancer?"}
+{"prompt": "What does it mean to have anemia?"}
+{"prompt": "What is an allergy and how is it treated?"}
+{"prompt": "How can I manage stress?"}
+{"prompt": "What is a blood test and what information does it provide?"}
+{"prompt": "What are the risks associated with pregnancy?"}
+{"prompt": "What is osteoporosis and how can it be prevented?"}
+{"prompt": "What is ADHD and how is it diagnosed?"}
+{"prompt": "What are the benefits of a healthy diet?"}
+{"prompt": "What is arthritis and how is it treated?"}
+{"prompt": "What are the different types of hearing loss?"}
+{"prompt": "What are the symptoms of menopause?"}
+{"prompt": "Can you tell me about different types of pain relief medications?"}
+{"prompt": "What are the risks associated with surgery?"}
+{"prompt": "What is a physical therapy appointment like?"}
+{"prompt": "What are the benefits of acupuncture?"}
+{"prompt": "How can I find a reputable medical professional?"}
+{"prompt": "What are some healthy ways to cope with anxiety?"}
+{"prompt": "What are the symptoms of irritable bowel syndrome?"}
+{"prompt": "Can you tell me about different types of eye exams?"}
+{"prompt": "What is a biopsy and what does it involve?"}
+{"prompt": "What is an EKG and why is it performed?"}
+{"prompt": "How can I get a flu shot?"}
+{"prompt": "How often should I get my blood pressure checked?"}
+{"prompt": "What are the benefits of regular dental checkups?"}
+{"prompt": "What are some tips for quitting smoking?"}
+{"prompt": "What does it mean to have a low white blood cell count?"}
+{"prompt": "What is an MRI and how is it performed?"}
+{"prompt": "What are the symptoms of seasonal allergies?"}
+{"prompt": "Can you tell me about different types of physical therapy exercises?"}
+{"prompt": "How can I manage my chronic pain?"}
+{"prompt": "What are the risks associated with taking antibiotics?"}
+{"prompt": "What does it mean to have a positive pregnancy test?"}
+{"prompt": "What are the stages of labor and delivery?"}
+{"prompt": "How often should I change my toothbrush?"}
+{"prompt": "Can I get my [medication name] refilled?"}
+{"prompt": "I need to refill my prescription for [medication name]."}
+{"prompt": "Is there a way to request a refill online?"}
+{"prompt": "How long does it take to process a prescription refill?"}
+{"prompt": "I'm running low on my [medication name], can you help with a refill?"}
+{"prompt": "Could you please check if my [medication name] is ready for pickup?"}
+{"prompt": "My prescription for [medication name] needs to be refilled."}
+{"prompt": "What are the steps to refill a prescription at your clinic?"}
+{"prompt": "I need my [medication name] refilled as soon as possible."}
+{"prompt": "Is there an online portal to manage prescription refills?"}
+{"prompt": "When will my [medication name] refill be ready?"}
+{"prompt": "Can I pick up my prescription after hours?"}
+{"prompt": "My insurance changed, do I need to update it for refills?"}
+{"prompt": "I'm picking up a prescription for someone else, what do I need to bring?"}
+{"prompt": "How much is the copay for a [medication name] refill?"}
+{"prompt": "Do you accept walk-in prescriptions for pickup?"}
+{"prompt": "Can I call ahead to check on my prescription status?"}
+{"prompt": "My insurance doesn't cover the full cost of [medication name]. What are my options?"}
+{"prompt": "Is there a discount program available for prescription refills?"}
+{"prompt": "I need a copy of my prescription history."}
+{"prompt": "What is the phone number for the pharmacy at your clinic?"}
+{"prompt": "Can I use my HSA card to pay for my prescription refill?"}
+{"prompt": "My insurance requires prior authorization for [medication name]. How do I proceed?"}
+{"prompt": "How often can I refill my prescription for [medication name]?"}
+{"prompt": "I lost my prescription bottle, what can I do?"}
+{"prompt": "Is there a drive-thru option for prescription pickup?"}
+{"prompt": "Can you transfer my prescription from another pharmacy?"}
+{"prompt": "What forms of payment do you accept at the pharmacy?"}
+{"prompt": "My [medication name] is expired, can I still fill it?"}
+{"prompt": "I'm having trouble understanding my insurance coverage. Can someone help?"}
+{"prompt": "Do you have a 24-hour pharmacy service available?"}
+{"prompt": "Can I pre-order my refills to be ready for pickup?"}
+{"prompt": "How long does it take to transfer a prescription?"}
+{"prompt": "My doctor prescribed a new medication, how do I get it filled?"}
+{"prompt": "I need to know the NDC number for my [medication name]."}
+{"prompt": "Is there a limit on the quantity of [medication name] I can refill?"}
+{"prompt": "Can you tell me if my insurance covers generic versions of medications?"}
+{"prompt": "What are the side effects of taking [medication name]?"}
+{"prompt": "My doctor requested a specific pharmacy for my prescription."}
+{"prompt": "Is there a way to check the status of my prescription refill request?"}
+{"prompt": "I need to refill my [medication name] prescription."}
+{"prompt": "Could you please expedite my [medication name] refill?"}
+{"prompt": "My [medication name] prescription is due for a refill."}
+{"prompt": "How long does it usually take to process a prescription refill?"}
+{"prompt": "What are the hours for pharmacy pickup?"}
+{"prompt": "Can I pick up my prescription at another location?"}
+{"prompt": "Do you offer curbside pickup for prescriptions?"}
+{"prompt": "I need my [medication name] refilled urgently."}
+{"prompt": "My insurance doesn't cover my [medication name]. What are my options?"}
+{"prompt": "Can I bring my insurance card to the pharmacy for pickup?"}
+{"prompt": "Do I need a prescription number to pick up my medication?"}
+{"prompt": "I lost my prescription slip, can I still get my medication refilled?"}
+{"prompt": "How do I know if my insurance has approved my refill request?"}
+{"prompt": "My [medication name] is prescribed in [units]. How many refills are available?"}
+{"prompt": "Can you please tell me the cost of my [medication name] refill?"}
+{"prompt": "Is there a generic version of my [medication name]?"}
+{"prompt": "I'm allergic to [ingredient], can you check if my medication contains it?"}
+{"prompt": "Can I get a written copy of my prescription for my records?"}
+{"prompt": "Can I transfer my prescription to another pharmacy?"}
+{"prompt": "What is the process for transferring prescriptions?"}
+{"prompt": "Do you accept mail-in prescriptions?"}
+{"prompt": "How do I submit a mail-in prescription request?"}
+{"prompt": "I need to know the expiration date of my [medication name] refill."}
+{"prompt": "My doctor prescribed a new medication, can I pick it up with my existing prescription?"}
+{"prompt": "Can I get a list of medications covered by my insurance plan?"}
+{"prompt": "Is there a pharmacist available to answer questions about my prescriptions?"}
+{"prompt": "I'm having trouble swallowing my pills, are there any alternatives?"}
+{"prompt": "What is the best way to store my [medication name]?"}
+{"prompt": "Can I refill my prescription for [medication name]?"}
+{"prompt": "My [medication name] prescription is running low. How do I get a refill?"}
+{"prompt": "I need to refill my [medication name] prescription. What's the process?"}
+{"prompt": "Is it possible to request a refill for [medication name] online?"}
+{"prompt": "I'd like to refill my [medication name] prescription. What forms are required?"}
+{"prompt": "How long does it take to process a refill for [medication name]?"}
+{"prompt": "When will my [medication name] refill be ready for pickup?"}
+{"prompt": "My [medication name] prescription is due for renewal. Can I schedule a refill?"}
+{"prompt": "I'm out of my [medication name] and need a refill ASAP. Is there a way to expedite the process?"}
+{"prompt": "Can you check the status of my [medication name] refill request?"}
+{"prompt": "I submitted a refill request for [medication name] yesterday. Has it been processed yet?"}
+{"prompt": "My pharmacy doesn't have my [medication name] prescription on file. How do I transfer it?"}
+{"prompt": "Is there a limit to how many times I can refill my [medication name] prescription per month?"}
+{"prompt": "What are the fees associated with refilling my [medication name] prescription?"}
+{"prompt": "I need to change my pharmacy for my [medication name] refills. What should I do?"}
+{"prompt": "Can I pick up my [medication name] refill at a different location than usual?"}
+{"prompt": "Is there a drive-thru option for picking up prescription refills?"}
+{"prompt": "What are the hours of operation for prescription pickup?"}
+{"prompt": "Do you offer weekend or after-hours prescription pickup services?"}
+{"prompt": "I'm unable to pick up my [medication name] refill myself. Can someone else collect it on my behalf?"}
+{"prompt": "Who can I contact if I have questions about my prescription refill?"}
+{"prompt": "I need to update my insurance information for my [medication name] refills. How do I do that?"}
+{"prompt": "My insurance doesn't cover my [medication name] anymore. Are there any options available?"}
+{"prompt": "Can I get a copy of my [medication name] prescription history?"}
+{"prompt": "I'm experiencing side effects from my [medication name]. What should I do?"}
+{"prompt": "Please note: This list is for illustrative purposes only and should not be considered medical advice. Always consult with a healthcare professional for any health concerns or questions about your medications."}
+{"prompt": "Can I get a refill on my [medication name] prescription?"}
+{"prompt": "I need to refill my [medication name] before I run out."}
+{"prompt": "Is it possible to get an early refill of my [medication name]?"}
+{"prompt": "When will my [medication name] prescription be ready for pickup?"}
+{"prompt": "My [medication name] prescription is due soon, can I check the status?"}
+{"prompt": "Can you please send my [medication name] refill to [pharmacy name]?"}
+{"prompt": "I need to pick up my [medication name] prescription today. Is it ready?"}
+{"prompt": "My insurance information has changed, how do I update it for my refills?"}
+{"prompt": "Could you please confirm the dosage on my [medication name] prescription?"}
+{"prompt": "Do I need an appointment to pick up a refill?"}
+{"prompt": "Can I have my prescriptions sent directly to me via mail?"}
+{"prompt": "Is there a limit to how many refills I can get for [medication name]?"}
+{"prompt": "My insurance covers [percentage]% of my [medication name], what will my out-of-pocket cost be?"}
+{"prompt": "How do I know if my insurance has approved my [medication name] refill?"}
+{"prompt": "I have a question about the side effects of my [medication name]. Can I speak to someone?"}
+{"prompt": "Can you tell me how long [medication name] is effective for?"}
+{"prompt": "I'm running low on [medication name], can you send a reminder when it needs refilling?"}
+{"prompt": "Is there a cheaper alternative to my [medication name] prescription?"}
+{"prompt": "My doctor has changed, will this affect my refill requests?"}
+{"prompt": "I need to refill my [medication name] but I don't have my prescription number. Can you help?"}
+{"prompt": "Can you please confirm my address on file for prescription pickup?"}
+{"prompt": "What are the accepted forms of payment for prescription refills?"}
+{"prompt": "Do you offer a drive-thru service for prescription pickup?"}
+{"prompt": "Is there a waiting time at the pharmacy for prescription pickup?"}
+{"prompt": "I lost my [medication name] prescription, can I get a copy sent to me?"}
+{"prompt": "Can I pick up my prescriptions on weekends?"}
+{"prompt": "What are the hours of operation for the pharmacy?"}
+{"prompt": "I need to transfer my [medication name] prescription from another pharmacy."}
+{"prompt": "My insurance card expired, how do I update it for refills?"}
+{"prompt": "I'm traveling soon and need to take my [medication name] with me. Can you give me advice?"}
+{"prompt": "Can I get a refill of my [medication name] without an appointment?"}
+{"prompt": "Is there a fee for prescription refills?"}
+{"prompt": "How can I contact the pharmacy after hours?"}
+{"prompt": "Can you check on my [medication name] refill status?"}
+{"prompt": "When will my [medication name] be ready for pickup?"}
+{"prompt": "Is there a way to track my prescription refill online?"}
+{"prompt": "Could you please confirm if my [medication name] is in stock?"}
+{"prompt": "My insurance changed, can you update my prescription information?"}
+{"prompt": "Do I need an appointment to get a prescription refill?"}
+{"prompt": "What are the hours for picking up prescriptions at the clinic?"}
+{"prompt": "I'd like to know how long it takes to process refills."}
+{"prompt": "Can I call ahead to check on the status of my refill?"}
+{"prompt": "Is there a fee associated with prescription refills?"}
+{"prompt": "My [medication name] bottle says \"Refill Until\" but I don't know when that is."}
+{"prompt": "I need a new prescription for [medication name], can you help with that?"}
+{"prompt": "I'm running low on [medication name], how soon can I get a refill?"}
+{"prompt": "Can I pick up my prescriptions after hours?"}
+{"prompt": "Do you accept insurance for prescription refills?"}
+{"prompt": "What forms of payment do you accept for pickups?"}
+{"prompt": "Is there a drive-through window for pharmacy pickup?"}
+{"prompt": "My insurance requires prior authorization, what's the process?"}
+{"prompt": "I need to update my contact information for my prescription refills."}
+{"prompt": "Can I refill my prescription online through your portal?"}
+{"prompt": "I have a question about the dosage of my [medication name], but not during the refill process."}
+{"prompt": "I lost my prescription bottle, can you provide a copy of the details?"}
+{"prompt": "My insurance card expired, what do I need to do for refills?"}
+{"prompt": "I'm switching pharmacies, how do I transfer my prescriptions?"}
+{"prompt": "Can I pick up prescriptions for someone else with authorization?"}
+{"prompt": "Do you offer delivery services for prescription pickups?"}
+{"prompt": "Is there a limit on the number of refills per prescription?"}
+{"prompt": "I want to know when my next refill is due for [medication name]."}
+{"prompt": "My pharmacist had questions about my prescription, can I clarify them here?"}
+{"prompt": "I need to schedule an appointment to discuss my medications with the doctor."}
+{"prompt": "Can you send my prescription electronically to the pharmacy?"}
+{"prompt": "How do I go about getting a refill for my [medication name]?"}
+{"prompt": "My prescription for [medication name] is running low. Can you help with a refill?"}
+{"prompt": "I need to refill my prescription for [medication name]. What's the process?"}
+{"prompt": "Could you please process a refill for my [medication name]?"}
+{"prompt": "Is it possible to get a refill for [medication name]?"}
+{"prompt": "When can I expect my [medication name] refill to be ready?"}
+{"prompt": "My [medication name] prescription needs refilling."}
+{"prompt": "I'm almost out of my [medication name]. How do I request a refill?"}
+{"prompt": "Can you please check on the status of my [medication name] refill request?"}
+{"prompt": "My [medication name] prescription is due for a refill. What should I do?"}
+{"prompt": "I'd like to schedule a refill for my [medication name]."}
+{"prompt": "Could you please refill my prescription for [medication name]?"}
+{"prompt": "Is there a limit on how many times I can refill my [medication name] prescription?"}
+{"prompt": "My pharmacy needs to know about my upcoming refill request for [medication name]."}
+{"prompt": "When was my last refill of [medication name]?"}
+{"prompt": "What's the best way to contact you about a refill for [medication name]?"}
+{"prompt": "Do I need an appointment to get a refill for [medication name]?"}
+{"prompt": "Can I fax in my refill request for [medication name]?"}
+{"prompt": "Is it possible to have my [medication name] prescription delivered?"}
+{"prompt": "How do I know when my [medication name] refill is ready?"}
+{"prompt": "Can you please confirm if my [medication name] refill has been sent to the pharmacy?"}
+{"prompt": "My insurance requires prior authorization for refills of [medication name]. What should I do?"}
+{"prompt": "I'm having trouble getting a refill for my [medication name]. Can someone help?"}
+{"prompt": "Could you please resend my [medication name] refill request to the pharmacy?"}
+{"prompt": "My pharmacy says they haven't received my [medication name] refill. What can I do?"}
+{"prompt": "Is there a fee associated with refilling my [medication name] prescription?"}
+{"prompt": "Can I pick up my [medication name] refill at your clinic?"}
+{"prompt": "What are your hours for picking up prescriptions?"}
+{"prompt": "I need to update the pharmacy information for my [medication name] refills."}
+{"prompt": "Can I confirm my appointment date and time?"}
+{"prompt": "How do I schedule an appointment with Dr. Smith?"}
+{"prompt": "Is Dr. Jones accepting new patients?"}
+{"prompt": "Do you accept my insurance plan, [Insurance Plan Name]?"}
+{"prompt": "What is my copay amount for a visit with Dr. Brown?"}
+{"prompt": "Can I get a copy of my recent medical bill?"}
+{"prompt": "How can I make a payment on my account?"}
+{"prompt": "What are the accepted forms of payment?"}
+{"prompt": "I received a bill that seems incorrect, how can I dispute it?"}
+{"prompt": "When will my insurance cover my appointment?"}
+{"prompt": "Is there a discount for paying my bill in full?"}
+{"prompt": "Can I set up a payment plan?"}
+{"prompt": "How long does it take to process an insurance claim?"}
+{"prompt": "What is the status of my claim with [Insurance Plan Name]?"}
+{"prompt": "I need to provide updated insurance information."}
+{"prompt": "My insurance card has expired, what should I do?"}
+{"prompt": "Can I verify if my procedure is covered by my insurance?"}
+{"prompt": "What is the out-of-pocket maximum for my plan?"}
+{"prompt": "How much does a virtual appointment cost?"}
+{"prompt": "Is there a limit on the number of virtual appointments per month?"}
+{"prompt": "I need to cancel my upcoming telehealth appointment."}
+{"prompt": "Can I get an explanation of benefits (EOB) statement?"}
+{"prompt": "What do the different codes on my EOB mean?"}
+{"prompt": "My insurance company denied my claim, what can I do?"}
+{"prompt": "Can you help me appeal a denied claim?"}
+{"prompt": "I'm experiencing problems with my insurance provider, can you assist?"}
+{"prompt": "Do you have a patient portal for accessing my medical records?"}
+{"prompt": "How do I register for the patient portal?"}
+{"prompt": "Can I download my medical bills from the patient portal?"}
+{"prompt": "Is there a fee to access the patient portal?"}
+{"prompt": "I need to request a referral to a specialist."}
+{"prompt": "What specialists do you have in your network?"}
+{"prompt": "Do I need a pre-authorization for a specialist appointment?"}
+{"prompt": "How long does it take to get a referral approved?"}
+{"prompt": "Can I confirm my insurance policy number?"}
+{"prompt": "My insurance information has changed, how do I update it?"}
+{"prompt": "I need to add a dependent to my insurance plan."}
+{"prompt": "Is there a grace period for making insurance payments?"}
+{"prompt": "What happens if I don't pay my insurance premium on time?"}
+{"prompt": "How can I contact my insurance company directly?"}
+{"prompt": "Do you offer any discounts for seniors or veterans?"}
+{"prompt": "Can I get information about different health insurance plans?"}
+{"prompt": "I am looking for affordable health insurance options."}
+{"prompt": "Does your clinic participate in Medicare or Medicaid?"}
+{"prompt": "What are the benefits of enrolling in a Health Savings Account (HSA)?"}
+{"prompt": "I'm interested in learning more about preventative care coverage."}
+{"prompt": "Can you tell me how much my last visit will cost?"}
+{"prompt": "What is my current copay amount for an office visit?"}
+{"prompt": "Do I need a referral to see a specialist in your network?"}
+{"prompt": "Could you clarify what's covered under my plan for physical therapy?"}
+{"prompt": "I received a bill, but I don't understand the charges. Can you break it down for me?"}
+{"prompt": "What is the process for appealing a denied claim?"}
+{"prompt": "How do I know if a provider is in my insurance network?"}
+{"prompt": "My insurance card expired, what should I do?"}
+{"prompt": "Can I pay my bill online? What payment methods are accepted?"}
+{"prompt": "Is there a grace period for paying my bill?"}
+{"prompt": "I'm having trouble logging into the patient portal. Can you help?"}
+{"prompt": "What forms of ID are required to verify my insurance?"}
+{"prompt": "How can I get a copy of my medical records?"}
+{"prompt": "Can I schedule an appointment over the phone?"}
+{"prompt": "My insurance company says I owe a deductible, what does that mean?"}
+{"prompt": "I'm switching insurance plans soon, how will that affect my bill?"}
+{"prompt": "Is there a late fee for paying my bill past the due date?"}
+{"prompt": "What is the best way to contact billing if I have questions about my statement?"}
+{"prompt": "Can you tell me my patient account number?"}
+{"prompt": "How long does it take to process insurance claims?"}
+{"prompt": "Do you accept flexible spending accounts (FSA)?"}
+{"prompt": "I'm expecting a baby, how do I add my child to my insurance plan?"}
+{"prompt": "What are the out-of-pocket costs for maternity care?"}
+{"prompt": "My insurance requires preauthorization for certain procedures. What should I do?"}
+{"prompt": "Can I get a breakdown of my co-insurance percentage?"}
+{"prompt": "Is there a limit on the number of times I can see a specialist per year?"}
+{"prompt": "I'm moving soon, how do I update my address with the clinic?"}
+{"prompt": "How often should I expect to receive billing statements?"}
+{"prompt": "What happens if I lose my insurance card?"}
+{"prompt": "Can you send me a reminder when my copay is due?"}
+{"prompt": "Do you offer discounts for paying in full?"}
+{"prompt": "Is there a limit on the amount of money I can owe?"}
+{"prompt": "I'm having trouble understanding the terms and conditions of my plan. Can you explain them?"}
+{"prompt": "How do I find out if my prescription is covered by insurance?"}
+{"prompt": "Can you provide information about different types of health insurance plans?"}
+{"prompt": "Can you please confirm my insurance plan is still active?"}
+{"prompt": "I need to know what my copay will be for a routine checkup."}
+{"prompt": "How do I submit an out-of-network claim?"}
+{"prompt": "What are your accepted payment methods?"}
+{"prompt": "Is there a grace period for late payments?"}
+{"prompt": "I received a bill I don't understand, can you explain it?"}
+{"prompt": "Can you send me a copy of my latest statement?"}
+{"prompt": "How long does it take to receive reimbursement after a claim is submitted?"}
+{"prompt": "I need to know if my deductible has been met."}
+{"prompt": "Can I make a payment over the phone?"}
+{"prompt": "Are there discounts for paying my bill in full?"}
+{"prompt": "My insurance doesn't cover this procedure, what are my options?"}
+{"prompt": "Is there a limit on the number of visits covered by my plan per year?"}
+{"prompt": "Do you accept my HSA card as payment?"}
+{"prompt": "I lost my insurance card, how can I get a replacement?"}
+{"prompt": "Can you tell me if my doctor is in-network for my plan?"}
+{"prompt": "What are the pre-authorization requirements for this procedure?"}
+{"prompt": "How do I find out what's covered under my plan benefits?"}
+{"prompt": "I need to reschedule my appointment due to insurance issues."}
+{"prompt": "Can you verify my coverage for a specific medication?"}
+{"prompt": "My insurance doesn't cover mental health services, are there any exceptions?"}
+{"prompt": "What is the process for obtaining prior authorization for treatment?"}
+{"prompt": "Do you have a list of in-network providers I can choose from?"}
+{"prompt": "I received a bill for a service I didn't receive, what should I do?"}
+{"prompt": "Can you explain the difference between coinsurance and copayment?"}
+{"prompt": "Is there a penalty for withdrawing from my health savings account?"}
+{"prompt": "How do I file a complaint about my insurance company with you?"}
+{"prompt": "What are the different types of health insurance plans available?"}
+{"prompt": "I need help understanding my Explanation of Benefits (EOB)."}
+{"prompt": "Can you tell me if my plan covers telehealth appointments?"}
+{"prompt": "What is the process for enrolling in a new health insurance plan?"}
+{"prompt": "How do I add dependents to my existing health insurance plan?"}
+{"prompt": "Can you provide information about Medicare and Medicaid?"}
+{"prompt": "I'm moving out of state, how does this affect my insurance coverage?"}
+{"prompt": "What are the requirements for obtaining a waiver from my health insurance plan?"}
+{"prompt": "Can I confirm my insurance plan for this appointment?"}
+{"prompt": "What is the copay for a virtual visit?"}
+{"prompt": "How do I submit a claim to my insurance company?"}
+{"prompt": "Do you accept my specific health insurance plan?"}
+{"prompt": "Is there a payment plan available for outstanding bills?"}
+{"prompt": "What are the accepted forms of payment at your clinic?"}
+{"prompt": "Can I reschedule my appointment due to insurance coverage issues?"}
+{"prompt": "I received a bill that seems incorrect, can someone review it with me?"}
+{"prompt": "How do I update my insurance information in my patient portal?"}
+{"prompt": "What is the process for appealing an insurance denial?"}
+{"prompt": "Is there a deductible associated with this procedure?"}
+{"prompt": "Do you offer any discounts for cash payments?"}
+{"prompt": "Can I speak to someone about my billing statement?"}
+{"prompt": "How can I find out if a specific service is covered by my insurance?"}
+{"prompt": "I need clarification on the charges listed on my bill."}
+{"prompt": "What are the late payment fees for outstanding balances?"}
+{"prompt": "When will my insurance reimbursement be processed?"}
+{"prompt": "Is there a limit to the number of times I can see a specialist per year under my plan?"}
+{"prompt": "Can you confirm if pre-authorization is required for this treatment?"}
+{"prompt": "How do I check the status of my insurance claim?"}
+{"prompt": "I have a question about my out-of-pocket maximum."}
+{"prompt": "What does \"coinsurance\" mean in relation to my insurance coverage?"}
+{"prompt": "Do you provide receipts for billing purposes?"}
+{"prompt": "My employer recently changed their health insurance plan, how do I update this with your clinic?"}
+{"prompt": "I'm experiencing financial hardship, are there any payment assistance programs available?"}
+{"prompt": "Can you explain the difference between in-network and out-of-network providers?"}
+{"prompt": "How long does it typically take to receive a response from my insurance company?"}
+{"prompt": "Is there a grace period for paying my medical bills?"}
+{"prompt": "What is the best way to contact your billing department?"}
+{"prompt": "I received an Explanation of Benefits (EOB) but don't understand it, can someone help me interpret it?"}
+{"prompt": "Can I pay my bill online?"}
+{"prompt": "Do you accept HSA and FSA payments?"}
+{"prompt": "How do I set up automatic payments for my medical bills?"}
+{"prompt": "My insurance company has asked for additional information, what should I provide to your clinic?"}
+{"prompt": "I need to verify my coverage for a specific medication."}
+{"prompt": "Is there a limit on the number of visits I can have per year under my plan?"}
+{"prompt": "Can I confirm my appointment date and time for next week?"}
+{"prompt": "How do I submit a claim if my insurance doesn't cover the full cost?"}
+{"prompt": "Could you please send me a copy of my recent bill?"}
+{"prompt": "What are your office hours today?"}
+{"prompt": "I need to know if you accept my insurance plan, [Insurance name]."}
+{"prompt": "Can I pay my bill over the phone?"}
+{"prompt": "Do you offer any payment plans for outstanding balances?"}
+{"prompt": "How much is my copay for a physical exam?"}
+{"prompt": "My insurance card has expired, what do I need to do?"}
+{"prompt": "Is there a late fee for paying my bill after the due date?"}
+{"prompt": "I have received a bill for services I didn't receive. What should I do?"}
+{"prompt": "Can I use a credit card to pay my copay at the appointment?"}
+{"prompt": "What is your policy on cancellations and missed appointments?"}
+{"prompt": "How can I verify if a specific procedure is covered by my insurance?"}
+{"prompt": "I want to know if there's an online portal to manage my account."}
+{"prompt": "Is it possible to get a breakdown of my last bill?"}
+{"prompt": "When will my insurance payment be processed?"}
+{"prompt": "Could you please clarify what \"co-insurance\" means on my bill?"}
+{"prompt": "I need to change my address on file. How can I do that?"}
+{"prompt": "My insurance has changed, how do I update my information with the clinic?"}
+{"prompt": "Is there a fee for requesting copies of my medical records?"}
+{"prompt": "What are your policies regarding sharing patient information?"}
+{"prompt": "Can you explain what an Explanation of Benefits (EOB) is?"}
+{"prompt": "I received an EOB stating a claim was denied, can you help me understand why?"}
+{"prompt": "Do you offer financial assistance programs for patients in need?"}
+{"prompt": "How do I file an appeal if my insurance claim is denied?"}
+{"prompt": "Can you tell me the estimated cost of a specific treatment or procedure?"}
+{"prompt": "I have questions about my deductible and out-of-pocket maximum. Can you explain?"}
+{"prompt": "Is there a separate fee for consultations with specialists?"}
+{"prompt": "I need to know if you accept my flex spending account (FSA) for medical expenses."}
+{"prompt": "How can I set up automatic payments for my bills?"}
+{"prompt": "Do you offer a hardship payment plan for patients facing financial difficulties?"}
+{"prompt": "Can you please send me an invoice for the services I received?"}
+{"prompt": "Are there any upcoming promotions or discounts on healthcare services?"}
+{"prompt": "I'd like to know if you have a sliding scale fee structure based on income."}
+{"prompt": "What is your policy on accepting international insurance plans?"}
+{"prompt": "Do you offer telehealth appointments and what does it cost?"}
+{"prompt": "Is there a charge for missed telehealth appointments?"}
+{"prompt": "How can I contact the billing department directly?"}
+{"prompt": "My insurance company requires a referral before I can see a specialist. Who should I contact?"}
+{"prompt": "Can I get an itemized list of all charges on my bill?"}
+{"prompt": "I received a letter stating that I have a balance due. What does this mean?"}
+{"prompt": "How long will it take for my insurance to process my claim after the appointment?"}
+{"prompt": "What are your policies regarding patient privacy and confidentiality?"}
+{"prompt": "My employer provides health insurance through a specific plan. Do you accept this plan?"}
+{"prompt": "Can I discuss my payment options with someone in more detail?"}
+{"prompt": "Is there a limit on the amount of time I have to pay my bill?"}
+{"prompt": "I'm having trouble understanding the terms used on my bill. Can you explain them?"}
+{"prompt": "Do you offer any discounts for paying your bills early?"}
+{"prompt": "My insurance card is missing, what do I need to do?"}
+{"prompt": "Can I schedule an appointment with a specific doctor within your practice?"}
+{"prompt": "Is there a fee for completing medical paperwork or forms?"}
+{"prompt": "What are the procedures for resolving billing disputes?"}
+{"prompt": "How can I learn more about your patient financial assistance program?"}
+{"prompt": "Are you affiliated with any other healthcare providers in the area?"}
+{"prompt": "I have questions about pre-tax contributions to my health savings account (HSA)."}
+{"prompt": "Can I use a debit card to pay my bill?"}
+{"prompt": "Do you offer weekend or evening appointment slots?"}
+{"prompt": "What are your office hours?"}
+{"prompt": "What is my patient portal username and password?"}
+{"prompt": "Can I view my medical records online?"}
+{"prompt": "How do I make a payment over the phone?"}
+{"prompt": "I need to know my account balance."}
+{"prompt": "I think there's an error on my bill."}
+{"prompt": "Can you please explain this charge on my statement?"}
+{"prompt": "My insurance company denied my claim. Can you help me appeal it?"}
+{"prompt": "What is your billing policy for missed appointments?"}
+{"prompt": "Is there a fee for early appointment cancellation?"}
+{"prompt": "I need to verify my copay amount for an upcoming visit."}
+{"prompt": "How can I update my contact information?"}
+{"prompt": "Does the clinic accept new patients?"}
+{"prompt": "What are the qualifications of your doctors?"}
+{"prompt": "I'm interested in learning more about your services."}
+{"prompt": "Can you provide me with a list of specialists on staff?"}
+{"prompt": "Is there parking available at the clinic?"}
+{"prompt": "How accessible is your clinic for people with disabilities?"}
+{"prompt": "What are your policies regarding masks and COVID-19 safety?"}
+{"prompt": "What are your cancellation and rescheduling policies?"}
+{"prompt": "Can I get a copy of my medical history?"}
+{"prompt": "Can I bring my child to the appointment?"}
+{"prompt": "Do you accept walk-in appointments?"}
+{"prompt": "How long is the wait time for an appointment?"}
+{"prompt": "What type of insurance do your doctors accept?"}
+{"prompt": "I have questions about my lab results."}
+{"prompt": "Can I get a copy of my immunization records?"}
+{"prompt": "I need to update my allergies and medications."}
+{"prompt": "I'm experiencing [symptom]. Should I schedule an appointment?"}
+{"prompt": "My insurance plan changed. How do I update my information?"}
+{"prompt": "I need to know if the clinic participates in my new insurance network."}
+{"prompt": "Can you tell me about your patient satisfaction guarantee?"}
+{"prompt": "I have a question about pre-authorization for a procedure."}
+{"prompt": "Can you explain what co-insurance means?"}
+{"prompt": "What is the difference between a deductible and a copay?"}
+{"prompt": "How do I file an out-of-network claim with my insurance?"}
+{"prompt": "My insurance has changed their coverage. What does this mean for me?"}
+{"prompt": "I need to know if my prescription will be covered by my insurance."}
+{"prompt": "What should I wear to my appointment tomorrow?"}
+{"prompt": "Can I reschedule my appointment for next week?"}
+{"prompt": "Do I need to bring anything with me to my appointment?"}
+{"prompt": "How long should I expect to wait at my appointment?"}
+{"prompt": "What time should I arrive for my appointment?"}
+{"prompt": "I have a question about my upcoming procedure. Can someone call me back?"}
+{"prompt": "Can you confirm my appointment date and time?"}
+{"prompt": "Do I need to fast before my blood work?"}
+{"prompt": "Are there any specific instructions for preparing for my colonoscopy?"}
+{"prompt": "What type of form do I need to fill out before my visit?"}
+{"prompt": "How can I update my insurance information with the clinic?"}
+{"prompt": "I have a question about the consent forms I received."}
+{"prompt": "Can you tell me more about the procedure I'm having?"}
+{"prompt": "Is there someone who can answer questions about billing and insurance?"}
+{"prompt": "What are the payment options available at the clinic?"}
+{"prompt": "Do I need to bring my insurance card to my appointment?"}
+{"prompt": "How do I get to the clinic from [location]?"}
+{"prompt": "Is there public transportation available to the clinic?"}
+{"prompt": "Can you send me directions to the clinic?"}
+{"prompt": "What should I expect during my physical exam?"}
+{"prompt": "Do I need to bring a list of my medications?"}
+{"prompt": "I'm allergic to [medication]. Please note that in my file."}
+{"prompt": "Can I get a referral for a specialist?"}
+{"prompt": "I'm experiencing [symptom]. Can I schedule an appointment sooner?"}
+{"prompt": "How do I cancel or reschedule an appointment?"}
+{"prompt": "Is there a phone number I can call after hours?"}
+{"prompt": "What are the clinic's hours of operation?"}
+{"prompt": "Can I get my test results over the phone?"}
+{"prompt": "How long will it take to receive my test results?"}
+{"prompt": "I need to request a copy of my medical records."}
+{"prompt": "Can you send my medical records to [provider]?"}
+{"prompt": "Is there a patient portal where I can access my information?"}
+{"prompt": "What are your policies regarding privacy and confidentiality?"}
+{"prompt": "How much does a consultation cost?"}
+{"prompt": "What is the address of the clinic?"}
+{"prompt": "How do I access the patient portal?"}
+{"prompt": "Can I get a copy of my medical records?"}
+{"prompt": "I need to cancel my appointment. How do I do that?"}
+{"prompt": "Do you have a wheelchair accessible entrance?"}
+{"prompt": "Are there any dietary restrictions before my procedure?"}
+{"prompt": "What should I bring with me to my procedure?"}
+{"prompt": "When should I stop eating before my procedure?"}
+{"prompt": "How long will the procedure take?"}
+{"prompt": "Will I need someone to drive me home after the procedure?"}
+{"prompt": "What are the risks and benefits of the procedure?"}
+{"prompt": "Can you explain the recovery process after the procedure?"}
+{"prompt": "I have a question about my medication."}
+{"prompt": "I'm experiencing side effects from my medication."}
+{"prompt": "What is your cancellation policy?"}
+{"prompt": "How do I contact the clinic after hours?"}
+{"prompt": "Is there a waiting room at the clinic?"}
+{"prompt": "Can I bring snacks to my appointment?"}
+{"prompt": "Do you have WiFi available at the clinic?"}
+{"prompt": "I'm feeling anxious about my appointment."}
+{"prompt": "Can I request a specific doctor?"}
+{"prompt": "Are there any brochures or pamphlets about your services?"}
+{"prompt": "What are your policies on late arrivals?"}
+{"prompt": "Do you offer pre-appointment consultations?"}
+{"prompt": "How long is the typical wait time for an appointment?"}
+{"prompt": "Can I bring my pet to my appointment?"}
+{"prompt": "I need to update my contact information."}
+{"prompt": "I'm experiencing a medical emergency."}
+{"prompt": "What should I do?"}
+{"prompt": "What should I bring to my appointment tomorrow?"}
+{"prompt": "Can you confirm the address of the clinic again?"}
+{"prompt": "I'm scheduled for an 8am appointment, what time should I arrive?"}
+{"prompt": "Do I need to bring any paperwork with me?"}
+{"prompt": "My insurance card is at home, can I bring it later?"}
+{"prompt": "I'm running late, can I still come in today?"}
+{"prompt": "Should I bring a list of my medications?"}
+{"prompt": "Do you have wheelchair accessibility?"}
+{"prompt": "Are there restrooms available at the clinic?"}
+{"prompt": "Is there a waiting room with comfortable seating?"}
+{"prompt": "Can I bring a friend or family member with me?"}
+{"prompt": "I'm nervous about my appointment, is there anything I can do to relax?"}
+{"prompt": "What happens during a typical appointment like mine?"}
+{"prompt": "How long will my appointment take?"}
+{"prompt": "Will I need to fill out any paperwork at the clinic?"}
+{"prompt": "Do you offer complimentary beverages in the waiting room?"}
+{"prompt": "I have a question about my upcoming procedure, who should I ask?"}
+{"prompt": "Can you provide more details about the procedure I'm having?"}
+{"prompt": "What are the potential risks and benefits of this procedure?"}
+{"prompt": "How long will it take to recover from the procedure?"}
+{"prompt": "Will I need any special instructions after the procedure?"}
+{"prompt": "Do you offer pain management options after the procedure?"}
+{"prompt": "Should I stop taking any medications before the procedure?"}
+{"prompt": "Can you clarify the fasting instructions for my procedure?"}
+{"prompt": "I have dietary restrictions, can you accommodate them?"}
+{"prompt": "What time should I arrive for my procedure?"}
+{"prompt": "Do I need to bring anything with me for the procedure?"}
+{"prompt": "Will I be able to eat and drink after the procedure?"}
+{"prompt": "When can I resume normal activities after the procedure?"}
+{"prompt": "Can I drive myself home after the procedure?"}
+{"prompt": "What are the post-procedure recovery instructions?"}
+{"prompt": "I'm feeling anxious about my upcoming procedure, is there anything you can do to help?"}
+{"prompt": "Do you have any brochures or pamphlets about the procedure?"}
+{"prompt": "How long will it take for the results of the procedure to be available?"}
+{"prompt": "I'm running late, will my appointment still be available?"}
+{"prompt": "Do I need to bring my insurance card to the appointment?"}
+{"prompt": "Where is the clinic located?"}
+{"prompt": "How do I get to the clinic by public transportation?"}
+{"prompt": "Can I bring a guest with me to my appointment?"}
+{"prompt": "Are children allowed in the waiting room?"}
+{"prompt": "How long should I expect to wait for my appointment?"}
+{"prompt": "Is there a dress code at the clinic?"}
+{"prompt": "I have a disability, are there accessible facilities?"}
+{"prompt": "Can I bring my pet with me to the appointment?"}
+{"prompt": "What should I do if I feel sick before my appointment?"}
+{"prompt": "Do you offer telemedicine appointments?"}
+{"prompt": "How can I access my medical records online?"}
+{"prompt": "Can I speak to a doctor before my appointment?"}
+{"prompt": "Do you have any brochures or pamphlets on your services?"}
+{"prompt": "What are the different types of procedures offered at the clinic?"}
+{"prompt": "What is the cost of the procedure?"}
+{"prompt": "Is there financial assistance available?"}
+{"prompt": "How do I make a payment?"}
+{"prompt": "What are your policies on cancellations and reschedulings?"}
+{"prompt": "I need to request a prescription refill."}
+{"prompt": "Can I get a copy of my lab results?"}
+{"prompt": "What should I eat before my procedure?"}
+{"prompt": "Do I need to fast before my procedure?"}
+{"prompt": "When can I eat after the procedure?"}
+{"prompt": "Can I drink water before the procedure?"}
+{"prompt": "What medications should I avoid taking before the procedure?"}
+{"prompt": "Should I take my regular medications on the day of the procedure?"}
+{"prompt": "Will I be awake during the procedure?"}
+{"prompt": "Will I need anesthesia for the procedure?"}
+{"prompt": "What is the recovery time after the procedure?"}
+{"prompt": "What should I do after the procedure at home?"}
+{"prompt": "How long will it take for the results to come back?"}
+{"prompt": "What should I expect during my recovery?"}
+{"prompt": "Are there any post-procedure instructions I need to follow?"}
+{"prompt": "I have questions about the consent form."}
+{"prompt": "Can I bring a list of questions to my appointment?"}
+{"prompt": "Do I need to bring any paperwork to my appointment?"}
+{"prompt": "Can I reschedule my appointment for a different day?"}
+{"prompt": "I'm allergic to latex. Should I inform the staff?"}
+{"prompt": "How long will my appointment likely take?"}
+{"prompt": "Do I need to bring my insurance card?"}
+{"prompt": "Are you accepting new patients?"}
+{"prompt": "How do I access my patient portal?"}
+{"prompt": "I have a question about my upcoming procedure."}
+{"prompt": "What are the fasting instructions for my test?"}
+{"prompt": "Should I stop taking any medications before my appointment?"}
+{"prompt": "Do you offer early morning or evening appointments?"}
+{"prompt": "Can I get a confirmation text message for my appointment?"}
+{"prompt": "Is there a waiting area at the clinic?"}
+{"prompt": "What should I expect during my first appointment?"}
+{"prompt": "I have a question about pre-appointment instructions."}
+{"prompt": "How do I update my contact information?"}
+{"prompt": "Can I bring snacks and drinks to my appointment?"}
+{"prompt": "Do you provide wheelchair accessibility?"}
+{"prompt": "Is there an elevator at the clinic?"}
+{"prompt": "What are the hours of operation for the clinic?"}
+{"prompt": "I need to know what to expect during the procedure."}
+{"prompt": "What type of anesthesia will be used during the procedure?"}
+{"prompt": "Will I be able to eat after the procedure?"}
+{"prompt": "What are the risks associated with the procedure?"}
+{"prompt": "Do you offer sedation for anxious patients?"}
+{"prompt": "I have a question about the consent form."}
+{"prompt": "What should I do if I experience pain after the procedure?"}
+{"prompt": "Can I shower after the procedure?"}
+{"prompt": "When can I return to work after the procedure?"}
+{"prompt": "Can I resume my normal activities after the procedure?"}
+{"prompt": "Do you offer any support groups for patients undergoing this procedure?"}
+{"prompt": "I have a question about the cost of the procedure."}
+{"prompt": "What are my payment options?"}
+{"prompt": "How long will it take to receive my medical records?"}
+{"prompt": "I need to know how to contact the doctor after hours."}
+{"prompt": "Can you provide me with a list of referral sources?"}
+{"prompt": "I'm looking for information on pre-procedure tests."}
+{"prompt": "What are the benefits of undergoing this procedure?"}
+{"prompt": "Are there any alternative treatments available?"}
+{"prompt": "What is the success rate of this procedure?"}
+{"prompt": "How long will it take to see results after the procedure?"}
+{"prompt": "Can I bring my phone to my appointment?"}
+{"prompt": "Is there Wi-Fi available at the clinic?"}
+{"prompt": "What type of parking is available at the clinic?"}
+{"prompt": "Is there public transportation that goes to the clinic?"}
+{"prompt": "Do you have a waiting area with Wi-Fi?"}
+{"prompt": "Should I arrive 15 minutes early for my appointment?"}
+{"prompt": "Do I need to bring any identification to my appointment?"}
+{"prompt": "How do I confirm my appointment?"}
+{"prompt": "Is there a dress code for the procedure?"}
+{"prompt": "What should I eat before the procedure?"}
+{"prompt": "When should I stop eating before the procedure?"}
+{"prompt": "Should I take my medications before the procedure?"}
+{"prompt": "What time should I arrive for the procedure?"}
+{"prompt": "Will someone be with me during the procedure?"}
+{"prompt": "What happens after the procedure?"}
+{"prompt": "Do you have any brochures about the procedure?"}
+{"prompt": "Can you explain the procedure in more detail?"}
+{"prompt": "How much does the procedure cost?"}
+{"prompt": "Is there a payment plan available?"}
+{"prompt": "How do I get the results of my procedure?"}
+{"prompt": "When will I receive the results of my procedure?"}
+{"prompt": "Should I take any medications after the procedure?"}
+{"prompt": "Are there any restrictions after the procedure?"}
+{"prompt": "How long should I stay off work after the procedure?"}
+{"prompt": "What are some tips for recovering from the procedure?"}
+{"prompt": "Can I exercise after the procedure?"}
+{"prompt": "When can I return to my normal activities?"}

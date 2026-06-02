@@ -1,0 +1,24 @@
+{
+ "healthcare": {
+  "n": 30,
+  "chain": "bench_combined",
+  "recall_stage1": 0.8,
+  "recall_stage2": 0.8333,
+  "recall_stage3": 0.3667,
+  "stage3_evasion_rate": 0.6333,
+  "stage3_median_iters_to_evade": 2,
+  "scope_judge_only_stage2": 1.0,
+  "phi_only_stage2": 0.4
+ },
+ "injection": {
+  "n": 30,
+  "chain": "default",
+  "recall_stage1": 0.6667,
+  "recall_stage2": 0.6,
+  "recall_stage3": 0.1333,
+  "stage3_evasion_rate": 0.8667,
+  "stage3_median_iters_to_evade": 2.0,
+  "scope_judge_only_stage2": 0.9667,
+  "phi_only_stage2": 0.1
+ }
+}

@@ -21,3 +21,4 @@ scripts/__pycache__/
 
 # git worktrees created by Claude Code (parallel sessions)
 .claude/worktrees/
+.venv-e6/

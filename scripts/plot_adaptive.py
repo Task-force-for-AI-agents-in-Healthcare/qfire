@@ -18,13 +18,15 @@ SETS = ["impersonation_healthcare", "paraphrase_evaded", "encoded_healthcare", "
 LABELS = ["scope-\nimpersonation\n(healthcare)", "paraphrase-\nto-evade", "encoded\n(healthcare)", "encoded\n(injection)"]
 DETS = [("deberta", "DeBERTa", "#C44E52"),
         ("promptguard2", "PromptGuard-2", "#DD8452"),
+        ("sentinel", "Sentinel", "#8172B3"),
+        ("nemo", "NeMo Guardrails", "#937860"),
         ("scope", "QFIRE scope+PHI", "#4C72B0"),
         ("phi", "QFIRE PHI-only", "#55A868")]
 
 
 def main():
     sets = [s for s in SETS if s in S]
-    w = 0.2
+    w = 0.14
     fig, ax = plt.subplots(figsize=(12, 4.8))
     x = list(range(len(sets)))
     for di, (key, label, color) in enumerate(DETS):
@@ -33,13 +35,13 @@ def main():
         for b, v in zip(bars, vals):
             ax.annotate(f"{v*100:.0f}", (b.get_x() + b.get_width()/2, v), ha="center",
                         va="bottom", fontsize=7, color=color)
-    ax.set_xticks([xi + 1.5 * w for xi in x])
+    ax.set_xticks([xi + 2.5 * w for xi in x])
     ax.set_xticklabels([LABELS[SETS.index(s)] for s in sets], fontsize=8)
     ax.set_ylabel("recall (fraction of adaptive attacks blocked)")
     ax.set_ylim(0, 1.08)
     ax.set_title("Recall under adaptive attack: generic classifiers collapse; QFIRE scope+PHI holds")
     ax.grid(True, axis="y", alpha=0.3)
-    ax.legend(fontsize=8, ncol=4, loc="lower center")
+    ax.legend(fontsize=8, ncol=6, loc="lower center")
     fig.tight_layout()
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     fig.savefig(OUT, dpi=170)
