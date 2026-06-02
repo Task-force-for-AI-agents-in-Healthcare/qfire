@@ -436,13 +436,20 @@ result (\S\ref{sec:healthcare-result}).
 \paragraph{Baselines.} We compare against open detectors run on the identical
 corpus: \texttt{deberta-v3-base-prompt-injection}~\cite{protectai_deberta} (the
 de-facto open detector, and the engine inside Protect~AI LLM Guard), executed in
-PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; and lexical
-regex / Aho-Corasick filters. QFIRE runs the same DeBERTa weights via Rust ONNX.
-Meta PromptGuard-2 is run locally in PyTorch with an authorized Hugging Face token
-(gate accepted), and the PyTorch DeBERTa baseline---after resolving an unrelated
+PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; a second,
+purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}
+(a ModernBERT detector); a bare \texttt{llama3.1:8B} LLM-judge with a generic
+block/allow prompt and \emph{no} QFIRE scaffold (to isolate the scaffold's
+contribution); and lexical regex / Aho-Corasick filters. QFIRE runs the same DeBERTa
+weights via Rust ONNX. Meta PromptGuard-2 and qualifire Sentinel are run locally in
+PyTorch with an authorized Hugging Face token (gates accepted), and the PyTorch
+DeBERTa baseline---after resolving an unrelated
 \texttt{torch}/\texttt{torchvision} operator clash by removing torchvision---
 reproduces the ONNX path within ${\sim}0.02$ F1, confirming the integration is
-faithful.
+faithful. We deliberately do \emph{not} include Llama~Guard: it is a content-safety
+classifier over a fixed hazard taxonomy (violence, hate, self-harm), not a
+prompt-injection or scope/PHI detector, so scoring it as an injection baseline would
+be a category mismatch.
 \paragraph{Metrics.} Treating ``attack'' as the positive class we report
 precision, recall, F1, false-positive rate, accuracy with 95\% Wilson score
 intervals~\cite{wilson1927}, ROC--AUC (from continuous detector scores), and
@@ -476,14 +483,21 @@ requests---which is why an injection classifier passes them.}
 \section{Results}\label{sec:results}
 \subsection{Head-to-head detection}
 On generic injection, QFIRE's deterministic hybrid (F1~$0.86$) and Meta
-PromptGuard-2 (F1~$0.86$) are statistically tied at the top, both above the
+PromptGuard-2 (F1~$0.86$) are statistically tied near the top, both above the
 DeBERTa-v3 detector alone (F1~$0.84$); PromptGuard-2 reaches its F1 with the
-cleanest precision ($1.00$, FPR~$0.00$). The detector curves are in
-Figure~\ref{fig:rocpr} and the exact numbers in Table~\ref{tab:main}
-(Appendix~\ref{app:tables}). We make no claim that QFIRE beats PromptGuard-2 here:
-they are even, and the QFIRE hybrid earns its F1 by letting cheap complementary
-detectors raise recall before the classifier. QFIRE's real advantage is not on
-generic injection but on healthcare scope and PHI, which we turn to next.
+cleanest precision ($1.00$, FPR~$0.00$). A second dedicated injection classifier,
+qualifire Sentinel (a ModernBERT detector), is in fact the \emph{strongest} system
+on this clean public corpus (F1~$0.98$, recall~$0.97$)---unsurprisingly, since
+detecting overt injection on in-distribution text is exactly what such a classifier
+is trained for. A bare \texttt{llama3.1:8B} LLM-judge with a generic block/allow
+prompt and no scaffold trails the field here (F1~$0.70$, recall~$0.57$) at a p95 of
+${\sim}2$\,s. The detector curves are in Figure~\ref{fig:rocpr} and the exact numbers
+in Table~\ref{tab:main} (Appendix~\ref{app:tables}). We make no claim that QFIRE
+beats these classifiers on generic injection---Sentinel is clearly ahead, and the
+QFIRE hybrid earns its F1 by letting cheap complementary detectors raise recall
+before the classifier. QFIRE's advantage is not on generic injection but on
+healthcare scope and PHI, which we turn to next---and, as \S\ref{sec:adaptive} shows,
+on robustness once an adversary adapts to the defense.
 
 \begin{figure}[t]
 \centering
@@ -497,15 +511,32 @@ filters track the diagonal, making the ``fast-but-blind'' gap visual.}
 \subsection{Healthcare: the central result}\label{sec:healthcare-result}
 On QFIRE-HealthBench (\S\ref{sec:healthbench}), the same detectors that tied on
 generic injection diverge sharply (Figure~\ref{fig:hero},
-Table~\ref{tab:healthbench} in Appendix~\ref{app:tables}). The \emph{strongest}
-generic detector we measured, Meta PromptGuard-2 (F1~$0.86$ on public injection),
-recovers only $0.40$ recall here; protectai DeBERTa $0.57$; QFIRE's classifier-only
-chain $0.59$. The reason is structural: most healthcare threats carry no jailbreak
-token. Adding the PHI detector and positive-security scope rules
-(\texttt{bench\_combined}) lifts recall to $0.83$ (F1 $0.73 \rightarrow 0.87$) at a
-calibrated FPR of $0.08$. Appendix~\ref{app:examples} (Table~\ref{tab:failures})
-lists verbatim examples of these missed-by-classifier, caught-by-QFIRE prompts,
-one per category.
+Table~\ref{tab:healthbench} in Appendix~\ref{app:tables}). Every dedicated injection
+classifier drops: Meta PromptGuard-2 (F1~$0.86$ on public injection) recovers only
+$0.40$ recall here; protectai DeBERTa $0.57$; and even qualifire Sentinel---the
+strongest system on public injection at F1~$0.98$---recovers just $0.64$, leaving
+more than a third of clinical threats through. QFIRE's classifier-only chain lands at
+$0.59$. The reason is structural: most healthcare threats carry no jailbreak token.
+Adding the PHI detector and positive-security scope rules (\texttt{bench\_combined})
+lifts recall to $0.83$ (F1 $0.73 \rightarrow 0.87$) at a calibrated FPR of $0.08$.
+Appendix~\ref{app:examples} (Table~\ref{tab:failures}) lists verbatim examples of
+these missed-by-classifier, caught-by-QFIRE prompts, one per category.
+
+\paragraph{Is the scaffold doing the work, or just the LLM?} To isolate the
+contribution of QFIRE's scope/PHI \emph{scaffold} from the raw judgment of an LLM, we
+also ran a bare \texttt{llama3.1:8B} judge---a single block/allow call with a generic
+prompt and none of QFIRE's rule graph. On this static HealthBench corpus the bare
+judge is competitive: recall $0.82$, F1~$0.90$, essentially matching QFIRE's combined
+chain ($0.83$/$0.87$). We report this honestly---on in-distribution clinical text, a
+capable instruct model asked the right question recovers most threats on its own. The
+scaffold earns its place on the other axes: the same bare judge \emph{collapses} on
+generic injection (F1~$0.70$ vs.\ Sentinel's $0.98$ and QFIRE's $0.86$), so it is not
+a dependable single detector across threat types; it costs a p95 of $0.6$--$2$\,s per
+prompt versus QFIRE's bounded short-circuiting path; it provides no per-rule audit
+trail or deterministic PHI/identifier guarantee; and, unlike QFIRE's positive-security
+scope chain (uniformly $100\%$ under the adaptive attacks of \S\ref{sec:adaptive}), its
+robustness to an adversary who adapts to it is untested. QFIRE reaches the same recall
+through a structured, auditable, fail-closed composition rather than one opaque call.
 
 The per-category heatmap (Figure~\ref{fig:heatmap}) shows \emph{why}. It is
 block-diagonal, not uniform. The injection classifier is strong exactly where an
@@ -732,7 +763,8 @@ is therefore a competent mid-size instruct judge with a short, explicit
 Static public corpora can overstate robustness, so we built three families of
 \emph{adaptive} attacks---crafted with knowledge of the firewall---and scored them
 through a panel of generic injection classifiers (protectai DeBERTa-v3, Meta
-PromptGuard-2) versus QFIRE's deployed positive-security scope+PHI chain
+PromptGuard-2, and qualifire Sentinel---the strongest classifier on clean injection)
+versus QFIRE's deployed positive-security scope+PHI chain
 (\texttt{hipaa\_phi} for healthcare, \texttt{default} for injection). The families:
 \emph{scope-impersonation} (PHI-exfiltration phrased as routine clinical workflow),
 \emph{paraphrase-to-evade} (each attack iteratively paraphrased until DeBERTa allows
@@ -742,9 +774,13 @@ we report recall (fraction blocked) in Figure~\ref{fig:adaptive}.
 
 \noindent\textbf{Finding.} \emph{Generic classifiers collapse under adaptive
 pressure; QFIRE's positive-security scope+PHI holds.} Across all four adaptive sets
-the SOTA classifiers drop to $0$--$54\%$ recall while QFIRE blocks $\mathbf{100\%}$.
-The paraphrase loop evades DeBERTa on $89\%$ of attacks at a median of one rewrite,
-yet QFIRE blocks $100\%$ of those classifier-evading variants. The reason is
+the SOTA classifiers drop to $0$--$71\%$ recall while QFIRE blocks $\mathbf{100\%}$.
+Sentinel, the strongest classifier on clean injection (F1~$0.98$), is also the most
+robust of the three under adaptive pressure---yet it still leaks $29$--$55\%$ of these
+attacks ($45$--$71\%$ recall), confirming the gap is structural and not a question of
+classifier quality. The paraphrase loop evades DeBERTa on $89\%$ of attacks at a
+median of one rewrite, yet QFIRE blocks $100\%$ of those classifier-evading variants.
+The reason is
 structural rather than a stronger model: an attack that pursues an
 out-of-scope/PHI-exfiltration goal is out of scope \emph{however it is phrased or
 encoded}, so the scope judge (90.8--98.9\% alone) catches goal-drift and the
