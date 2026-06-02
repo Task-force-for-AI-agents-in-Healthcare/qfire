@@ -533,10 +533,12 @@ scaffold earns its place on the other axes: the same bare judge \emph{collapses}
 generic injection (F1~$0.70$ vs.\ Sentinel's $0.98$ and QFIRE's $0.86$), so it is not
 a dependable single detector across threat types; it costs a p95 of $0.6$--$2$\,s per
 prompt versus QFIRE's bounded short-circuiting path; it provides no per-rule audit
-trail or deterministic PHI/identifier guarantee; and, unlike QFIRE's positive-security
-scope chain (uniformly $100\%$ under the adaptive attacks of \S\ref{sec:adaptive}), its
-robustness to an adversary who adapts to it is untested. QFIRE reaches the same recall
-through a structured, auditable, fail-closed composition rather than one opaque call.
+trail or deterministic PHI/identifier guarantee; and it is far less robust under adaptive
+pressure---run through the adaptive families of \S\ref{sec:adaptive}, the bare judge
+blocks only $34$--$45\%$ versus QFIRE's $100\%$ and the \emph{scope-aware} judge's
+$91$--$99\%$, because a single generic block/allow judgment is itself evadable once the
+adversary adapts. QFIRE reaches the same static-corpus recall through a structured,
+auditable, fail-closed composition that also holds up when attacked.
 
 The per-category heatmap (Figure~\ref{fig:heatmap}) shows \emph{why}. It is
 block-diagonal, not uniform. The injection classifier is strong exactly where an

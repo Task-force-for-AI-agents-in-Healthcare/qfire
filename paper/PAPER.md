@@ -805,11 +805,12 @@ question recovers most threats on its own. The scaffold earns its place on the *
 axes: the same bare judge **collapses on generic injection** (F1 0.70 vs Sentinel's
 0.98 and QFIRE's 0.86), so it is not a dependable single detector across threat types;
 it costs a **0.6–2 s p95** per prompt vs QFIRE's bounded short-circuiting path; it
-gives no per-rule audit trail or deterministic PHI/identifier guarantee; and, unlike
-QFIRE's positive-security scope chain (**uniformly 100%** under the adaptive attacks of
-§3.10), its robustness to an adapting adversary is untested. QFIRE reaches the same
-recall through a structured, auditable, fail-closed composition rather than one opaque
-call.
+gives no per-rule audit trail or deterministic PHI/identifier guarantee; and it is **far
+less robust under adaptive pressure** — run through the adaptive families of §3.10 the
+bare judge blocks only **34–45%** (vs QFIRE's **100%** and the *scope-aware* judge's
+91–99%), because a single generic block/allow judgment is itself evadable once the
+adversary adapts. QFIRE reaches the same static-corpus recall through a structured,
+auditable, fail-closed composition that also holds up when attacked.
 
 **Detector complementarity (heatmap).** The per-category recall heatmap shows the
 detectors have *disjoint* blind spots — the injection classifier's off-diagonal

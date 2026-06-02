@@ -59,6 +59,20 @@ def _sentinel(set_name):
     return None
 
 
+def _barejudge(set_name):
+    """Bare llama3.1:8B LLM-judge (generic prompt, no QFIRE scaffold) — distinct from
+    the scope-aware judge_scope chain. Reads <set>__barejudge.json."""
+    p = os.path.join(ROOT, f"{set_name}__barejudge.json")
+    if not os.path.exists(p):
+        return None
+    d = json.load(open(p))
+    res = d.get("results", d)
+    for k, v in res.items():
+        if isinstance(v, dict) and "recall" in v and "judge" in k.lower():
+            return v["recall"]
+    return None
+
+
 def main():
     rows, summary = [], {}
     for s in SETS:
@@ -68,9 +82,10 @@ def main():
         judge = _recall(s, "judge_scope")
         pg = _promptguard(s)
         sent = _sentinel(s)
+        bj = _barejudge(s)
         summary[s] = {"deberta": deb, "promptguard2": pg, "sentinel": sent,
-                      "scope": scope, "phi": phi, "judge": judge}
-        rows.append((s, deb, pg, sent, scope, phi, judge))
+                      "barejudge": bj, "scope": scope, "phi": phi, "judge": judge}
+        rows.append((s, deb, pg, sent, bj, scope, phi, judge))
 
     ev = None
     elog = os.path.join(BASE, "corpora/adaptive/paraphrase_evaded/evade_log.json")
@@ -86,12 +101,12 @@ def main():
     lines = ["# E1 — Adaptive Attacks vs the Scope Firewall — Results", "",
              "Recall = fraction of adaptive attacks BLOCKed (higher = more robust). "
              "'—' = detector not run. scope = QFIRE scope+PHI chain.", "",
-             "| adaptive set | DeBERTa | PromptGuard-2 | Sentinel | QFIRE scope+PHI | PHI-only | judge-only | scope−classifier gap |",
-             "|---|---|---|---|---|---|---|---|"]
-    for (s, deb, pg, sent, scope, phi, judge) in rows:
+             "| adaptive set | DeBERTa | PromptGuard-2 | Sentinel | bare-judge | QFIRE scope+PHI | PHI-only | scope-judge | scope−classifier gap |",
+             "|---|---|---|---|---|---|---|---|---|"]
+    for (s, deb, pg, sent, bj, scope, phi, judge) in rows:
         cls = max([x for x in (deb, pg, sent) if isinstance(x, (int, float))], default=None)
         g = gap(scope, cls) if isinstance(scope, (int, float)) and isinstance(cls, (int, float)) else None
-        lines.append(f"| {s} | {cell(deb)} | {cell(pg)} | {cell(sent)} | {cell(scope)} | {cell(phi)} | "
+        lines.append(f"| {s} | {cell(deb)} | {cell(pg)} | {cell(sent)} | {cell(bj)} | {cell(scope)} | {cell(phi)} | "
                      f"{cell(judge)} | {('+' if (g or 0) >= 0 else '')+pct(g) if g is not None else '—'} |")
     if ev:
         lines += ["", "## Phase 2 — paraphrase-to-evade (vs DeBERTa)", "",
