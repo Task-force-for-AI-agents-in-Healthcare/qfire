@@ -58,6 +58,9 @@ struct ProxyState {
     app: App,
     default_chain: String,
     redact: bool,
+    /// On BLOCK, return a 200 OpenAI-shaped refusal completion for OpenAI-family
+    /// requests instead of the default 403 envelope (opt-in).
+    openai_block_refusal: bool,
     client: reqwest::Client,
     compiled: Mutex<HashMap<String, Arc<CompiledRules>>>,
 }
@@ -79,11 +82,18 @@ impl ProxyState {
 }
 
 /// Run the proxy until terminated.
-pub async fn serve(app: App, addr: &str, default_chain: &str, redact: bool) -> Result<()> {
+pub async fn serve(
+    app: App,
+    addr: &str,
+    default_chain: &str,
+    redact: bool,
+    openai_block_refusal: bool,
+) -> Result<()> {
     let state = Arc::new(ProxyState {
         app,
         default_chain: default_chain.to_string(),
         redact,
+        openai_block_refusal,
         client: reqwest::Client::new(),
         compiled: Mutex::new(HashMap::new()),
     });
@@ -174,6 +184,10 @@ async fn handle(
             .app
             .audit
             .append(&AuditRecord::from_decision("proxy.block", &decision));
+        if state.openai_block_refusal && family == Family::OpenAiChat {
+            let body = output::openai_refusal_completion(&decision, &request.model, state.redact);
+            return (StatusCode::OK, axum::Json(body)).into_response();
+        }
         let envelope = output::refusal_json(&decision, state.redact);
         return (StatusCode::FORBIDDEN, axum::Json(envelope)).into_response();
     }
