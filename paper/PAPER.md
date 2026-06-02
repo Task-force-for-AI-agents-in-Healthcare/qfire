@@ -31,7 +31,9 @@ lexical-only baselines lag (F1 0.16–0.50). QFIRE's larger and more decisive ga
 are on **healthcare scope/PHI** (QFIRE-HealthBench, §7): the same SOTA
 PromptGuard-2 recovers only **0.40 recall** there (DeBERTa 0.57), versus **0.83**
 for QFIRE's combined scope+PHI chain, because most healthcare threats carry no
-injection signal. We report precision/recall/F1 with 95% Wilson intervals,
+injection signal. End-to-end, placing QFIRE in front of a tool-using agent over a
+mock-EHR sandbox cuts the agent's harmful-action rate from 0.38 to 0.00 at a 0.13
+benign-utility cost. We report precision/recall/F1 with 95% Wilson intervals,
 ROC–AUC, and latency percentiles; everything regenerates from `make paper`.
 
 ## 1. Introduction & contributions
@@ -590,6 +592,37 @@ bounded rather than runaway.
 
 **Finding.** *The drop is bounded, and the deployable claims hold off-distribution.*
 Full results: `docs/superpowers/specs/2026-06-01-e5-external-validity-results.md`.
+
+### 3.12 End-to-end agent harm reduction
+
+The results above firewall *prompts*; this one shows blocking prevents *downstream
+harm*. We put QFIRE's decision in front of a tool-using agent and measure the
+harmful-action rate end-to-end. A hand-rolled ReAct agent (`llama3.1:8b`, temp 0, seed
+42) drives an in-process mock-EHR sandbox over synthetic data; the sandbox logs every
+tool call with a ground-truth harm flag (cross-patient read, bulk/external export, PHI
+email, system-prompt reveal). Every *untrusted* input — the task and each tool
+observation — is gated through `qfire check` on the deterministic injection+PHI chain
+(`bench_combined`, the calibrated operating point of §3.7, **not** the strict `hipaa_phi`
+conjunction): a blocked task short-circuits to a refusal; a blocked observation is
+scrubbed before the model sees it. We run 40 benign + 40 attack episodes (20 direct
+exfiltration requests with realistic external addresses, 20 indirect injections poisoning
+a tool's returned record) with and without the guard.
+
+![End-to-end agent harm reduction: harmful-action rate 0.38→0.00; benign completion 0.95→0.82](figs/agent_harm.png)
+
+**Finding.** *QFIRE eliminates the agent's harmful actions at a modest, explainable
+utility cost.* The harmful-action rate falls from **0.375** [0.242, 0.530] without the
+firewall to **0.000** [0.000, 0.088] with it (direct 0.45→0, indirect 0.30→0; 95%
+Wilson): all 20 direct attacks are refused at the prompt boundary and all 20 indirect
+injections are scrubbed from the tool observations before the agent can act. Benign
+completion falls only **0.950→0.825** — and that entire cost is *five* legitimate
+outbound-email requests the deterministic PHI rule conservatively blocks; the other
+benign failures are agent flakiness present with *and* without the guard. The base model
+is partially but not fully safe (it declines 62.5% of attacks on its own); QFIRE closes
+the *residual* harm deterministically — a guard you can audit, not a model you must
+trust. (Harm is prevented *via the prompt boundary*; QFIRE does not police tool calls
+directly.) Full results:
+`docs/superpowers/specs/2026-06-01-e4-agent-harm-results.md`.
 
 ## 4. Discussion & limitations
 

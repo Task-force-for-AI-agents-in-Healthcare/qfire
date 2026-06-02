@@ -92,7 +92,7 @@ the E1 adaptive panel):
 ---
 
 ## E4 — End-to-end agent harm reduction
-**Status:** [ ] not started
+**Status:** [x] done — plan: [../plans/2026-06-01-e4-agent-harm.md](../plans/2026-06-01-e4-agent-harm.md); results: [2026-06-01-e4-agent-harm-results.md](2026-06-01-e4-agent-harm-results.md); figure `paper/figs/agent_harm.png`; paper §End-to-end agent harm reduction in `main.tex` + `PAPER.md` §3.12. Headline: a ReAct agent (llama3.1:8b) over a mock-EHR sandbox — harmful-action rate **0.375→0.000** (direct 0.45→0, indirect 0.30→0) with QFIRE (bench_combined) gating untrusted inputs, at a benign-completion cost of **0.950→0.825** (entirely the conservative outbound-email block). All 5 paper-strengthening experiments (E1–E5) now done.
 **Reviewer concern it closes:** The paper firewalls *prompts* but never shows
 blocking prevents *downstream harm* — the "so what" for the agentic framing.
 
