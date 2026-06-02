@@ -872,6 +872,42 @@ uniformly $100\%$. (Caveats: gemma2-generated attacks are a lower bound on a hum
 adversary; the paraphrase loop is a black-box attack on DeBERTa; the scope judge
 inherits its backing model's calibration.)
 
+\paragraph{Cascade stress test (in-the-loop adaptive).} The result above uses the strict
+\texttt{hipaa\_phi}/\texttt{default} chains and single-shot attack families. We additionally
+ran the 3-stage cascade of~\cite{firewallsbench2026} against the \emph{calibrated}
+deployable chain (\texttt{bench\_combined}/\texttt{default}, the $0.08$-FPR operating
+point), with the strongest stage being an \emph{in-the-loop} paraphrase loop that mutates
+each attack and re-queries QFIRE's actual chain (up to $10$ tries) until it ALLOWs
+(60 attacks, gemma2:9B mutator/judge, seed~42; Figure~\ref{fig:cascade}). Stage~1
+(standard) and Stage~2 (defense-aware rewrites, qwen3:8B) hold---recall
+$0.80\rightarrow0.83$ (healthcare) and $0.67\rightarrow0.60$ (injection), i.e.\ scope-fitting
+rewrites do not help the attacker. But Stage~3 \emph{does}: the adaptive loop drops recall
+to $0.37$ (healthcare) and $0.13$ (injection) at a median of \emph{two} iterations.
+\textbf{We report this candidly as a limitation.} Two things temper and explain it.
+\emph{First}, a component decomposition is revealing: the scope judge \emph{alone} blocks
+$\approx\!1.0$ of the Stage-2 attacks---far more than the calibrated blend---so it is the
+calibration that lowers the scope judge's weight to reach $0.08$ FPR that is being evaded,
+not the scope mechanism itself; a deployment expecting adaptive adversaries should weight
+the scope judge harder (trading FPR for robustness), and the strict \texttt{hipaa\_phi}
+chain (\S\ref{sec:adaptive}, above) indeed holds where the calibrated one bends.
+\emph{Second}, this is a black-box paraphrase loop: some ``evasions'' are likely
+intent \emph{drift} (the paraphrase weakening the attack into something QFIRE rightly
+allows) rather than true bypasses---we did not adjudicate each final paraphrase, so the
+evasion rate is an upper bound. The honest takeaway: a sustained, firewall-in-the-loop
+adaptive attacker is a real residual threat to the \emph{calibrated} operating point, and
+robustness there is a tunable trade against over-refusal rather than a solved property.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{figs/cascade.png}
+\caption{Cascade adaptive attack against the \emph{calibrated} chain. Recall holds through
+Stage~1 (standard) and Stage~2 (defense-aware rewrites) but collapses under the Stage~3
+firewall-in-the-loop paraphrase loop (median $2$ iterations). $\star$ = scope-judge-only
+recall on Stage~2 ($\approx\!1.0$): the robust component the FPR-calibrated blend dilutes.
+Stage-3 evasions are a black-box upper bound (some are paraphrase-induced intent drift).}
+\label{fig:cascade}
+\end{figure}
+
 \subsection{Multi-turn / conversational injection}\label{sec:multiturn}
 A stateless per-message filter misses attacks that only become malicious \emph{across}
 turns. We test this with $150$ multi-turn conversations (deterministically built so the
