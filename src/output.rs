@@ -112,13 +112,11 @@ pub fn openai_refusal_completion(decision: &Decision, model: &str, redact: bool)
         .map(|d| d.as_secs())
         .unwrap_or(0);
     let hash = &decision.prompt_hash[..decision.prompt_hash.len().min(8)];
+    const REFUSAL_MSG: &str = "I can't help with that request. It was blocked by the security policy.";
     let content = if redact {
-        "I can't help with that request. It was blocked by the security policy.".to_string()
+        REFUSAL_MSG.to_string()
     } else {
-        format!(
-            "I can't help with that request. It was blocked by the security policy. (reason: {})",
-            decision.reason
-        )
+        format!("{REFUSAL_MSG} (reason: {})", decision.reason)
     };
     serde_json::json!({
         "id": format!("chatcmpl-qfire-{hash}"),
@@ -194,6 +192,7 @@ mod tests {
         let v = openai_refusal_completion(&d, "gpt-4o", true);
         let content = v["choices"][0]["message"]["content"].as_str().unwrap();
         assert!(!content.is_empty());
+        assert!(content.contains("blocked by the security policy"));
         assert!(!content.contains("matched exfiltration pattern"));
     }
 }
