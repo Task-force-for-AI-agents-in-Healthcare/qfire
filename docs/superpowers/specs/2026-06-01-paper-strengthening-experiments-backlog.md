@@ -28,7 +28,7 @@ E4 is the most work). Reassess after each.
 ---
 
 ## E1 — Adaptive (adversarial) attacks against the scope judge
-**Status:** [ ] not started
+**Status:** [x] done — results: [2026-06-01-adaptive-attacks-results.md](2026-06-01-adaptive-attacks-results.md); figure `paper/figs/adaptive_robustness.png`; paper §Adaptive-attack robustness. Headline: classifiers 0–54% vs QFIRE scope+PHI 100% under adaptive attack; 89% evade DeBERTa (median 1 paraphrase), QFIRE blocks 100% of those.
 **Reviewer concern it closes:** "Static public corpora overstate robustness; what
 about attacks crafted with knowledge of the firewall?" — the #1 objection for any
 defense paper. Directly stress-tests contribution (i), positive-security scope.
