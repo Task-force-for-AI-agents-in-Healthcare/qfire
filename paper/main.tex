@@ -789,6 +789,39 @@ uniformly $100\%$. (Caveats: gemma2-generated attacks are a lower bound on a hum
 adversary; the paraphrase loop is a black-box attack on DeBERTa; the scope judge
 inherits its backing model's calibration.)
 
+\subsection{External validity: transfer, scale, and threshold stability}\label{sec:external}
+A standing caveat is that cross-dataset detection numbers drop. We convert it into
+three measured, bounded statements (all offline, seed 42; Figure~\ref{fig:external}).
+\emph{(a) Transfer.} On a held-out, deepset-decontaminated split
+(\texttt{eval\_heldout}, $666$ attacks / $640$ benign; protectai DeBERTa never trained
+on it), recall does not collapse: DeBERTa rises $0.74\rightarrow0.84$ and QFIRE's
+positive-security chain $0.83\rightarrow0.94$, with QFIRE ahead of the classifier on
+\emph{both} the in-distribution and the held-out split ($+0.08$, $+0.10$). \emph{(b)
+Over-refusal at scale.} We measure the deployed calibrated operating point
+(\texttt{bench\_combined}, the deterministic injection$+$PHI chain behind the
+$0.08$-FPR headline of \S\ref{sec:healthcare-result}) on a larger, independent benign
+corpus---$1{,}294$ synthetic clinical-adjacent prompts (gemma2:9B, deduped and
+scope-filtered). Over-refusal is $\mathbf{0.023}$ ($30/1{,}294$; $95\%$ Wilson
+$[0.016,0.033]$), \emph{below} the calibrated $0.08$ on a broader benign set; the few
+blocks are conservative PHI name-identifier matches on appointment requests naming a
+clinician, not spurious. As a deliberate cross-check, the \emph{strict} ten-judge
+\texttt{hipaa\_phi} conjunction over the same prompts blocks $100\%$---reproducing the
+calibration-necessity result of \S\ref{sec:hcpanel} at $50\times$ the corpus
+size, and confirming \emph{why} the deployed chain is the calibrated one, not the naive
+AND. \emph{(c) Threshold transfer.} A threshold calibrated for FPR$=0.08$ on
+in-distribution benign, applied unchanged to held-out benign, realizes FPR $0.052$
+(DeBERTa probability) and $0.120$ (QFIRE chain score)---the operating point drifts by
+$\le 0.04$, bounded rather than runaway.
+
+\noindent\textbf{Finding.} \emph{The drop is bounded, and the deployable claims hold
+off-distribution.} Detection transfers (QFIRE recall $\ge$ DeBERTa on both splits),
+the calibrated over-refusal is $0.023\,[0.016,0.033]$ on a $1.3$k independent benign
+set, and the calibrated operating point transfers within $\sim\!0.04$ FPR. (Caveats:
+the larger benign set is model-generated and administration-heavy, a lower bound on
+clinical stress; ``held-out'' is one decontaminated split; the strict-conjunction
+cross-check used the llama3.2 judge our own ablation (\S\ref{sec:judgeabl}) flags as
+miscalibrated, which is precisely why the deployed chain is deterministic.)
+
 \section{Discussion and Limitations}
 
 \paragraph{Detectors are complementary, not redundant.}
@@ -881,9 +914,12 @@ measure (\S\ref{sec:hcpanel}) rather than hide. On generic injection a strong
 classifier (PromptGuard-2) matches QFIRE; QFIRE's measured advantage is the
 scope/PHI coverage of \S\ref{sec:healthcare-result} and single-binary deployment
 with no Python in the hot path, not a generic-detector win. Cross-dataset detection
-numbers are lower than a detector's in-distribution test score, underscoring that
-single-corpus claims do not transfer; we therefore report a public, mixed corpus
-and release the snapshot. The LLM-judge node's cost grows with the number of scope
+numbers shift off-distribution, but the shift is bounded and the deployable claims
+hold: on a held-out decontaminated split QFIRE recall stays $\ge$ the classifier's,
+the calibrated over-refusal is $0.023\,[0.016,0.033]$ on a $1.3$k independent benign
+corpus, and a calibrated threshold transfers within $\sim\!0.04$ FPR
+(\S\ref{sec:external}). We nonetheless report a public, mixed corpus and release the
+snapshot; the held-out evidence is one decontaminated split, not a guarantee. The LLM-judge node's cost grows with the number of scope
 rules, motivating the cheap-before-expensive ordering. Our PHI matchers are
 conservative for identifiers (names, biometrics, face photos) that are not reliably
 recoverable from text alone. Finally, the LLM scope judge inherits the biases and
@@ -1055,6 +1091,20 @@ positive-security scope+PHI chain blocks $100\%$; the paraphrase-to-evade family
 defeats DeBERTa on $89\%$ of attacks (median one rewrite) yet QFIRE still blocks all
 of them. (\S\ref{sec:adaptive})}
 \label{fig:adaptive}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/external_validity.png}
+\caption{External validity (offline, seed 42). (a) Transfer: recall in-distribution
+vs.\ the deepset-decontaminated held-out split; QFIRE's positive-security chain stays
+ahead of DeBERTa on both and does not collapse off-distribution. (b) Threshold
+transfer: the QFIRE chain-score FPR-vs-threshold curve for in-distribution
+(target $0.08$) and held-out benign; a threshold calibrated on in-distribution
+($t{=}0.39$) realizes FPR $0.12$ on held-out---a bounded $\le0.04$ drift. The deployed
+calibrated over-refusal on a $1{,}294$-prompt independent benign corpus is
+$0.023\,[0.016,0.033]$. (\S\ref{sec:external})}
+\label{fig:external}
 \end{figure}
 
 \begin{figure}[h]

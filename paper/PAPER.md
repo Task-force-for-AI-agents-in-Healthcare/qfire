@@ -560,6 +560,37 @@ panel is phrasing-invariant; their fail-closed composition is uniformly 100%.
 black-box attack on DeBERTa; the judge inherits its backing model's calibration.)
 Full results: `docs/superpowers/specs/2026-06-01-adaptive-attacks-results.md`.
 
+### 3.11 External validity: transfer, scale, and threshold stability
+
+A standing caveat is that cross-dataset numbers drop. We convert it into three
+measured, bounded statements (offline, seed 42).
+
+![External validity: recall transfer (a) and chain-score threshold transfer (b)](figs/external_validity.png)
+
+**(a) Transfer.** On the held-out, deepset-decontaminated split (`eval_heldout`, 666
+attacks / 640 benign; protectai DeBERTa never trained on it), recall does not
+collapse — DeBERTa rises **0.74→0.84** and QFIRE's positive-security chain
+**0.83→0.94**, with QFIRE ahead of the classifier on *both* splits (+0.08, +0.10).
+
+**(b) Over-refusal at scale.** At the deployed calibrated operating point
+(`bench_combined`, the deterministic injection+PHI chain behind the 0.08-FPR headline
+of §3.4), over-refusal on a larger independent benign corpus — **1,294** synthetic
+clinical-adjacent prompts (gemma2:9B, deduped + scope-filtered) — is **0.023**
+(30/1,294; 95% Wilson **[0.016, 0.033]**), *below* the calibrated 0.08 on a broader
+benign set. The few blocks are conservative PHI name-identifier matches on appointment
+requests naming a clinician, not spurious. As a deliberate cross-check, the *strict*
+ten-judge `hipaa_phi` conjunction over the same prompts blocks **100%** — reproducing
+the calibration-necessity result of §3.7 at 50× the corpus size, confirming *why* the
+deployed chain is the calibrated one, not the naive AND.
+
+**(c) Threshold transfer.** A threshold calibrated for FPR=0.08 on in-distribution
+benign, applied unchanged to held-out benign, realizes FPR **0.052** (DeBERTa
+probability) and **0.120** (QFIRE chain score) — the operating point drifts by ≤0.04,
+bounded rather than runaway.
+
+**Finding.** *The drop is bounded, and the deployable claims hold off-distribution.*
+Full results: `docs/superpowers/specs/2026-06-01-e5-external-validity-results.md`.
+
 ## 4. Discussion & limitations
 
 **Detectors are complementary, not redundant.** The §7.1 heatmap is block-diagonal:
@@ -594,10 +625,13 @@ trusting engine internals, and policy changes are auditable in version control �
 the positive-security results here are deployable only because the policy is
 inspectable data, not code/weights.
 
-- **Cross-dataset numbers are lower than in-distribution scores.** protectai
-  reports near-perfect accuracy on its own test split; on this mixed public
-  corpus the same weights score F1 0.84. We report a public, mixed corpus and
-  release the snapshot; single-corpus claims do not transfer.
+- **Cross-dataset numbers shift off-distribution, but the shift is bounded.**
+  protectai reports near-perfect accuracy on its own split; on this mixed public
+  corpus the same weights score F1 0.84. We now measure the transfer (§3.11): on a
+  held-out decontaminated split QFIRE recall stays ≥ the classifier's, the calibrated
+  over-refusal is 0.023 [0.016, 0.033] on a 1.3k independent benign corpus, and a
+  calibrated threshold transfers within ~0.04 FPR. We still report a public, mixed
+  corpus and release the snapshot; the held-out evidence is one decontaminated split.
 - **PromptGuard-2 (Meta)** is now run locally head-to-head (gate accepted): on the
   same 1,968-prompt corpus it scores **P 0.997 / R 0.755 / F1 0.859 / FPR 0.002**,
   the strongest single classifier and statistically even with QFIRE's hybrid

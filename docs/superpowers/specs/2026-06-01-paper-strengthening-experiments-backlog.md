@@ -112,7 +112,7 @@ EHR + task suite. Highest payoff for the agentic motivation.
 ---
 
 ## E5 — External validity: generalization, larger benign FPR, threshold transfer
-**Status:** [ ] not started
+**Status:** [x] done — results: [2026-06-01-e5-external-validity-results.md](2026-06-01-e5-external-validity-results.md); figure `paper/figs/external_validity.png`; paper §External validity (transfer, scale, threshold stability) in `main.tex` + `PAPER.md` §3.11. Headline: QFIRE recall transfers 0.83→0.94 (≥ DeBERTa on both splits); calibrated over-refusal **0.023 [0.016, 0.033]** on 1.3k independent benign (≤ the 0.08 claim); calibrated threshold transfers within ~0.04 FPR (0.08→0.12 chain, 0.08→0.05 DeBERTa). Note: over-refusal measured on the calibrated `bench_combined` chain (the 0.08-FPR operating point), not the strict `hipaa_phi` conjunction (which over-blocks 1.00 at scale — kept as a §3.7 calibration-necessity cross-check).
 **Reviewer concern it closes:** "In-distribution numbers; does it transfer? Is the
 calibrated FPR real?" The paper already notes cross-dataset numbers drop — make it
 a strength, not a caveat.
