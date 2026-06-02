@@ -44,9 +44,7 @@
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
 
 \title{Beyond Injection Detection: A Positive-Security Prompt Firewall that
-Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare\\
-\large \textbf{QFIRE} --- a parallel, low-latency Rust firewall benchmarked
-against PromptGuard-2 and DeBERTa-v3}
+Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare}
 
 \author{
 James Schwoebel\thanks{Quome Inc.} \and
@@ -59,6 +57,7 @@ Manish Bhatt\thanks{Independent}\\[2pt]
 
 \begin{document}
 \maketitle
+\vspace{-1.5em}
 
 \begin{abstract}
 Large language models embedded in autonomous agents process trusted instructions
@@ -131,7 +130,9 @@ screening and cloud semantic verification for browser agents;
 PSG-Agent~\cite{psgagent2025} builds per-user personality profiles to adapt safety
 thresholds to intent drift; and Semantic Firewalls~\cite{semanticfirewall2026}
 transform prompts into a type-safe closed vocabulary to eliminate syntactic
-bypasses. Across these designs a single tension recurs: \emph{security robustness
+bypasses.
+
+Across these designs a single tension recurs: \emph{security robustness
 is tightly coupled to latency}. Heavy semantic verifiers and model-based auditors
 achieve strong detection but add hundreds of milliseconds of Python-hosted
 inference, while deterministic lexical filters run in sub-milliseconds yet miss
@@ -144,15 +145,7 @@ an ultra-low-latency, zero-trust parallel prompt firewall in Rust that adds
 positive-security scope constraining and a HIPAA PHI panel to the inline-proxy
 design.
 
-This work extends the Healthcare AI Agents Regulatory Framework
-(HAARF)~\cite{haarf2026}, a security-verification standard for clinical AI agents
-from the same group. HAARF specifies \emph{what} controls a clinical agent must
-satisfy; QFIRE is the concrete, measured \emph{enforcement} layer that hardens them
-at runtime---and the controls HAARF most emphasizes, scope restriction and PHI
-handling, are exactly the threats generic injection detectors miss. We give the
-full control-to-mechanism mapping in the Discussion (Table~\ref{tab:haarf}).
-
-\paragraph{Contributions.}
+\paragraph{Contributions.} Our contributions are as follows:
 \begin{enumerate}
   \item \textbf{Positive-security scope constraining.} Beyond flagging overt
   attacks, QFIRE enforces a declared operational scope (e.g.\ ``marketing copy
@@ -1036,7 +1029,8 @@ robustness---the same motivation behind our adaptive-attack evaluation
 
 \paragraph{Relationship to HAARF.}
 This work operationalizes the Healthcare AI Agents Regulatory Framework
-(HAARF)~\cite{haarf2026}. HAARF defines the security-verification \emph{standard}
+(HAARF)~\cite{haarf2026}, a security-verification standard for clinical AI agents
+from the same group. HAARF defines the security-verification \emph{standard}
 a clinical AI agent must meet---scope restriction, minimum-necessary access, PHI
 protection, and auditable refusal---but is deliberately implementation-agnostic.
 QFIRE is a runtime \emph{enforcement} and \emph{measurement} layer for those
