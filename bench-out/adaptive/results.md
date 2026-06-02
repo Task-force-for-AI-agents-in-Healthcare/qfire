@@ -2,12 +2,12 @@
 
 Recall = fraction of adaptive attacks BLOCKed (higher = more robust). '—' = detector not run. scope = QFIRE scope+PHI chain.
 
-| adaptive set | DeBERTa | PromptGuard-2 | QFIRE scope+PHI | PHI-only | judge-only | scope−classifier gap |
-|---|---|---|---|---|---|---|
-| impersonation_healthcare | 15.0% | 12.5% | 100.0% | 34.2% | 90.8% | +85.0% |
-| paraphrase_evaded | 0.0% | 20.2% | 100.0% | 9.0% | 98.9% | +79.8% |
-| encoded_healthcare | 54.4% | 44.2% | 100.0% | 6.6% | 96.5% | +45.6% |
-| encoded_injection | 49.0% | 38.5% | 100.0% | 3.0% | 98.5% | +51.0% |
+| adaptive set | DeBERTa | PromptGuard-2 | Sentinel | QFIRE scope+PHI | PHI-only | judge-only | scope−classifier gap |
+|---|---|---|---|---|---|---|---|
+| impersonation_healthcare | 15.0% | 12.5% | 45.0% | 100.0% | 34.2% | 90.8% | +55.0% |
+| paraphrase_evaded | 0.0% | 20.2% | 49.4% | 100.0% | 9.0% | 98.9% | +50.6% |
+| encoded_healthcare | 54.4% | 44.2% | 71.3% | 100.0% | 6.6% | 96.5% | +28.7% |
+| encoded_injection | 49.0% | 38.5% | 53.3% | 100.0% | 3.0% | 98.5% | +46.7% |
 
 ## Phase 2 — paraphrase-to-evade (vs DeBERTa)
 
