@@ -872,6 +872,38 @@ uniformly $100\%$. (Caveats: gemma2-generated attacks are a lower bound on a hum
 adversary; the paraphrase loop is a black-box attack on DeBERTa; the scope judge
 inherits its backing model's calibration.)
 
+\subsection{Multi-turn / conversational injection}\label{sec:multiturn}
+A stateless per-message filter misses attacks that only become malicious \emph{across}
+turns. We test this with $150$ multi-turn conversations (deterministically built so the
+malicious core is verbatim, never diluted; seed~42): \emph{split-payload} (the
+instruction fragmented across turns), \emph{context-priming} (benign turns establish a
+false premise, then the payload), \emph{crescendo} (escalating individually-benign turns),
+plus $30$ benign clinical-adjacent conversations. Because QFIRE evaluates
+\texttt{prompt\_text}---the full role-tagged transcript---by default, we compare it
+against a \emph{latest-turn-only} baseline (the naive per-message view), scoring each
+conversation through the deployed chain (\texttt{bench\_combined}/\texttt{default},
+gemma2:9B scope judge) at its calibrated operating point.
+
+\noindent\textbf{Finding.} \emph{Evaluating the whole transcript catches cross-turn
+buildup that a per-message filter misses---at zero benign over-block.}
+Full-transcript recall is $0.78$--$1.00$ versus $0.43$--$0.70$ for latest-turn-only
+(Figure~\ref{fig:multiturn}): split-payload $0.90$ vs $0.43$ (the fragmented payload only
+reassembles across turns), crescendo $1.00$ vs $0.70$, context-priming $0.78$ vs $0.65$.
+Benign FPR is $0.00$ in both modes at the calibrated chain. QFIRE's existing
+full-context evaluation is therefore already robust to these multi-turn patterns; the
+residual context-priming misses (attacks dressed as in-scope workflow) are the honest
+gap, pointing to tighter scope rules rather than a stateful redesign.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{figs/multiturn.png}
+\caption{Multi-turn injection recall: QFIRE's default full-transcript evaluation vs a
+naive latest-turn-only filter, per attack pattern ($150$ conversations, benign FPR
+$0.00$ both modes). The full transcript reassembles split payloads and sees crescendo
+buildup the last turn alone misses.}
+\label{fig:multiturn}
+\end{figure}
+
 \subsection{External validity: transfer, scale, and threshold stability}\label{sec:external}
 A standing caveat is that cross-dataset detection numbers drop. We convert it into
 three measured, bounded statements (all offline, seed 42; Figure~\ref{fig:external}).
@@ -1064,8 +1096,10 @@ injection---pixel-level perturbations, text-in-image (leetspeak/overlay) payload
 instructions hidden in image metadata---bypasses any text-only inspector and is out of
 scope here. QFIRE's de-obfuscation and scope/PHI rules would apply to such payloads only
 behind an OCR/extraction front-end that lifts them into text; integrating one is future
-work. Likewise, our evaluation is single-turn (multi-turn/conversational injection is
-left to future work).
+work. Multi-turn injection \emph{is} evaluated (\S\ref{sec:multiturn}): QFIRE's
+full-transcript default catches the split-payload/priming/crescendo patterns a per-message
+filter misses, though attacks dressed as in-scope workflow (context-priming) remain the
+hardest residual, motivating tighter scope rules.
 
 \section{Conclusion}
 QFIRE shows that a Rust, parallel, positive-security firewall can combine

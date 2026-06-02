@@ -614,6 +614,26 @@ sufficient — doing so with bounded latency, auditable policy, and adaptive rob
 what QFIRE adds. Full results:
 `docs/superpowers/specs/2026-06-01-e6-nemo-guardrails-results.md`.
 
+### 3.10b Multi-turn / conversational injection
+
+A stateless per-message filter misses attacks that only become malicious *across* turns.
+We test 150 multi-turn conversations (deterministic, malicious core verbatim, seed 42):
+**split-payload** (instruction fragmented across turns), **context-priming** (benign
+turns prime a false premise, then the payload), **crescendo** (escalating benign turns),
++ 30 benign. Since QFIRE evaluates the **full role-tagged transcript** (`prompt_text`) by
+default, we compare it to a **latest-turn-only** baseline, at the calibrated chain
+(`bench_combined`/`default`, gemma2:9B judge).
+
+![Multi-turn: full-transcript vs latest-turn recall](figs/multiturn.png)
+
+**Finding.** *Evaluating the whole transcript catches cross-turn buildup a per-message
+filter misses — at zero benign over-block.* Full-transcript recall **0.78–1.00** vs
+**0.43–0.70** latest-turn-only: split-payload **0.90 vs 0.43** (fragmented payload only
+reassembles across turns), crescendo **1.00 vs 0.70**, context-priming **0.78 vs 0.65**;
+benign FPR **0.00** in both modes. QFIRE's full-context default is already robust to these
+patterns; the residual context-priming misses (attacks dressed as in-scope workflow) point
+to tighter scope rules, not a stateful redesign.
+
 ### 3.11 External validity: transfer, scale, and threshold stability
 
 A standing caveat is that cross-dataset numbers drop. We convert it into three
@@ -746,8 +766,9 @@ inspectable data, not code/weights.
 - **Text-only, single-turn scope.** QFIRE inspects text prompts: multi-modal injection
   (pixel perturbations, text-in-image/leetspeak overlays, image-metadata payloads)
   bypasses any text-only inspector and is out of scope — de-obfuscation/scope would apply
-  only behind an OCR/extraction front-end (future work). Evaluation is single-turn;
-  multi-turn/conversational injection is also future work.
+  only behind an OCR/extraction front-end (future work). Multi-turn injection *is*
+  evaluated (§3.10b): the full-transcript default catches split-payload/priming/crescendo
+  that a per-message filter misses; context-priming is the hardest residual.
 
 ## 5. Conclusion
 
