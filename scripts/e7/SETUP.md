@@ -15,7 +15,7 @@ Run everything from this worktree:
 | agentdojo | **0.1.35** (PyPI release) — the `local` provider IS present, so **no git fallback needed** |
 | openai SDK | **2.40.0** — dependency resolver picked openai 2.x. It still exposes the `OpenAI` class with a `base_url` kwarg (`hasattr(openai, "OpenAI") == True`), which is all we need to point the client at the QFIRE proxy. `openai>=1.30` was requested explicitly and is satisfied. |
 | InjecAgent | pinned to commit **f19c9f2** ("update"), in `third_party/InjecAgent/` (gitignored) |
-| qfire binary | `target/release/qfire` (built `cargo build --release`) |
+| qfire binary | `target/release/qfire` (built `cargo build --release --features onnx`) |
 | DeBERTa model | `models/deberta` → symlink to `/Users/jim/Desktop/qfire/models/deberta` (model.onnx + tokenizer.json), gitignored |
 
 ## Candidate agent models (to be smoke-picked in Task 3)
@@ -41,7 +41,7 @@ response shape are to be confirmed in Task 2.
 
 ```bash
 cd /Users/jim/Desktop/qfire/.claude/worktrees/e7-agent-benchmarks
-cargo build --release            # -> target/release/qfire   (~44s, no-op if already built)
+cargo build --release --features onnx   # -> target/release/qfire (REQUIRED: --features onnx, else DeBERTa runs as a sub-ms lexical stub and the injection chain is not representative; all prior experiments build this way)
 
 # DeBERTa ONNX is gitignored; reuse the main checkout's copy.
 # NOTE: the worktree had no models/ dir, so create it first, then symlink the deberta subdir.
