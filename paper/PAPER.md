@@ -211,6 +211,13 @@ chain and a PHI-handling rule with regex identifiers) are in **Appendix A**.
   as an injection baseline would be a category mismatch.
 - **Metrics:** attack = positive class; precision, recall, F1, FPR, accuracy
   with 95% Wilson intervals, ROC–AUC (continuous detector score), and latency.
+- **Hardware & software (reproducibility):** all runs on a single Apple **M2 Max**
+  MacBook Pro (12 CPU cores = 8P+4E, 38-core GPU, **96 GB** unified memory),
+  macOS 26.5 (Darwin 25.5.0, arm64). Toolchain: Rust 1.92.0 (QFIRE + embedded ONNX),
+  Python 3.9.18 / PyTorch 2.8.0 / Transformers 4.57.6 (HF baselines), Ollama 0.24.0
+  (LLM judge + cross-model panel), Tectonic 0.16.9 (paper). CPU-bound latencies are
+  for this machine; LLM-judge latencies are model/runtime-dependent. No paid APIs or
+  remote inference — everything regenerates from committed scripts on commodity hardware.
 
 ## 3. Results
 

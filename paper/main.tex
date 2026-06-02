@@ -456,6 +456,17 @@ be a category mismatch.
 precision, recall, F1, false-positive rate, accuracy with 95\% Wilson score
 intervals~\cite{wilson1927}, ROC--AUC (from continuous detector scores), and
 latency percentiles (p50/p95/p99). Runs are seeded and described by a manifest.
+\paragraph{Hardware and software.} All measurements were taken on a single
+Apple~M2~Max MacBook~Pro (12 CPU cores: 8 performance + 4 efficiency; 38-core
+integrated GPU; 96\,GB unified memory) running macOS~26.5 (Darwin~25.5.0, arm64).
+The toolchain is Rust~1.92.0 (QFIRE proxy/CLI/bench and the embedded ONNX path),
+Python~3.9.18 with PyTorch~2.8.0 and Transformers~4.57.6 (HF-classifier baselines),
+Ollama~0.24.0 serving the LLM scope-judge and judge baselines
+(\texttt{llama3.1:8B} and the cross-model panel), and Tectonic~0.16.9 for the
+manuscript. CPU-bound latency numbers (the deterministic regex/Aho/entropy/ONNX-DeBERTa
+path) are reported for this machine; LLM-judge latencies are model- and
+Ollama-runtime-dependent. No paid APIs or remote inference are used---every result
+regenerates from the committed scripts on commodity hardware.
 \paragraph{What the inputs look like.} To ground the corpora, Table~\ref{tab:examples}
 shows representative verbatim prompts. The public ``non-obfuscated'' corpus is
 generic injection and ordinary text; QFIRE-HealthBench adds clinical threats that
