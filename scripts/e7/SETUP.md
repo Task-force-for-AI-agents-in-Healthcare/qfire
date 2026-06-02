@@ -86,6 +86,12 @@ cd third_party/InjecAgent && git checkout f19c9f2 && cd ../..
 #  downgrading from 0.23.1 — agentdojo still imports fine afterward, verified.)
 
 .venv-e7/bin/python -m pip install "openai>=1.30"   # already satisfied (2.40.0)
+
+# nltk is imported by src/output_parsing.py (only `from nltk import ngrams`) but is
+# MISSING from InjecAgent's requirements.txt. Install it; no nltk data download is
+# needed (ngrams is pure-python). Without it evaluate_prompted_agent.py fails at import
+# with ModuleNotFoundError: No module named 'nltk'.
+.venv-e7/bin/python -m pip install nltk                # -> nltk 3.9.4
 ```
 
 ### InjecAgent patch (verbatim before/after — `src/models.py`, `GPTModel.__init__`)
@@ -108,6 +114,36 @@ index 2f9b71c..4773f7a 100644
          )
          self.params = params
 ```
+
+### InjecAgent patch 2 (lazy `together` import — `src/models.py`)
+
+`src/models.py` has a **module-level** `import together` (line 63), which is only
+needed by the unused `TogetherAIModel`. The `together` SDK is not installed (and not
+needed for the GPT/local path), so the module fails to import with
+`ModuleNotFoundError: No module named 'together'` before any model runs. Make the
+import lazy (move it into `TogetherAIModel.__init__`, store as `self._together`, and
+have `call_model` use `self._together`) so the GPT path imports cleanly:
+
+```diff
+-import together   
+-class TogetherAIModel(BaseModel): 
+-    def __init__(self, params):
+-        super().__init__()  
+-        
+-        from src.prompts.prompt_template import PROMPT_TEMPLATE
++class TogetherAIModel(BaseModel):
++    def __init__(self, params):
++        super().__init__()
++        import together  # lazy import: optional dep, unused for GPT/local runs
++        self._together = together
++        from src.prompts.prompt_template import PROMPT_TEMPLATE
+@@ call_model
+-                completion = together.Complete.create(
++                completion = self._together.Complete.create(
+```
+
+Like patch 1, this lives only in the gitignored working tree; this SETUP.md is the
+reproducible record.
 
 This points InjecAgent's OpenAI client at `OPENAI_BASE_URL` (the QFIRE proxy) and drops
 the `organization` kwarg. Because `third_party/InjecAgent/` is gitignored (Step 5), this
