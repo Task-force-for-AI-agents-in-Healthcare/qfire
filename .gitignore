@@ -18,3 +18,6 @@ scripts/__pycache__/
 *.orig
 **/.DS_Store
 /haarf/
+
+# git worktrees created by Claude Code (parallel sessions)
+.claude/worktrees/
