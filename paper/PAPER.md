@@ -591,6 +591,24 @@ alongside the single classifiers it is built from.
 black-box attack on DeBERTa; the judge inherits its backing model's calibration.)
 Full results: `docs/superpowers/specs/2026-06-01-adaptive-attacks-results.md`.
 
+**Cascade stress test (in-the-loop adaptive) — a candid limitation.** The above uses the
+strict `hipaa_phi`/`default` chains and single-shot families. We also ran the 3-stage
+cascade [Bhagwatkar et al., arXiv:2510.05244] against the **calibrated** deployable chain
+(`bench_combined`/`default`, 0.08-FPR point), the strongest stage being an **in-the-loop
+paraphrase loop** that mutates each attack and re-queries QFIRE's real chain (≤10 tries)
+until it ALLOWs (60 attacks, gemma2:9B, seed 42; `figs/cascade.png`). Stage 1 (standard)
+and Stage 2 (defense-aware qwen3:8B rewrites) **hold** — recall 0.80→0.83 (healthcare),
+0.67→0.60 (injection): scope-fitting rewrites don't help the attacker. But **Stage 3 drops
+recall to 0.37 (healthcare) / 0.13 (injection)** at a median of **2** iterations. We report
+this plainly. Two mitigating facts: (1) the **scope judge alone blocks ~1.0** of the
+Stage-2 attacks — it's the *calibration* (lowering its weight for 0.08 FPR) that's evaded,
+not the scope mechanism; weight it harder for adversarial settings (the strict `hipaa_phi`
+holds where the calibrated chain bends), so robustness is a tunable FPR trade. (2) It's a
+black-box paraphrase loop — some "evasions" are likely intent **drift** (the paraphrase
+weakening the attack), not true bypasses, so the rate is an upper bound. Takeaway: a
+sustained firewall-in-the-loop attacker is a real residual threat at the calibrated
+operating point.
+
 ### 3.13 Full-stack framework baseline: NeMo Guardrails
 
 The other baselines are single detectors or a bare judge; this one is a complete
