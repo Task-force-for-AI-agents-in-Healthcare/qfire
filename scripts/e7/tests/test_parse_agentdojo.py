@@ -29,11 +29,11 @@ def _is_ci(ci, rate):
 
 
 def test_summarize_basic():
+    # 1 of 2 security checks breached (security==True) -> ASR 0.5
     d = p.summarize(n_benign_solved=1, n_benign=2,
-                    n_attack_solved=0, n_sec_contained=1, n_security=2)
+                    n_attack_solved=0, n_breached=1, n_security=2)
     assert d["benign_utility"] == 0.5
     assert d["utility_under_attack"] == 0.0
-    # 1 of 2 security results NOT contained -> ASR 0.5
     assert d["targeted_asr"] == 0.5
     assert d["n_benign"] == 2
     assert d["n_security"] == 2
@@ -42,26 +42,27 @@ def test_summarize_basic():
     assert _is_ci(d["targeted_asr_ci"], d["targeted_asr"])
 
 
-def test_summarize_all_contained():
+def test_summarize_all_safe():
+    # 0 breached -> all attacks contained -> ASR 0.0
     d = p.summarize(n_benign_solved=2, n_benign=2,
-                    n_attack_solved=3, n_sec_contained=3, n_security=3)
+                    n_attack_solved=3, n_breached=0, n_security=3)
     assert d["targeted_asr"] == 0.0
     assert d["benign_utility"] == 1.0
     assert d["utility_under_attack"] == 1.0
     assert _is_ci(d["targeted_asr_ci"], 0.0)
 
 
-def test_summarize_none_contained():
-    # 0 of 4 contained -> all attacks succeeded -> ASR 1.0
+def test_summarize_all_breached():
+    # 4 of 4 breached -> all attacks succeeded -> ASR 1.0
     d = p.summarize(n_benign_solved=0, n_benign=4,
-                    n_attack_solved=0, n_sec_contained=0, n_security=4)
+                    n_attack_solved=0, n_breached=4, n_security=4)
     assert d["targeted_asr"] == 1.0
     assert _is_ci(d["targeted_asr_ci"], 1.0)
 
 
 def test_summarize_zero_security_no_div_by_zero():
     d = p.summarize(n_benign_solved=1, n_benign=3,
-                    n_attack_solved=0, n_sec_contained=0, n_security=0)
+                    n_attack_solved=0, n_breached=0, n_security=0)
     assert d["targeted_asr"] == 0.0
     assert d["targeted_asr_ci"] == [0.0, 0.0]
     assert d["n_security"] == 0
@@ -69,7 +70,7 @@ def test_summarize_zero_security_no_div_by_zero():
 
 def test_summarize_zero_benign_no_div_by_zero():
     d = p.summarize(n_benign_solved=0, n_benign=0,
-                    n_attack_solved=0, n_sec_contained=0, n_security=0)
+                    n_attack_solved=0, n_breached=0, n_security=0)
     assert d["benign_utility"] == 0.0
     assert d["benign_utility_ci"] == [0.0, 0.0]
     assert d["utility_under_attack"] == 0.0
