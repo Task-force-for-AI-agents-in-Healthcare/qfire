@@ -32,13 +32,24 @@ stateful extension that does?*
      "export the list we discussed").
    - **Crescendo-style** — incremental escalation where each turn is individually benign.
    Benign multi-turn conversations (clinical-adjacent) anchor the false-positive rate.
-2. **Define QFIRE's multi-turn evaluation mode.** Two settings, both measured:
-   - **Per-message (current behavior):** QFIRE scores each turn independently — expected
-     to miss cross-turn buildup (the honest-negative baseline).
-   - **Windowed/history:** QFIRE scores the turn **with accumulated conversation context**
-     (concatenated or last-k window) fed to the scope judge / detectors. Whether this
-     already works via the proxy (it forwards full chat history) or needs a small change
-     is itself a finding to document.
+2. **Two evaluation modes** (both already expressible in the codebase — see the
+   code-fact below):
+   - **Full-transcript (QFIRE default):** detectors see `request.prompt_text()`, which
+     concatenates the system prompt + every role-tagged message — i.e. the **whole
+     conversation**. This is what QFIRE does today with no change.
+   - **Latest-turn-only (naive per-message baseline):** feed only `latest_user()` (the
+     most recent user turn) to the same chain — the failure mode of a stateless
+     per-message filter. Expected to miss cross-turn buildup that the full-transcript mode
+     catches.
+   The comparison directly quantifies the value of QFIRE evaluating accumulated context.
+
+   > **Code fact (verified 2026-06-02).** `src/engine.rs` evaluates
+   > `request.prompt_text()` (full role-tagged transcript, `src/ir.rs:97`); a
+   > `latest_user()` helper (`src/ir.rs:116`) returns only the last user turn. So
+   > history-aware evaluation is the **default**, not a missing feature — E9 is
+   > **measure-only**. The only new code is an eval-harness toggle that runs the chain on
+   > `latest_user()` to produce the per-message comparison; no change to QFIRE's runtime
+   > behavior is required.
 3. **Score** recall (blocked malicious conversations) + FPR (benign conversations
    over-blocked) for both settings, vs the classifier panel where applicable (PromptGuard-2
    etc. are single-turn → run on the concatenated transcript as a fair multi-turn proxy).
@@ -64,6 +75,14 @@ work" — both are useful and reportable.
 ## Resolved decisions (user, 2026-06-02)
 1. Full design spec now; plan when picked up.
 2. Local-LLM-generated multi-turn corpus (seed 42), benign anchors clinical-adjacent.
+3. **Modes compared:** **full-transcript (QFIRE default) vs latest-turn-only**
+   (`latest_user()`) — demonstrating the history advantage. (Code-verified: full transcript
+   is the default; only an eval-harness toggle for the latest-turn baseline is new.)
+4. **Corpus:** **~150 conversations, 3–5 turns each** — ~50 per attack pattern
+   (split-payload / context-priming / crescendo) plus clinical-adjacent benign anchors;
+   enough for Wilson CIs at modest cost.
+5. **Scope of E9:** measure-only (no QFIRE runtime change); if very long transcripts are
+   found to dilute the scope judge, a last-k window is noted as a follow-up, not built here.
 
 ## Feasibility & risks
 - **Medium.** New corpus + a conversation-aware harness. The key design question — does
@@ -75,9 +94,9 @@ work" — both are useful and reportable.
 - **Label semantics:** a "malicious conversation" is blocked if QFIRE blocks **any** turn
   before the payload completes; define and report this rule explicitly.
 
-## Open questions for the design review
-1. History window: full-transcript vs last-k turns fed to the scope judge (latency vs
-   coverage).
-2. Does the current proxy already forward full chat history to the detectors, or is a
-   small change needed? (Determines whether E9 is measure-only or measure+small-feature.)
-3. Corpus size + number of turns per conversation (cost vs coverage).
+## Open questions — RESOLVED (2026-06-02)
+1. Modes → full-transcript (default) vs latest-turn-only (decision 3).
+2. Proxy/history → **code-verified**: full transcript is the default (`prompt_text`);
+   E9 is measure-only, only an eval-harness toggle for the latest-turn baseline is new.
+3. Corpus → ~150 conversations, 3–5 turns (decision 4).
+Spec is ready for an implementation plan when picked up.

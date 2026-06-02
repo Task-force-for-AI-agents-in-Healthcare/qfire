@@ -79,6 +79,17 @@ or ASR reduction is weaker than on the healthcare harness.
 2. **Relationship to E4:** **complement** the healthcare mock-EHR (do not replace);
    report side-by-side and cite the standard benchmarks alongside.
 3. **Backend:** local only (no paid API) — strongest available local tool-calling model.
+4. **Agent model:** **smoke-pick the strongest local model** (compare gpt-oss:20b /
+   qwen3-coder:30b / gemma3:27b on a benign-utility smoke; pick the best and report it).
+   Prioritizes a clean benign-utility signal over E4 parity; report the chosen model and
+   its no-guard baseline utility so the safety-vs-utility delta is interpretable.
+5. **Coverage:** **stratified subset** across AgentDojo's 4 suites + InjecAgent's splits,
+   with reported `n` and Wilson CIs; log exactly what is sampled (no silent caps). Full
+   run only if latency permits.
+6. **QFIRE chain:** **injection `default` + a generic positive-security scope rule**
+   ("stay on the user's task; no out-of-scope tool actions") — exercises QFIRE's actual
+   differentiator on agents. The benign over-block this may cause is measured and reported
+   (not hidden), consistent with the §3.3 over-refusal discipline.
 
 ## Feasibility & risks (resolve in plan / review)
 - **Integration effort (medium-high):** AgentDojo/InjecAgent expect an OpenAI-style
@@ -94,9 +105,9 @@ or ASR reduction is weaker than on the healthcare harness.
   budget an overnight run and/or a task subset (report `n`, no silent caps).
 - **Benchmark version pinning:** snapshot AgentDojo/InjecAgent commit hashes for repro.
 
-## Open questions for the design review
-1. Agent model: smoke-pick `gpt-oss:20b` vs `qwen3-coder:30b` vs `gemma3:27b` by benign
-   utility, or fix one for comparability with E4 (`llama3.1:8B`)?
-2. Full benchmark vs stratified subset given multi-step latency on local Ollama.
-3. Which QFIRE chain for general-domain tasks: injection `default` only, or add a generic
-   scope rule (no PHI panel)?
+## Open questions — RESOLVED (2026-06-02)
+1. Agent model → smoke-pick the strongest local model (decision 4).
+2. Coverage → stratified subset with `n` + CIs (decision 5).
+3. QFIRE chain → injection `default` + generic scope rule, over-block measured
+   (decision 6).
+Spec is ready for an implementation plan when picked up.

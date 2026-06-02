@@ -66,6 +66,17 @@ column).
 1. Full design spec now (this doc); implementation plan when picked up.
 2. Adaptive attacks remain **local-LLM-generated** (seed 42, generator reported), a lower
    bound on a human red-teamer — consistent with E1's framing.
+3. **Stage-3 iteration budget:** **fixed N = 10 mutations/attack** (matches the E1
+   paraphrase loop; predictable Ollama cost). Report the cap; an attack unevaded at N=10
+   counts as blocked.
+4. **Stage-2 generator:** the **strongest available local model** (e.g. gpt-oss:20b /
+   gemma3:27b), not E1's `gemma2:9B`. This makes the defense-aware rewrites a *harder,
+   more honest* test; note explicitly that E8 is therefore a **strictly stronger** probe
+   than E1 and is **not generator-matched** to it (so E8 numbers are a tougher bar, not a
+   like-for-like delta vs E1).
+5. **Granularity:** report Stage-3 against the **full** `hipaa_phi`/`default` chain **and
+   per-component** (scope-judge-only, PHI-only) to show which component the adaptive
+   pressure targets/breaks.
 
 ## Feasibility & risks
 - **Medium**, reuses E1 infra. The Stage-3 loop queries QFIRE per mutation → Ollama-bound
@@ -77,9 +88,9 @@ column).
   injection) and spot-check a sample for intent retention.
 - **Iteration budget:** cap Stage-3 iterations (report the cap; no silent truncation).
 
-## Open questions for the design review
-1. Stage-3 iteration budget per attack (E1 paraphrase used a small budget; the full chain
-   is slower) — fixed N vs time-boxed.
-2. Stage-2 generator model (`gemma2:9B` for continuity, or a stronger local model).
-3. Report Stage 3 against the full `hipaa_phi`/`default` chain only, or also per-component
-   (scope-judge-only, PHI-only) to show which component the adaptive attack targets.
+## Open questions — RESOLVED (2026-06-02)
+1. Stage-3 budget → fixed N=10 mutations/attack (decision 3).
+2. Stage-2 generator → strongest local model; E8 is a strictly harder, non-generator-matched
+   probe vs E1 (decision 4).
+3. Granularity → full chain + per-component (decision 5).
+Spec is ready for an implementation plan when picked up.

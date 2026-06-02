@@ -73,6 +73,15 @@ central thesis from the cheap end; QFIRE buys the scope/PHI coverage at a bounde
 1. Full design spec now; plan when picked up.
 2. Fast tier anchored on hlyn-labs DeBERTa-70M; PromptGuard-2 22M added; Sentinel-v2 /
    Vijil Dome optional (only if non-gated/accessible).
+3. **DeBERTa-70M execution:** run the **published INT8-ONNX artifact directly** via
+   onnxruntime (the ~101 ms number; mirrors QFIRE's own ONNX path — most faithful). Build
+   `run_onnx_model` + verify the injection-class index via `id2label` (no `prob[-1]`
+   assumption).
+4. **Model set:** the **two confirmed** (DeBERTa-70M + PromptGuard-2 22M) for sure;
+   add Sentinel-v2 (0.6B) / Vijil Dome **only if** non-gated and they load cleanly — **no
+   fabricated rows** for inaccessible models (drop with a logged note).
+5. **Frontier figure:** **two panels** — public injection **and** QFIRE-HealthBench — to
+   show the cheap classifiers' coverage gap reopen on healthcare while QFIRE holds.
 
 ## Feasibility & risks
 - **Easy–medium.** The wrinkle is the **ONNX/INT8 path** (the model isn't a plain
@@ -84,10 +93,8 @@ central thesis from the cheap end; QFIRE buys the scope/PHI coverage at a bounde
 - **Latency comparability:** report all latencies on the same machine (the M2 Max in the
   reproducibility note); CPU threads pinned as in `baselines.py`.
 
-## Open questions for the design review
-1. Use hlyn-labs' INT8-ONNX graph directly (most faithful), or a PyTorch reload if
-   available (simpler, but not the published 101 ms artifact)?
-2. Include the optional Sentinel-v2 (0.6B) / Vijil Dome, or keep the tier to the two
-   confirmed fast models?
-3. Frontier figure on public injection only, or a second panel on HealthBench (to show
-   the gap reopen at the cheap end)?
+## Open questions — RESOLVED (2026-06-02)
+1. DeBERTa-70M → published INT8-ONNX via onnxruntime, id2label-verified (decision 3).
+2. Model set → two confirmed + accessible extras only, no fabricated rows (decision 4).
+3. Frontier → two panels (public injection + HealthBench) (decision 5).
+Spec is ready for an implementation plan when picked up.
