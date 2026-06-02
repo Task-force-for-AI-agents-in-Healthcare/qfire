@@ -583,10 +583,36 @@ loop evades DeBERTa on **89%** of attacks (median **1** rewrite), yet QFIRE bloc
 **100%** of those classifier-evading variants. It's structural, not a stronger model: an
 out-of-scope/PHI-exfiltration goal is out of scope however it's phrased or encoded, so
 the scope judge (90.8–98.9% alone) catches goal-drift and the identifier-matching PHI
-panel is phrasing-invariant; their fail-closed composition is uniformly 100%.
+panel is phrasing-invariant; their fail-closed composition is uniformly 100%. The same
+holds for a **complete framework**: NVIDIA NeMo Guardrails' full input-rail stack (§3.13),
+which matches QFIRE on *static* HealthBench, falls to **30–55%** recall here — folding
+alongside the single classifiers it is built from.
 (Caveats: gemma2-generated attacks are a lower bound; the paraphrase loop is a
 black-box attack on DeBERTa; the judge inherits its backing model's calibration.)
 Full results: `docs/superpowers/specs/2026-06-01-adaptive-attacks-results.md`.
+
+### 3.13 Full-stack framework baseline: NeMo Guardrails
+
+The other baselines are single detectors or a bare judge; this one is a complete
+*guardrails framework*. We add NVIDIA **NeMo Guardrails** — the first baseline covering
+all three QFIRE pillars at once: a jailbreak-detection rail (injection), an LLM scope
+self-check rail (positive-security scope), and a Presidio sensitive-data rail (PHI). We run
+its full input-rail stack fail-closed (any rail blocks → block) on the same corpora, backed
+by the same local `llama3.1:8B` as the bare-judge baseline so the comparison isolates the
+*framework*, not the model. Main-corpus numbers are a stratified 400/400 sample (latency).
+
+**Finding.** *A full framework helps on static healthcare but loses on latency, generic
+injection, and — decisively — adaptive robustness.* On QFIRE-HealthBench NeMo reaches **F1
+0.90** (recall 0.88, FPR 0.075), edging QFIRE's `bench_combined` (F1 0.87) and far above
+the single classifiers (0.57–0.78): its LLM scope self-check + Presidio PII catch the
+scope/PHI threats a generic classifier structurally misses. But the win is narrow: on
+public injection NeMo trails (F1 **0.74** vs QFIRE 0.86) and over-blocks (FPR 0.12); it is
+~10× slower (p95 **2.7 s** vs QFIRE's 0.24 s — several LLM-backed rails per prompt); its
+scope rail is an opaque LLM call, not inspectable YAML; and under adaptive attack (§3.10)
+it **collapses to 30–55%** recall. Closing the healthcare gap is necessary but not
+sufficient — doing so with bounded latency, auditable policy, and adaptive robustness is
+what QFIRE adds. Full results:
+`docs/superpowers/specs/2026-06-01-e6-nemo-guardrails-results.md`.
 
 ### 3.11 External validity: transfer, scale, and threshold stability
 

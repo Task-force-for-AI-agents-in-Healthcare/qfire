@@ -12,6 +12,9 @@ System & Prec. & Rec. & F1 & FPR \\
 \multicolumn{5}{l}{\emph{Bare LLM judge (no scaffold, generic block/allow prompt)}} \\
 \quad llama3.1:8B judge               & 0.989 & 0.824 & 0.899 & 0.009 \\
 \midrule
+\multicolumn{5}{l}{\emph{Full-stack guardrail framework (jailbreak + scope + Presidio PII)}} \\
+\quad NeMo Guardrails (llama3.1:8B)$^\dagger$ & 0.922 & 0.882 & 0.902 & 0.075 \\
+\midrule
 \multicolumn{5}{l}{\emph{QFIRE chains}} \\
 \quad \texttt{bench\_phi} (PHI only)              & 0.755 & 0.250 & 0.376 & 0.081 \\
 \quad \texttt{bench\_deberta} (injection only)    & 1.000 & 0.595 & 0.746 & 0.000 \\

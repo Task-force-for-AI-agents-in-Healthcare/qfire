@@ -134,7 +134,7 @@ corpus; reuse existing metrics/calibration code.
 ---
 
 ## E6 — NeMo Guardrails full-stack baseline (+ Phase 2: rails as QFIRE policies, deferred)
-**Status:** [~] scoped — design: [2026-06-01-e6-nemo-guardrails-baseline-design.md](2026-06-01-e6-nemo-guardrails-baseline-design.md). Not yet built.
+**Status:** [x] done (Phase 1) — design: [2026-06-01-e6-nemo-guardrails-baseline-design.md](2026-06-01-e6-nemo-guardrails-baseline-design.md); results: [2026-06-01-e6-nemo-guardrails-results.md](2026-06-01-e6-nemo-guardrails-results.md); paper §Full-stack framework baseline (`sec:nemo`) + NeMo rows in head-to-head/HealthBench tables + adaptive-panel bar. Headline: NeMo full-stack edges QFIRE on **static** HealthBench (F1 0.90 vs 0.87) but loses on generic injection (F1 0.74 vs 0.86), latency (p95 2.7s vs 0.24s, ~10×), and **collapses to 30–55% recall under adaptive attack** (QFIRE 100%) — reinforces the thesis. Phase 2 (rails→QFIRE policies) still deferred.
 **Reviewer concern it closes:** "You compared to injection classifiers and a bare judge
 but never to a complete guardrails **framework**." NVIDIA **NeMo Guardrails** is the
 leading open framework and the first baseline covering all three QFIRE pillars at once:
