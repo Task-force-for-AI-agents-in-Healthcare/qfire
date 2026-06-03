@@ -23,9 +23,11 @@ OUT = os.path.join(BASE, "paper/figs/roc_pr.png")
 CURVES = [
     ("bench_hybrid",  "QFIRE hybrid",   fs.QFIRE,    3.2, 6),
     ("bench_deberta", "DeBERTa-v3",     fs.ACCENT_DK, 2.4, 5),
-    ("bench_aho",     "Aho-Corasick",   fs.GOOD,      2.0, 3),   # green
-    ("bench_regex",   "Regex denylist", "#8E5AC8",    2.0, 2),   # purple
-    ("bench_entropy", "Entropy",        "#3E4A5A",    2.0, 2),   # dark slate
+    # lexical filters: neutral greys/black so they recede behind the coloured
+    # learned detectors (QFIRE blue, DeBERTa amber) but stay distinguishable.
+    ("bench_aho",     "Aho-Corasick",   "#555555",    1.7, 3),   # dark gray
+    ("bench_regex",   "Regex denylist", "#AEAEAE",    1.7, 2),   # light gray
+    ("bench_entropy", "Entropy",        "#111111",    1.7, 2),   # black
 ]
 
 
