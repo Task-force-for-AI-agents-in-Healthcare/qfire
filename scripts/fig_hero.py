@@ -98,7 +98,7 @@ def main():
     ]
     for cx, head, prompt, _ in cards:
         fig.text(cx, 0.205, head, fontsize=12.5, fontweight="bold",
-                 color=fs.QFIRE_DARK, ha="center", va="top")
+                 color="black", ha="center", va="top")
         fig.text(cx, 0.150, prompt, fontsize=11, style="italic", color=fs.INK,
                  ha="center", va="top", linespacing=1.3)
 
