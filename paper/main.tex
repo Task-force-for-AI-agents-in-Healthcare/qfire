@@ -143,7 +143,12 @@ out-of-scope advice---carry no injection signal, whereas QFIRE's combined
 scope+PHI chain reaches $0.83$ recall (F1~$0.87$) at a calibrated $0.08$
 false-positive rate. Generic prompt-injection detection, even SOTA, is therefore
 necessary but not sufficient for healthcare LLM agents; positive-security scope
-and PHI controls close a gap a classifier structurally cannot. End-to-end, placing
+and PHI controls close a gap a classifier structurally cannot.
+A bare LLM judge also closes most of this static-corpus gap (F1~$0.90$);
+QFIRE's distinctive contribution beyond static accuracy is auditable
+determinism, bounded latency, and adaptive robustness, where the bare judge
+falls to $34$--$59\%$ recall (\S\ref{sec:adaptive}).
+End-to-end, placing
 QFIRE in front of a tool-using agent over a mock-EHR sandbox cuts the agent's
 harmful-action rate from $0.38$ to $0.00$ at a $0.13$ benign-utility cost. We report
 precision/recall/F1 with 95\% Wilson confidence intervals, ROC--AUC, and
