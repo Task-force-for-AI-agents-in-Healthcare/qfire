@@ -69,14 +69,15 @@ def main():
         ax.grid(axis="y", alpha=0.7); ax.grid(axis="x", visible=False)
     axes[0].set_ylabel("Recall (attacks caught)", fontsize=13.5)
 
-    # right panel: collapse arrow (aimed at the bar's left shoulder so it clears
-    # the centred "0.40" label) + white "QFIRE holds" inside the blue bar
+    # right panel: vertical pure-red collapse arrow (ends just above the centred
+    # "0.40" label so it clears it) + white "QFIRE holds" inside the blue bar
     axR = axes[1]
+    RED = "#C00000"
     drop_from, drop_to = pub["PromptGuard-2"], hea["PromptGuard-2"]
-    axR.annotate("", xy=(-0.24, drop_to + 0.05), xytext=(0.36, 0.72),
-                 arrowprops=dict(arrowstyle="-|>", color=fs.BAD, lw=2.6))
-    axR.text(0.36, 0.74, f"SOTA collapses\n{drop_from:.2f} → {drop_to:.2f}",
-             color=fs.BAD, fontsize=12.5, fontweight="bold", ha="left", va="bottom")
+    axR.annotate("", xy=(0, drop_to + 0.09), xytext=(0, 0.91),
+                 arrowprops=dict(arrowstyle="-|>", color=RED, lw=2.8))
+    axR.text(0.13, 0.71, f"SOTA collapses\n{drop_from:.2f} → {drop_to:.2f}",
+             color=RED, fontsize=12.5, fontweight="bold", ha="left", va="center")
     axR.text(2, hea["QFIRE"] - 0.20, "QFIRE\nholds", color="white",
              fontsize=12.5, fontweight="bold", ha="center", va="center")
 

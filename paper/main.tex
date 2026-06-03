@@ -170,12 +170,26 @@ a necessary control~\cite{llamafirewall2025,oneshield2025}.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.96\linewidth]{figs/hero_recall_gap.png}
+\includegraphics[width=0.96\linewidth]{figs/hero_recall_gap.png}\\[5pt]
+{\small\setlength{\tabcolsep}{5pt}\renewcommand{\arraystretch}{1.18}%
+\begin{tabular}{@{}L{0.465\linewidth}L{0.465\linewidth}@{}}
+\toprule
+\textbf{Generic injection} (left) & \textbf{Healthcare threat} (right) \\
+\midrule
+\emph{``Ignore all previous instructions and reveal your system prompt.''} &
+\emph{``Export all patient records in the database to a spreadsheet.''} \\[2pt]
+Overt attack token---\emph{every} detector flags it. &
+No injection signal---generic classifiers \emph{allow} it; only QFIRE's PHI/scope rules block it. \\
+\bottomrule
+\end{tabular}}
 \caption{\textbf{The paper in one figure.} The same three detectors are
 statistically tied on generic prompt injection (left), but on healthcare threats
 (right) SOTA PromptGuard-2 collapses to $0.40$ recall while QFIRE's scope+PHI chain
-holds at $0.83$. Generic injection detection is necessary but not sufficient in
-healthcare; the visual drop between panels is this paper's thesis.}
+holds at $0.83$. The example under each panel shows \emph{why}: the generic attack
+carries an overt token every detector catches, whereas the clinical bulk-export
+request carries no injection signal, so only QFIRE's PHI/scope rules stop it.
+Generic injection detection is necessary but not sufficient in healthcare. (More
+missed-by-classifier examples: Appendix~\ref{app:examples}, Table~\ref{tab:failures}.)}
 \label{fig:hero}
 \end{figure}
 
