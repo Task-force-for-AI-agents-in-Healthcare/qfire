@@ -122,13 +122,14 @@
 Beyond Injection Detection: A Positive-Security Prompt Firewall that
 Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare%
 \thanks{Affiliations: James Schwoebel (Quome Inc.); Ingrida Semenec, PhD
-(Quome Inc.); Martin G. Frasch, MD, PhD (University of Washington); Rome
-Thorstenson (Rafter Inc.); Manish Bhatt (Independent). All authors are members
-of the \emph{Task Force for AI Agents in Healthcare}.}}
+(Quome Inc.); Jenia Rousseva, PhD (Quome Inc.); Martin G. Frasch, MD, PhD
+(University of Washington); Rome Thorstenson (Rafter Inc.); Manish Bhatt
+(Independent). All authors are members of the \emph{Task Force for AI Agents in
+Healthcare}.}}
 
 \author{\normalsize James Schwoebel \quad Ingrida Semenec, PhD \quad
-Martin G. Frasch, MD, PhD \\[3pt]
-Rome Thorstenson \quad Manish Bhatt}
+Jenia Rousseva, PhD \\[3pt]
+Martin G. Frasch, MD, PhD \quad Rome Thorstenson \quad Manish Bhatt}
 \date{\today\\[6pt]{\normalsize Code \& data:\ \href{https://github.com/Task-force-for-AI-agents-in-Healthcare/qfire}{\texttt{github.com/Task-force-for-AI-agents-in-Healthcare/qfire}}}}
 
 \begin{document}
@@ -1131,19 +1132,18 @@ each attack and re-queries QFIRE's actual chain (up to $10$ tries) until it ALLO
 $0.80\rightarrow0.83$ (healthcare) and $0.67\rightarrow0.60$ (injection), i.e.\ scope-fitting
 rewrites do not help the attacker. But Stage~3 \emph{does}: the adaptive loop drops recall
 to $0.37$ (healthcare) and $0.13$ (injection) at a median of \emph{two} iterations.
-\textbf{We report this candidly as a limitation.} Two things temper and explain it.
+\textbf{We report this candidly as a limitation.} Two things temper it.
 \emph{First}, a component decomposition is revealing: the scope judge \emph{alone} blocks
 $\approx\!1.0$ of the Stage-2 attacks---far more than the calibrated blend---so it is the
-calibration that lowers the scope judge's weight to reach $0.08$ FPR that is being evaded,
-not the scope mechanism itself; a deployment expecting adaptive adversaries should weight
+calibration lowering its weight to $0.08$ FPR that is evaded, not the mechanism itself; a deployment expecting adaptive adversaries should weight
 the scope judge harder (trading FPR for robustness), and the strict \texttt{hipaa\_phi}
 chain (\S\ref{sec:adaptive}, above) indeed holds where the calibrated one bends.
 \emph{Second}, this is a black-box paraphrase loop: some ``evasions'' are likely
 intent \emph{drift} (the paraphrase weakening the attack into something QFIRE rightly
 allows) rather than true bypasses---we did not adjudicate each final paraphrase, so the
-evasion rate is an upper bound. The honest takeaway: a sustained, firewall-in-the-loop
-adaptive attacker is a real residual threat to the \emph{calibrated} operating point, and
-robustness there is a tunable trade against over-refusal rather than a solved property.
+evasion rate is an upper bound. The takeaway: a sustained firewall-in-the-loop
+adaptive attacker is a real residual threat to the \emph{calibrated} operating point, where
+robustness is a tunable trade against over-refusal, not a solved property.
 
 \begin{figure}[H]
 \centering
@@ -1308,9 +1308,9 @@ the core shared rules and the headline detection chains of \S\ref{sec:healthcare
 are unchanged. (iv)~The scope judge is a local model and is mildly stochastic on
 borderline benign cases, which the Wilson intervals absorb.
 
-\begin{figure}[H]
+\begin{figure}[p]
 \centering
-\includegraphics[width=0.82\linewidth]{figs/agent_benchmarks.png}
+\includegraphics[width=0.93\linewidth]{figs/agent_benchmarks.png}
 \caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
 \texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
 shows the indirect prompt-injection threat: an attacker plants instructions in
