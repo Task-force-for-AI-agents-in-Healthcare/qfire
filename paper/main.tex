@@ -161,15 +161,14 @@ design.
   \item \textbf{De-obfuscation normalization} that exposes hidden payloads
   (Base64/hex/ROT13, homoglyphs, leetspeak, zero-width) before detection, and a
   complete \textbf{HIPAA Safe-Harbor PHI} panel covering all 18 identifiers.
-  \item {\sloppy \textbf{QFIRE-HealthBench, a released benchmark.} A new healthcare
-  dataset of $2{,}000$ prompts---$1{,}000$ benign clinical-adjacent and $1{,}000$
-  malicious (PHI exfiltration, cross-patient access, re-identification, bulk export,
-  and out-of-scope clinical advice) built with real garak and Microsoft PyRIT
-  payloads---released with the repository as the corpus behind our central result,
-  capturing clinical threats that carry no generic injection signal.\par}
-  \item \textbf{A reproducible benchmark} comparing QFIRE head-to-head with open
-  detectors on public corpora, with Wilson confidence intervals and latency
-  percentiles, regenerated end-to-end by \texttt{make paper}.
+  \item {\sloppy \textbf{QFIRE-HealthBench and a reproducible benchmark.} We build
+  and release a new healthcare dataset of $2{,}000$ prompts---$1{,}000$ benign
+  clinical-adjacent and $1{,}000$ malicious (PHI exfiltration, cross-patient access,
+  re-identification, bulk export, and out-of-scope clinical advice) built with real
+  garak and Microsoft PyRIT payloads---the corpus behind our central result, and
+  evaluate QFIRE head-to-head with open detectors on it and on public corpora with
+  Wilson confidence intervals and latency percentiles, regenerated end-to-end by
+  \texttt{make paper}.\par}
 \end{enumerate}
 
 \paragraph{Positioning in the field.} A growing body of work argues that input
