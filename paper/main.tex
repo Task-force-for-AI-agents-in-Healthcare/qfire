@@ -258,8 +258,9 @@ Table~\ref{tab:related} situates QFIRE against representative recent systems.
 
 \begin{table*}[p]
 \centering\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{L{2.7cm}L{3.1cm}L{3.1cm}L{3.2cm}L{2.7cm}}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.95}
+\begin{tabular}{L{2.7cm}L{3.1cm}L{3.0cm}L{3.15cm}L{2.75cm}}
 \toprule
 Framework & Core design & Threat focus & Primary advantage & Operational limitation \\
 \midrule
@@ -462,15 +463,19 @@ is the latency lever, not fan-out.}
 \label{fig:throughput}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=0.60\linewidth,keepaspectratio]{figs/architecture.png}
-\caption{QFIRE system architecture. Wire-compatible adapters accept native
-OpenAI/Anthropic/Gemini/Ollama traffic; requests are normalized, routed to a chain,
-and evaluated by an asynchronous detector graph (rule pipelines run concurrently)
-with a verdict cache. On \textsc{allow} the original request is forwarded and the
-response streamed back; on \textsc{block} a refusal envelope with an explainable
-trace is returned. Every decision is appended to an immutable audit log.}
+\includegraphics[width=\linewidth]{figs/architecture_hero.png}
+\caption{QFIRE at a glance. \emph{Left:} the request path---a client SDK reaches
+QFIRE by swapping only its base URL; the proxy normalizes and de-obfuscates the
+prompt, runs an asynchronous detector graph (regex/Aho-Corasick, entropy, a local
+DeBERTa ONNX classifier, an LLM scope-judge, an 18-identifier HIPAA PHI panel, and
+exemplar similarity) cheap-before-expensive, and collapses the per-rule verdicts
+into one terminal decision. On \textsc{allow} the original request is forwarded to
+the provider; on \textsc{block} it returns a refusal envelope and never contacts the
+provider, and every decision is appended to an immutable audit log. \emph{Right:}
+the headline value---tied with SOTA on generic injection (F1~$0.86$) yet holding
+$0.83$ recall on healthcare, where the same classifiers collapse to $0.40$.}
 \label{fig:arch}
 \end{figure}
 

@@ -1,0 +1,314 @@
+<!--
+  Figure 4 source. Render to paper/figs/architecture_hero.png with headless Chrome:
+
+  CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
+    --force-device-scale-factor=2 --window-size=1640,752 \
+    --virtual-time-budget=9000 --default-background-color=00000000 \
+    --screenshot=paper/figs/architecture_hero.png \
+    "file://$PWD/paper/diagrams/architecture.html"
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --paper:#FAF7F0; --paper2:#F2ECE0;
+  --ink:#19222F; --ink2:#46556E;
+  --muted:#8C97A8;
+  --blue:#1E6FBF; --blue-d:#12508F; --blue-l:#E7F0FA;
+  --amber:#EE9B33; --amber-d:#C8771A; --amber-l:#FCEFDC;
+  --allow:#1E8A5B; --allow-l:#E2F2EA;
+  --block:#C53D2E; --block-l:#F8E4E0;
+  --line:#E0D8C8; --line2:#CFC6B4;
+  --card:#FFFFFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{margin:0;padding:0}
+body{
+  width:1640px;height:752px;overflow:hidden;
+  font-family:'IBM Plex Sans',sans-serif;color:var(--ink);
+  background:
+    radial-gradient(1100px 620px at 78% -8%, rgba(238,155,51,.10), transparent 60%),
+    radial-gradient(1200px 720px at 6% 110%, rgba(30,111,191,.10), transparent 60%),
+    var(--paper);
+  position:relative;
+}
+/* faint blueprint grid */
+body::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(30,111,191,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,111,191,.045) 1px, transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(1500px 1000px at 50% 40%, #000 60%, transparent 100%);
+          mask-image:radial-gradient(1500px 1000px at 50% 40%, #000 60%, transparent 100%);
+}
+.wrap{position:relative;padding:46px 54px 40px;height:100%;display:flex;flex-direction:column}
+
+/* ---------- header ---------- */
+.head{display:flex;align-items:flex-end;justify-content:space-between;
+  border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:20px}
+.brand img{width:62px;height:62px;display:block}
+.brand .wm{font-family:'Fraunces',serif;font-weight:900;font-size:62px;line-height:.82;letter-spacing:-1.5px}
+.brand .sub{font-family:'IBM Plex Mono',monospace;font-size:14.5px;letter-spacing:.06em;
+  color:var(--ink2);text-transform:uppercase;margin-top:7px}
+.kicker{text-align:right}
+.kicker .t{font-family:'Fraunces',serif;font-weight:600;font-size:22px;font-style:italic;color:var(--blue-d);max-width:430px;line-height:1.18}
+.kicker .b{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.05em;color:var(--muted);margin-top:8px}
+
+/* ---------- body grid ---------- */
+.body{flex:1;display:grid;grid-template-columns:1.62fr .92fr;gap:38px;min-height:0}
+
+/* section eyebrow */
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--amber-d);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.eyebrow::before{content:"";width:22px;height:2px;background:var(--amber);display:inline-block}
+
+/* ---------- FLOW (left) ---------- */
+.flow{display:flex;flex-direction:column;min-height:0}
+.lane{display:grid;grid-template-columns:188px 1fr;gap:22px;align-items:stretch;flex:1}
+.client{display:flex;flex-direction:column;justify-content:center;gap:14px}
+.node{background:var(--card);border:1.5px solid var(--line2);border-radius:14px;
+  box-shadow:0 10px 26px -18px rgba(25,34,47,.55);padding:16px 16px}
+.node .ico{color:var(--blue)}
+.client .node{padding:20px 16px;text-align:center}
+.client .node .lbl{font-weight:700;font-size:16px;margin-top:10px}
+.client .node .mut{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink2);margin-top:5px;line-height:1.35}
+.swap{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber-d);text-align:center;
+  letter-spacing:.04em;margin-top:2px}
+
+/* engine card */
+.engine{position:relative;border:2px solid var(--blue);border-radius:20px;background:
+  linear-gradient(180deg,#FFFFFF, #F7FAFE);box-shadow:0 24px 60px -34px rgba(18,80,143,.65);
+  padding:18px 22px 20px;display:flex;flex-direction:column}
+.engine .ehead{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1.5px dashed #C7DAF0}
+.engine .ehead .shield{color:var(--blue)}
+.engine .ehead .et{font-family:'Fraunces',serif;font-weight:700;font-size:23px}
+.engine .ehead .es{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink2);margin-left:auto;letter-spacing:.03em}
+.stage{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:14px 0 9px}
+
+/* detector grid */
+.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.det{display:flex;align-items:center;gap:10px;background:#fff;border:1.4px solid var(--line2);
+  border-radius:11px;padding:9px 11px}
+.det.acc{border-color:#F2C98A;background:linear-gradient(180deg,#fff,var(--amber-l))}
+.det .di{width:26px;height:26px;flex:0 0 26px;display:grid;place-items:center;border-radius:7px;
+  background:var(--blue-l);color:var(--blue-d)}
+.det.acc .di{background:#F8DEB4;color:var(--amber-d)}
+.det .dn{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;line-height:1}
+.det .dk{font-size:10.5px;color:var(--ink2);margin-top:3px}
+.concurrent{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  color:var(--blue-d);margin-top:10px;justify-content:center;letter-spacing:.03em}
+.concurrent .dot{width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(30,111,191,.14)}
+
+.collapse{margin-top:13px;display:flex;align-items:center;gap:12px;background:#0F1F33;color:#EaF1FA;
+  border-radius:12px;padding:12px 16px}
+.collapse .ci{color:var(--amber)}
+.collapse .ct b{font-family:'Fraunces',serif;font-weight:600;font-size:16px}
+.collapse .ct span{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9FB4CC;margin-top:3px;letter-spacing:.03em}
+
+/* decision fork */
+.fork{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}
+.verdict{border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.verdict.allow{background:var(--allow-l);border:1.5px solid #A9D9C1}
+.verdict.block{background:var(--block-l);border:1.5px solid #ECBDB4}
+.vh{display:flex;align-items:center;gap:9px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;letter-spacing:.05em}
+.verdict.allow .vh{color:var(--allow)}
+.verdict.block .vh{color:var(--block)}
+.vh .badge{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff}
+.verdict.allow .badge{background:var(--allow)} .verdict.block .badge{background:var(--block)}
+.vbody{font-size:11.5px;color:var(--ink2);line-height:1.4}
+.providers{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:#fff;border:1.3px solid #B8D6BC;
+  color:#206b46;border-radius:7px;padding:3px 8px;font-weight:500}
+.refusal{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:#fff;border:1.3px solid #E3B3AA;
+  color:var(--block);border-radius:7px;padding:5px 9px;display:inline-block}
+
+.audit{display:flex;align-items:center;gap:11px;margin-top:13px;padding:11px 15px;border-radius:11px;
+  background:repeating-linear-gradient(90deg,#FBF6EC,#FBF6EC 9px,#F4ECDC 9px,#F4ECDC 18px);
+  border:1.4px solid var(--line2)}
+.audit .ai{color:var(--amber-d)}
+.audit .at{font-size:12.5px;color:var(--ink2)} .audit .at b{color:var(--ink);font-weight:700}
+
+/* connectors */
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+
+/* ---------- VALUE (right) ---------- */
+.value{display:flex;flex-direction:column;min-height:0}
+.panel{background:var(--card);border:1.5px solid var(--line2);border-radius:18px;
+  box-shadow:0 18px 44px -30px rgba(25,34,47,.5);padding:20px 22px;display:flex;flex-direction:column}
+.panel + .panel{margin-top:18px}
+.vtitle{font-family:'Fraunces',serif;font-weight:700;font-size:21px;line-height:1.12;margin-bottom:3px}
+.vsub{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink2);margin-bottom:16px;letter-spacing:.02em}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:13px}
+.bar{display:grid;grid-template-columns:118px 1fr 46px;align-items:center;gap:12px}
+.bar .bl{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink);font-weight:500;text-align:right}
+.bar .track{height:22px;background:var(--paper2);border-radius:7px;overflow:hidden;position:relative}
+.bar .fill{height:100%;border-radius:7px}
+.bar .bv{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px}
+.bar.qf .bl{color:var(--blue-d);font-weight:700}
+.fill.g{background:linear-gradient(90deg,#C3CCD8,#AEB9C8)}
+.fill.q{background:linear-gradient(90deg,var(--blue),var(--amber))}
+.bv.g{color:var(--ink2)} .bv.q{color:var(--blue-d)}
+.collapsetag{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;margin-top:15px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--block);background:var(--block-l);
+  border:1.2px solid #ECBDB4;border-radius:20px;padding:4px 11px}
+
+/* value stat rows */
+.stats{display:flex;flex-direction:column;gap:13px}
+.stat{display:flex;align-items:flex-start;gap:13px}
+.stat .si{width:34px;height:34px;flex:0 0 34px;border-radius:9px;display:grid;place-items:center;
+  background:var(--blue-l);color:var(--blue-d)}
+.stat:nth-child(2) .si{background:var(--amber-l);color:var(--amber-d)}
+.stat:nth-child(4) .si{background:var(--allow-l);color:var(--allow)}
+.stat .st b{font-family:'Fraunces',serif;font-weight:700;font-size:16.5px}
+.stat .st b .num{color:var(--blue-d)}
+.stat .st span{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px;line-height:1.35}
+
+.foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:14px;
+  border-top:1.5px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+.foot b{color:var(--ink2);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="head">
+    <div class="brand">
+      <img src="taskforce_logo.png" alt="">
+      <div>
+        <div class="wm">QFIRE</div>
+        <div class="sub">a prompt firewall for LLM applications</div>
+      </div>
+    </div>
+    <div class="kicker">
+      <div class="t">Generic injection detection is necessary&nbsp;— but not sufficient&nbsp;— in healthcare.</div>
+      <div class="b">inline · provider-agnostic · single Rust binary</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- LEFT: ARCHITECTURE FLOW -->
+    <div class="flow">
+      <div class="eyebrow">How a prompt is evaluated</div>
+      <div class="lane">
+
+        <!-- client -->
+        <div class="client">
+          <div class="node">
+            <div class="ico" style="display:flex;justify-content:center">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18"/><circle cx="6" cy="6" r=".5"/><circle cx="8" cy="6" r=".5"/><path d="M9 21h6M12 18v3"/></svg>
+            </div>
+            <div class="lbl">Client app / SDK</div>
+            <div class="mut">OpenAI · Anthropic<br>Gemini · Ollama</div>
+          </div>
+          <div class="swap">▼ base-URL swap only</div>
+          <div class="arrow" style="transform:rotate(90deg)">
+            <svg width="40" height="20" viewBox="0 0 40 20" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10h32"/><path d="M28 4l8 6-8 6"/></svg>
+          </div>
+          <div class="swap" style="color:var(--ink2)">prompt + system context</div>
+        </div>
+
+        <!-- engine -->
+        <div class="engine">
+          <div class="ehead">
+            <span class="shield"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5z"/><path d="M9 12l2 2 4-4" stroke-width="1.8"/></svg></span>
+            <span class="et">QFIRE proxy</span>
+            <span class="es">axum · Tokio · embedded ONNX</span>
+          </div>
+
+          <div class="stage">1 · normalize &amp; de-obfuscate</div>
+          <div class="det" style="border-color:#C7DAF0;background:#F4F9FE">
+            <span class="di"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 011-1h14a1 1 0 011 1v2"/><path d="M9 20h6M12 4v16"/><path d="M7 11l-2 2 2 2M17 11l2 2-2 2"/></svg></span>
+            <div><span class="dn">decode Base64 · ROT13 · homoglyphs · zero-width</span></div>
+          </div>
+
+          <div class="stage">2 · asynchronous detector graph &nbsp;— rules run concurrently</div>
+          <div class="grid6">
+            <div class="det"><span class="di"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/></svg></span><div><div class="dn">regex / aho</div><div class="dk">sub-ms denylists</div></div></div>
+            <div class="det"><span class="di"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-7 4 14 2.5-9 1.5 4H21"/></svg></span><div><div class="dn">entropy</div><div class="dk">obfuscation</div></div></div>
+            <div class="det acc"><span class="di"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="7" r="1.8"/><circle cx="19" cy="17" r="1.8"/><path stroke-linecap="round" d="M6.6 6.7l3.8 4M6.6 17.3l3.8-4M13.6 11.2L17.4 7.6M13.6 12.8l3.8 4"/></svg></span><div><div class="dn">deberta</div><div class="dk">ONNX classifier</div></div></div>
+            <div class="det acc"><span class="di"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5 7l3 7H2zM19 7l3 7h-6zM5 7h14"/><path d="M8 14a4 4 0 008 0M9 21h6M12 6v15"/></svg></span><div><div class="dn">scope judge</div><div class="dk">LLM purpose</div></div></div>
+            <div class="det"><span class="di"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/><path d="M12 14v2.5"/></svg></span><div><div class="dn">PHI panel</div><div class="dk">18 HIPAA ids</div></div></div>
+            <div class="det"><span class="di"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg></span><div><div class="dn">similarity</div><div class="dk">exemplars</div></div></div>
+          </div>
+          <div class="concurrent"><span class="dot"></span> cheap-before-expensive · short-circuits on first block</div>
+
+          <div class="collapse">
+            <span class="ci"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h7M3 12h13M3 19h7"/><path d="M17 8l4 4-4 4"/></svg></span>
+            <div class="ct"><b>chain collapse → one terminal decision</b><span>ordered (iptables-style) · or boolean DAG · fail-closed</span></div>
+          </div>
+
+          <div class="fork">
+            <div class="verdict allow">
+              <div class="vh"><span class="badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>ALLOW</div>
+              <div class="vbody">forward the original request downstream</div>
+              <div class="providers"><span class="chip">/v1/chat</span><span class="chip">/v1/messages</span><span class="chip">:generateContent</span><span class="chip">/api/chat</span></div>
+            </div>
+            <div class="verdict block">
+              <div class="vh"><span class="badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>BLOCK</div>
+              <div class="vbody">provider is never contacted</div>
+              <span class="refusal">↩ refusal envelope + explainable trace</span>
+            </div>
+          </div>
+
+          <div class="audit">
+            <span class="ai"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M14 3v4h4M8 13h7M8 17h5M8 9h2"/></svg></span>
+            <div class="at"><b>Immutable audit log</b> — prompt hash · per-node verdicts · model · cost · latency</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: VALUE -->
+    <div class="value">
+      <div class="eyebrow">Why it matters</div>
+
+      <div class="panel">
+        <div class="vtitle">The same detectors, far apart on healthcare</div>
+        <div class="vsub">recall — share of attacks caught</div>
+        <div class="bars">
+          <div class="bar"><div class="bl">PromptGuard-2</div><div class="track"><div class="fill g" style="width:40%"></div></div><div class="bv g">0.40</div></div>
+          <div class="bar"><div class="bl">DeBERTa-v3</div><div class="track"><div class="fill g" style="width:57%"></div></div><div class="bv g">0.57</div></div>
+          <div class="bar qf"><div class="bl">QFIRE ★</div><div class="track"><div class="fill q" style="width:83%"></div></div><div class="bv q">0.83</div></div>
+        </div>
+        <span class="collapsetag">▼ SOTA collapses on clinical threats &nbsp;0.99 → 0.40</span>
+      </div>
+
+      <div class="panel" style="flex:1">
+        <div class="stats">
+          <div class="stat">
+            <span class="si"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>
+            <div class="st"><b>Tied with SOTA on generic injection&nbsp;<span class="num">F1 0.86</span></b><span>QFIRE&apos;s value is scope + PHI, not a stronger classifier</span></div>
+          </div>
+          <div class="stat">
+            <span class="si"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M12 8v4M12 16h.01"/></svg></span>
+            <div class="st"><b>Agent harmful actions <span class="num" style="color:var(--amber-d)">0.38 → 0.00</span></b><span>QFIRE inline over a tool-using mock-EHR agent</span></div>
+          </div>
+          <div class="stat">
+            <span class="si"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l-2 16M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg></span>
+            <div class="st"><b>Declarative, auditable YAML policy</b><span>diff-able &amp; unit-testable — no Python in the hot path</span></div>
+          </div>
+          <div class="stat">
+            <span class="si"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4-3 6.5-7 8-4-1.5-7-4-7-8V6z"/><path d="M9.5 12l1.7 1.7L15 10"/></svg></span>
+            <div class="st"><b>HIPAA Safe-Harbor PHI panel</b><span>18 identifiers · blocks the threats classifiers miss</span></div>
+          </div>
+        </div>
+        <div class="foot"><span>~100 versioned rules · healthcare panel</span><span><b>make&nbsp;paper</b> reproduces every table</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
