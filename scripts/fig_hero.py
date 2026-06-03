@@ -77,7 +77,7 @@ def main():
     drop_from, drop_to = pub["PromptGuard-2"], hea["PromptGuard-2"]
     axR.annotate("", xy=(0, drop_to + 0.09), xytext=(0, 0.90),
                  arrowprops=dict(arrowstyle="-|>", color=RED, lw=2.8))
-    axR.text(0.28, 1.05, f"SOTA collapses\n{drop_from:.2f} → {drop_to:.2f}",
+    axR.text(0.10, 1.05, f"SOTA collapses\n{drop_from:.2f} → {drop_to:.2f}",
              color=RED, fontsize=12.5, fontweight="bold", ha="center", va="top")
     axR.text(2, hea["QFIRE"] - 0.20, "QFIRE\nholds", color="white",
              fontsize=12.5, fontweight="bold", ha="center", va="center")
