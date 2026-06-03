@@ -620,9 +620,12 @@ On an obfuscated variant of the attack set (payloads re-encoded with
 Base64/\allowbreak ROT13/\allowbreak leetspeak/\allowbreak homoglyphs), the normalization pass recovers a large
 fraction of evaded detections, lifting recall substantially; the cost is reduced
 precision when the same aggressive decoding is applied to clean traffic (FPR rises
-to $0.27$ always-on). \emph{Triggered} de-obfuscation---expand only when the raw
-prompt shows an encoding signal---is the sweet spot, recovering most of the recall
-while keeping clean-traffic FPR near baseline. De-obfuscation is therefore a
+to $0.27$ always-on).
+
+\noindent\textbf{Finding.} \emph{Triggered de-obfuscation---expand only when the raw
+prompt shows an encoding signal---is the sweet spot: it recovers most of the evaded
+recall while keeping clean-traffic FPR near baseline, where always-on decoding does
+not.} De-obfuscation is therefore a
 \emph{targeted} control for channels where encoded payloads are a concern, not an
 always-on default---a trade-off we report rather than tune away. The trade-off
 across settings (for a mirror and an independent obfuscator) and the exact numbers
@@ -631,11 +634,12 @@ are in Appendix~\ref{app:figs} (Figure~\ref{fig:deobfladder}, Table~\ref{tab:deo
 \subsubsection{Healthcare / PHI panel}\label{sec:hcpanel}
 Table~\ref{tab:hc} (Appendix~\ref{app:tables}) reports the HIPAA/PHI chain on a clinical-adjacent corpus,
 where over-blocking legitimate benign clinical queries is itself a failure mode.
-The result is a sharp, actionable warning: a single calibrated scope rule
-(\texttt{hc\_no\_diagnosis}) attains F1~$0.91$, but naively conjoining ten strict
-LLM-judge scope rules drives the false-positive rate to $1.00$---every benign
-clinical prompt trips at least one over-eager judge. Positive-security
-composition therefore demands calibration, or utility collapses.
+
+\noindent\textbf{Finding.} \emph{Positive-security composition demands calibration,
+or utility collapses.} The result is a sharp, actionable warning: a single
+calibrated scope rule (\texttt{hc\_no\_diagnosis}) attains F1~$0.91$, but naively
+conjoining ten strict LLM-judge scope rules drives the false-positive rate to
+$1.00$---every benign clinical prompt trips at least one over-eager judge.
 
 \subsubsection{Latency and cost}
 The cost profile follows the cheap-before-expensive ordering. Deterministic
@@ -654,8 +658,12 @@ weights on the full corpus measured P~$0.984$/R~$0.721$/F1~$0.832$ at p95~$193$\
 versus the Rust ONNX P~$0.976$/R~$0.744$/F1~$0.844$ at p95~$255$\,ms. The
 near-identical P/R/F1 (within ${\sim}0.02$) confirms our ONNX integration faithfully
 reproduces the PyTorch reference; the latency shows Rust ONNX is \emph{not} faster
-than PyTorch on this CPU. We thus make no raw-speed claim---the Rust advantage is
-single-binary, no-Python, in-process deployment.
+than PyTorch on this CPU.
+
+\noindent\textbf{Finding.} \emph{Cost follows the cheap-before-expensive ordering,
+and we make no raw-speed claim: the Rust ONNX path reproduces PyTorch's accuracy and
+latency, so QFIRE's advantage is single-binary, no-Python, in-process deployment
+rather than faster inference.}
 
 \subsubsection{Judge-model ablation: does the backend model matter?}\label{sec:judgeabl}
 The LLM scope-judge node delegates the in/out-of-scope decision to a backing
@@ -667,7 +675,7 @@ subset, prompt, seed, and \texttt{--no-cache}---and vary only the Ollama model v
 points (Llama~3.1~8B vs.\ 3.2) and two cross-family models pulled at evaluation
 time (Gemma~4, Qwen~3.6).
 
-\noindent\textbf{Finding.} The backend model matters in two ways.
+\noindent\textbf{Finding.} \emph{The backend model matters in two ways.}
 
 \emph{(i) Decision quality varies even within a family.} Llama~3.1 and Gemma~4 are
 excellent, near-interchangeable judges (F1~$0.995$, FPR~$0.00$, $\kappa{=}0.98$
@@ -721,7 +729,8 @@ false-positives are outvoted---voting buys \emph{robustness}, not raw accuracy.}
 \label{fig:frontier}
 \end{figure}
 
-\noindent\textbf{Finding (honest framing).} The majority vote reaches a perfect
+\noindent\textbf{Finding.} \emph{Majority voting buys robustness, not raw accuracy.}
+The majority vote reaches a perfect
 F1~($1.000$), higher than any single judge---but the frontier shows the best
 \emph{single} model (Llama~3.1) already attains F1~$0.995$ at $0.4$\,s,
 ${\approx}16\times$ faster than the $7$\,s ensemble, so voting buys little raw
