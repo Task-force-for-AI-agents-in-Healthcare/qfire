@@ -51,9 +51,9 @@ def main():
     RED = "#C00000"
     fig, axes = plt.subplots(1, 2, figsize=(10.6, 5.7), sharey=True)
     fig.subplots_adjust(left=0.085, right=0.975, top=0.80, bottom=0.33, wspace=0.08)
-    for ax, data, title in [
-        (axes[0], pub, "Generic injection\n(public corpus, 929 attacks)"),
-        (axes[1], hea, "Healthcare threats\n(QFIRE-HealthBench, 1000 attacks)"),
+    for ax, data, head, sub in [
+        (axes[0], pub, "Generic injection", "(public corpus, 929 attacks)"),
+        (axes[1], hea, "Healthcare threats", "(QFIRE-HealthBench, 1000 attacks)"),
     ]:
         vals = [data[l] for l in labels]
         x = np.arange(len(labels))
@@ -64,7 +64,9 @@ def main():
             ax.text(b.get_x() + b.get_width() / 2, v + 0.02, f"{v:.2f}",
                     ha="center", va="bottom", fontsize=15, fontweight="bold",
                     color=(fs.QFIRE_DARK if l == "QFIRE" else fs.INK))
-        ax.set_title(title, fontsize=14.5, color=fs.INK)
+        ax.set_title(head, fontsize=14.5, fontweight="bold", color=fs.INK, pad=22)
+        ax.text(0.5, 1.015, sub, transform=ax.transAxes, ha="center", va="bottom",
+                fontsize=12, fontweight="normal", color=fs.INK)
         ax.set_xticks(x); ax.set_xticklabels(labels, fontsize=12.5, rotation=12)
         ax.set_ylim(0, 1.14); ax.set_yticks(np.arange(0, 1.01, 0.2))
         fs.despine(ax)
