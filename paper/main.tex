@@ -50,6 +50,34 @@
   keywords=[2]{regex,judge,deberta,entropy,phi,similarity,ordered,fail_closed,%
     stop_on_first_block,allow},
 }
+% Bare variant of the YAML style (no own frame/background) for use *inside* the
+% coloured policy cards of Figure~\ref{fig:spec}; the card supplies the frame.
+\lstdefinestyle{qfireyamlbare}{style=qfireyaml, frame=none,
+  backgroundcolor=\color{white}, xleftmargin=0pt, framexleftmargin=0pt,
+  aboveskip=1pt, belowskip=0pt}
+% Policy "cards": each declarative artifact (rule / expression chain / ordered
+% chain) gets a titled, colour-coded panel so the spec reads as designed policy
+% documents rather than one undifferentiated code dump.
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{listings,skins}
+% TikZ for the hand-drawn system-architecture figure (Figure~\ref{fig:arch}).
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta,calc,fit,backgrounds,shadows}
+\definecolor{cardindigo}{HTML}{4F46E5}
+\definecolor{slate}{HTML}{475569}
+\definecolor{amber}{HTML}{D97706}
+\definecolor{cardblue}{HTML}{1D4ED8}
+\definecolor{cardpurple}{HTML}{6D28D9}
+\definecolor{cardteal}{HTML}{0F766E}
+\tcbset{
+  cardcol/.store in=\cardcol, cardcol=cardblue,
+  policycard/.style={
+    enhanced, breakable=false, arc=3pt, boxrule=0.7pt, top=3pt, bottom=3pt,
+    left=7pt, right=7pt, boxsep=1pt, coltitle=white,
+    colframe=\cardcol!60!black, colback=white, colbacktitle=\cardcol,
+    fonttitle=\bfseries\small, drop fuzzy shadow=black!25,
+  },
+}
 \usepackage{url}
 \usepackage{multirow}
 \usepackage{array}
@@ -364,7 +392,9 @@ short-circuits on the first block before reaching the classifier or judge.
 
 \begin{figure}[H]
 \centering
-\begin{lstlisting}[style=qfireyaml]
+\begin{tcolorbox}[cardcol=cardblue, policycard,
+  title={Rule\hfill\normalfont\footnotesize\itshape scope, cheap-before-expensive pipeline, exemplars (also test fixtures)}]
+\begin{lstlisting}[style=qfireyamlbare]
 # rules/healthcare/phi_panel.yaml -- a rule: scope + typed pipeline + exemplars
 - id: hc_no_diagnosis
   scope: "General health info only; no diagnosis or symptom interpretation."
@@ -382,7 +412,13 @@ short-circuits on the first block before reaching the classifier or judge.
       deny: ['(?i)ignore\s+(all\s+|the\s+)?(previous|above)\s+instructions?']
     - type: deberta # only runs if the regex abstains
       threshold: 0.6
+\end{lstlisting}
+\end{tcolorbox}
 
+\vspace{6pt}
+\begin{tcolorbox}[cardcol=cardpurple, policycard,
+  title={Expression chain\hfill\normalfont\footnotesize\itshape boolean DAG, reusable group, fail-closed}]
+\begin{lstlisting}[style=qfireyamlbare]
 # chains/hipaa_phi.yaml -- EXPRESSION mode (boolean DAG, fail-closed)
 id: hipaa_phi
 mode: expression
@@ -392,7 +428,13 @@ groups:
 expression: >
   injection AND hc_no_diagnosis AND hc_no_medication_dosing AND
   hc_phi_other_patient_record AND hc_phi_reidentification
+\end{lstlisting}
+\end{tcolorbox}
 
+\vspace{6pt}
+\begin{tcolorbox}[cardcol=cardteal, policycard,
+  title={Ordered chain\hfill\normalfont\footnotesize\itshape iptables-style, default-allow}]
+\begin{lstlisting}[style=qfireyamlbare]
 # chains/injection_ordered.yaml -- ORDERED mode (iptables-style, default-allow)
 id: injection_ordered
 mode: ordered
@@ -400,6 +442,7 @@ default: allow
 rules: [injection_instruction_override, injection_jailbreak_dan,
         injection_data_exfiltration, injection_classifier_only]
 \end{lstlisting}
+\end{tcolorbox}
 \caption{The QFIRE spec, verbatim from the repository: a \emph{rule}
 (scope + cheap-before-expensive typed pipeline + exemplars that are also test
 fixtures), an \emph{expression} chain (boolean DAG with a reusable group), and an
@@ -447,7 +490,7 @@ fan-out parallelism is the lever for I/O-bound judge nodes.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figs/throughput_scaling.png}
+\includegraphics[width=0.82\linewidth]{figs/throughput_scaling.png}
 \caption{Async detector graph scaling on a 12-core machine (E2 experiment). (a)
 CPU-bound fan-out (deterministic DeBERTa path): wall $\approx$ summed at every
 $K$---concurrent ONNX tasks saturate the same cores, so engine-concurrency 16
@@ -467,7 +510,78 @@ is the latency lever, not fan-out.}
 
 \begin{figure}[p]
 \centering
-\includegraphics[height=0.86\textheight]{figs/architecture.png}
+\resizebox{!}{0.86\textheight}{%
+\begin{tikzpicture}[
+  font=\sffamily,
+  >={Stealth[round,length=2.4mm]},
+  base/.style={rounded corners=3pt,align=center,inner sep=4pt,line width=0.7pt,
+               minimum height=9mm,text width=44mm},
+  proc/.style={base,draw=cardindigo!75,fill=cardindigo!8,
+               drop shadow={shadow xshift=0.5pt,shadow yshift=-0.6pt,opacity=0.3,fill=slate!80}},
+  engine/.style={proc,fill=cardindigo!16,draw=cardindigo},
+  store/.style={draw=slate!70,fill=slate!12,cylinder,shape border rotate=90,
+                aspect=0.22,align=center,inner sep=3pt,text width=30mm,
+                minimum height=13mm,font=\sffamily\footnotesize},
+  decision/.style={draw=amber!75!black,fill=amber!22,diamond,aspect=2.4,
+                   align=center,inner sep=0pt,font=\sffamily\bfseries,
+                   minimum width=24mm,minimum height=12mm},
+  allow/.style={base,draw=green!55!black,fill=green!14,text width=36mm,
+                drop shadow={shadow xshift=0.5pt,shadow yshift=-0.6pt,opacity=0.3,fill=slate!80}},
+  block/.style={base,draw=red!65!black,fill=red!10,text width=36mm,
+                drop shadow={shadow xshift=0.5pt,shadow yshift=-0.6pt,opacity=0.3,fill=slate!80}},
+  ext/.style={base,draw=slate!85,fill=slate!14,text width=60mm,minimum height=11mm,
+              drop shadow={shadow xshift=0.5pt,shadow yshift=-0.6pt,opacity=0.3,fill=slate!80}},
+  elbl/.style={font=\sffamily\scriptsize\itshape,fill=white,inner sep=1.5pt,text=slate!90!black},
+  blbl/.style={font=\sffamily\scriptsize\bfseries,inner sep=1.5pt,fill=white},
+  flow/.style={->,line width=0.9pt,draw=slate!80,rounded corners=4pt},
+  link/.style={dashed,line width=0.8pt,draw=slate!55,rounded corners=4pt},
+]
+\node[ext] (client) {\textbf{Client app / SDK}\\[1pt]\footnotesize OpenAI / Anthropic / Gemini / Ollama\\[1pt]\scriptsize\itshape only the base URL changes};
+\node[proc,below=17mm of client] (in) {\textbf{Wire adapters}\\[1pt]{\scriptsize\ttfamily /v1/chat\quad/v1/messages}\\{\scriptsize\ttfamily :generateContent\quad/api/chat}};
+\node[proc,below=6mm of in] (norm) {Normalize to\\internal request};
+\node[proc,below=6mm of norm] (sel) {Chain selector\\[1pt]\scriptsize route / header / API-key};
+\node[engine,below=6mm of sel] (eng) {Engine: evaluate chain};
+\node[engine,below=6mm of eng] (dg) {\textbf{Async detector graph}\\[1pt]\scriptsize bounded concurrency\\[1pt]\scriptsize rule 1 \ldots\ rule N pipelines, concurrent};
+\node[proc,below=11mm of dg] (col) {Collapse\\[1pt]\scriptsize ordered / boolean DAG};
+\node[decision,below=10mm of col] (dec) {ALLOW?};
+\node[store,right=12mm of dg] (cache) {verdict cache\\{\scriptsize\ttfamily sha256(P)+node}};
+\node[store,left=12mm of col] (aud) {immutable audit log\\\scriptsize hash $\cdot$ verdicts\\\scriptsize cost $\cdot$ latency};
+\node[allow,below left=13mm and 7mm of dec] (fwd) {Forward\\original request};
+\node[block,below right=13mm and 7mm of dec] (ref) {Refusal envelope\\+ explainable trace};
+\node[ext,below=36mm of dec] (prov) {\textbf{Downstream providers}\\[1pt]\footnotesize OpenAI $\cdot$ Anthropic $\cdot$ Gemini\\[1pt]\scriptsize Ollama (local, \$0)};
+
+\begin{scope}[on background layer]
+\node[draw=cardindigo!55,line width=1pt,rounded corners=8pt,fill=cardindigo!3,
+      inner sep=7mm,fit=(in)(dg)(col)(dec)(cache)(aud)(fwd)(ref)] (daemon) {};
+\end{scope}
+
+\draw[flow] (client) -- (in) node[elbl,pos=0.34,xshift=15mm]{HTTP request};
+\draw[flow] (in) -- (norm);
+\draw[flow] (norm) -- (sel);
+\draw[flow] (sel) -- (eng);
+\draw[flow] (eng) -- (dg);
+\draw[flow] (dg) -- (col);
+\draw[flow] (col) -- (dec);
+\draw[link] (dg) -- (cache);
+\draw[flow,draw=slate!60] (col) -- (aud);
+\draw[flow] (dec) to[out=180,in=90] (fwd);
+\draw[flow] (dec) to[out=0,in=90] (ref);
+\node[blbl,text=green!50!black] at ($(dec)!0.46!(fwd)$) {ALLOW};
+\node[blbl,text=red!70!black] at ($(dec)!0.46!(ref)$) {BLOCK};
+\draw[flow] (fwd) |- (prov);
+\coordinate (rbusA) at ([xshift=16mm]cache.east);
+\coordinate (rbusB) at ([xshift=9mm]cache.east);
+\draw[link] (prov.east) -- (prov.east -| rbusA) -- (client.east -| rbusA)
+  node[elbl,midway]{stream response} -- (client.east);
+\draw[link] (ref.east) -- (ref.east -| rbusB) -- (client.east -| rbusB)
+  node[elbl,pos=0.55]{refusal} -- (client.east);
+
+% daemon title on the MAIN layer so its opaque fill masks the entry arrow
+\node[anchor=west,font=\sffamily\bfseries\small,text=cardindigo!72!black,fill=white,
+      inner sep=2.5pt] at ([xshift=7mm]daemon.north west)
+      {QFIRE proxy daemon~~\normalfont\footnotesize Rust\,\textbullet\,Tokio\,\textbullet\,axum};
+\end{tikzpicture}%
+}
 \caption{QFIRE system architecture. Wire-compatible adapters accept native
 OpenAI/Anthropic/Gemini/Ollama traffic; requests are normalized, routed to a chain,
 and evaluated by an asynchronous detector graph (rule pipelines run concurrently)
