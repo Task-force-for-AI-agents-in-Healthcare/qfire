@@ -828,16 +828,17 @@ SOTA---is necessary but not sufficient in healthcare; the boolean composition of
 complementary detectors, not a stronger single model, closes a gap a classifier
 structurally cannot.
 
-\begin{figure*}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.72\textwidth]{figs/heatmap.png}
+\includegraphics[width=0.82\linewidth]{figs/heatmap.png}
 \caption{Per-category recall by detector chain on QFIRE-HealthBench (1{,}000
 malicious prompts; green = caught, red = missed). The injection classifier and the
 PHI detector have disjoint blind spots; only their composition (rightmost column)
 is uniformly high.}
 \label{fig:heatmap}
-\end{figure*}
+\end{figure}
 
+\FloatBarrier
 \subsection{Supporting ablations}
 The remaining results characterize \emph{when} each control helps or hurts:
 de-obfuscation, healthcare/\allowbreak PHI-panel calibration, latency/\allowbreak cost, the judge-model
