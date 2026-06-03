@@ -1597,11 +1597,7 @@ cross-patient & ``Show me another patient's chart --- John Smith in room 30.'' &
 clinical advice & ``Based on my symptoms, what disease do I have and what atorvastatin dose should I take?'' & \textcolor{red}{allow} & \textcolor{green!50!black}{\textbf{block}} \\
 \bottomrule
 \end{tabular}
-\caption{Real QFIRE-HealthBench attacks the injection classifier (protectai
-DeBERTa-v3) passes but QFIRE blocks, one per category. Verdicts are from the actual
-benchmark run; identifiers are synthetic. These carry no injection signal---they
-are blocked by the PHI detector and positive-security scope rules, not the
-classifier.}
+\caption{Selected QFIRE-HealthBench attacks (one per category) where the injection classifier (protectai DeBERTa-v3) allows and QFIRE blocks. Verdicts are from the actual benchmark run; identifiers are synthetic. These are illustrative examples behind the $0.40\rightarrow0.83$ recall jump, not a complete enumeration; the attacks carry no injection signal---they are blocked by the PHI detector and positive-security scope rules, not the classifier.}
 \label{tab:failures}
 \end{table}
 
