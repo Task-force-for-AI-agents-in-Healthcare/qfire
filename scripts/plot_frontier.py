@@ -5,9 +5,11 @@ points; QFIRE's point is from the committed tables (paper/tables/{main,healthben
 using the hybrid p95 (242 ms) as QFIRE's latency on both panels (HealthBench combined
 short-circuits, so no separate p95 — annotated in the caption). All numbers are measured.
 
-The public-injection panel clusters five detectors into a tight latency/F1 band, so its
-labels are placed by hand into the empty regions with thin leader lines; the HealthBench
-panel is well spread and uses simple offset labels.
+Each panel draws the Pareto frontier (highest F1 reachable at or below a given latency)
+as a light dashed step and shades the ideal corner (high F1, low latency), so QFIRE's
+position on the bounded-latency frontier reads at a glance. QFIRE is a large blue star;
+baseline detectors are smaller red dots. Labels sit adjacent to their points with small
+offsets (and short leaders only where the cluster is tight).
 """
 import json
 import os
@@ -16,11 +18,13 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+import figstyle as fs
+
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(BASE, "paper/figs/latency_f1_frontier.png")
 
-DOT = "#C44E52"
-QCOL = "#4C72B0"
+DOT = fs.BAD          # baseline detectors — red dots
+QCOL = fs.QFIRE       # QFIRE — brand blue star
 
 # Display names for the JSON result keys.
 NAMES = {
@@ -37,17 +41,27 @@ QFIRE = {
     "healthbench": ("QFIRE combined", 242.26, 0.868),
 }
 
-# Hand-tuned label anchors (in DATA coords) for the crowded public-injection panel.
-# Each value is (label_x, label_y, ha, va); a thin leader line joins point -> label.
+# Per-point label placement for the crowded public-injection panel.
+# (dx_pts, dy_pts, ha, va, leader)  -- offset in POINTS from the marker.
 INJ_PLACE = {
-    "PromptGuard-2 86M":       (150.0, 0.930, "right", "bottom"),
-    "Sentinel":                (505.0, 0.965, "left",  "center"),
-    "DeBERTa-v3 (protectai)":  (250.0, 0.700, "left",  "top"),
-    "PromptGuard-2 22M":       (104.0, 0.605, "left",  "top"),
-    "DeBERTa-70M (INT8)":      (138.0, 0.730, "left",  "center"),
-    "bare LLM-judge":          (1450.0, 0.685, "right", "center"),
+    "PromptGuard-2 86M":       ( 6,  10, "left",   "bottom", False),
+    "DeBERTa-v3 (protectai)":  ( 8,  -2, "left",   "center", False),
+    "PromptGuard-2 22M":       (-8,   8, "right",  "bottom", False),
+    "DeBERTa-70M (INT8)":      (-8,  -7, "right",  "top",    False),
+    "Sentinel":                (10,  -2, "left",   "center", False),
+    "bare LLM-judge":          (-9,   8, "right",  "bottom", False),
 }
-INJ_QFIRE_PLACE = (340.0, 0.828, "left", "center")
+INJ_QFIRE_PLACE = (14, -3, "left", "center")
+# HealthBench panel is well spread: simple per-point offsets.
+HB_PLACE = {
+    "DeBERTa-70M (INT8)":      (8,   6, "left",  "bottom", False),
+    "PromptGuard-2 22M":       (8,  -7, "left",  "top",    False),
+    "PromptGuard-2 86M":       (9,  -2, "left",  "center", False),
+    "DeBERTa-v3 (protectai)":  (8,  10, "left",  "bottom", False),
+    "Sentinel":                (8,   7, "left",  "bottom", False),
+    "bare LLM-judge":          (-9,  6, "right", "bottom", False),
+}
+HB_QFIRE_PLACE = (-13, 6, "right", "bottom")
 
 
 def load(path):
@@ -57,22 +71,28 @@ def load(path):
         return {}
 
 
-def _label(ax, name, lat, f1, place, color="black", fontsize=7, weight="normal"):
-    """Place a label: leader-line callout if `place` is given, else a small offset."""
-    if place is not None:
-        lx, ly, ha, va = place
-        ax.annotate(
-            name, xy=(lat, f1), xytext=(lx, ly), textcoords="data",
-            fontsize=fontsize, color=color, fontweight=weight, ha=ha, va=va, zorder=5,
-            arrowprops=dict(arrowstyle="-", lw=0.6, color="0.55", shrinkA=0, shrinkB=2),
-        )
-    else:
-        ax.annotate(name, (lat, f1), fontsize=fontsize, color=color, fontweight=weight,
-                    xytext=(4, 3), textcoords="offset points", zorder=5)
+def _label(ax, name, lat, f1, place, color=fs.INK, fontsize=11, weight="normal"):
+    """Place a label at a small point-offset from the marker (short leader optional)."""
+    dx, dy, ha, va, leader = place
+    arrow = (dict(arrowstyle="-", lw=0.6, color="0.6", shrinkA=0, shrinkB=2)
+             if leader else None)
+    ax.annotate(name, xy=(lat, f1), xytext=(dx, dy), textcoords="offset points",
+                fontsize=fontsize, color=color, fontweight=weight,
+                ha=ha, va=va, zorder=6, arrowprops=arrow)
 
 
-def panel(ax, jsons, title, qfire, placements=None, qfire_place=None, xlim=None):
-    placements = placements or {}
+def _pareto(points):
+    """Non-dominated set: lowest latency wins; F1 must strictly improve to keep a point."""
+    best = None
+    front = []
+    for lat, f1 in sorted(points, key=lambda p: (p[0], -p[1])):
+        if best is None or f1 > best:
+            front.append((lat, f1))
+            best = f1
+    return front
+
+
+def panel(ax, jsons, title, qfire, placements, qfire_place, xlim):
     seen = {}
     for jp in jsons:
         for k, v in load(jp).items():
@@ -82,38 +102,74 @@ def panel(ax, jsons, title, qfire, placements=None, qfire_place=None, xlim=None)
             if lat is None:
                 continue
             seen[k] = (max(lat, 0.05), v["f1"])  # later JSONs win (same key)
+
+    qlbl, qlat, qf1 = qfire
+    all_pts = list(seen.values()) + [(qlat, qf1)]
+
+    # --- ideal-corner shading: high F1, low latency (top-left) -----------------
+    ax.set_xscale("log")
+    ax.set_ylim(0.3, 1.0)
+    ax.set_xlim(*xlim)
+    # shade the top-left "ideal" box: F1 >= QFIRE's F1 and latency <= QFIRE's.
+    ax.axvspan(xlim[0], qlat, ymin=(qf1 - 0.3) / 0.7, ymax=1.0,
+               color=fs.QFIRE, alpha=0.07, zorder=0)
+    ax.text(xlim[0] * 1.07, 0.985, "ideal: high F1, low latency",
+            fontsize=9.5, style="italic", color=fs.MUTED, ha="left", va="top", zorder=1)
+
+    # --- Pareto frontier as a light dashed step --------------------------------
+    front = _pareto(all_pts)
+    fx, fy = [], []
+    prev = None
+    for lat, f1 in front:
+        if prev is not None:
+            fx += [prev[0], lat]   # horizontal hold then step up
+            fy += [prev[1], prev[1]]
+        fx.append(lat)
+        fy.append(f1)
+        prev = (lat, f1)
+    # extend last segment to the right edge so the frontier spans the axes
+    fx.append(xlim[1])
+    fy.append(front[-1][1])
+    ax.plot(fx, fy, ls="--", lw=1.6, color=fs.BASELINE_D, alpha=0.7, zorder=1,
+            label="Pareto frontier")
+
+    # --- baseline detectors: small red dots ------------------------------------
     for k, (lat, f1) in seen.items():
         name = NAMES.get(k, k)
-        ax.scatter(lat, f1, s=45, color=DOT, zorder=3)
-        _label(ax, name, lat, f1, placements.get(name))
-    lbl, lat, f1 = qfire
-    ax.scatter(lat, f1, s=160, marker="*", color=QCOL, zorder=4)
-    _label(ax, lbl, lat, f1, qfire_place, color=QCOL, fontsize=8, weight="bold")
-    ax.set_xscale("log")
+        ax.scatter(lat, f1, s=58, color=DOT, edgecolor="white", linewidth=0.8, zorder=3)
+        _label(ax, name, lat, f1, placements[name])
+
+    # --- QFIRE: large blue star ------------------------------------------------
+    ax.scatter(qlat, qf1, s=420, marker="*", color=QCOL,
+               edgecolor="white", linewidth=1.2, zorder=5)
+    _label(ax, qlbl, qlat, qf1, (*qfire_place, False),
+           color=fs.QFIRE_DARK, fontsize=12.5, weight="bold")
+
     ax.set_xlabel("p95 latency (ms, log scale)")
     ax.set_ylabel("F1")
     ax.set_title(title)
-    ax.grid(True, which="both", alpha=0.3)
-    ax.set_ylim(0.3, 1.0)
-    if xlim:
-        ax.set_xlim(*xlim)
+    ax.grid(True, which="both", alpha=0.35)
+    fs.despine(ax)
+    ax.legend(loc="lower right", fontsize=10)
 
 
 def main():
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 5.3))
+    fs.apply()
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 5.6))
     panel(a1, ["bench-out/baselines.json", "bench-out/baselines_e3_injection.json",
                "bench-out/baselines_e10_injection.json"],
           "Public injection", QFIRE["injection"],
-          placements=INJ_PLACE, qfire_place=INJ_QFIRE_PLACE, xlim=(70, 2800))
+          INJ_PLACE, INJ_QFIRE_PLACE, xlim=(48, 2800))
     panel(a2, ["bench-out/baselines_healthbench.json",
                "bench-out/baselines_e3_healthbench.json",
                "bench-out/baselines_e10_healthbench.json"],
-          "QFIRE-HealthBench", QFIRE["healthbench"], xlim=(35, 1300))
+          "QFIRE-HealthBench", QFIRE["healthbench"],
+          HB_PLACE, HB_QFIRE_PLACE, xlim=(35, 1300))
     fig.suptitle("Latency vs F1: fast classifiers are cheap but lose healthcare recall; "
-                 "QFIRE holds at bounded latency", fontsize=11)
+                 "QFIRE holds at bounded latency", fontsize=14.5, y=1.0)
     fig.tight_layout()
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    fig.savefig(OUT, dpi=170)
+    fig.savefig(OUT, dpi=230)
     print("wrote", OUT)
     print("FRONTIER_DONE")
 

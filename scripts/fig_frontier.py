@@ -15,8 +15,11 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
-BASE = "/tmp/qfire-figures"
+import figstyle as fs
+
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COMBOS = os.path.join(BASE, "bench-out/voting_combos.json")
 OUT = os.path.join(BASE, "paper/figs/ensemble_frontier.png")
 
@@ -35,58 +38,80 @@ def pareto(points):
 
 
 def main():
+    fs.apply()
     data = json.load(open(COMBOS))
-    fig, ax = plt.subplots(figsize=(8.2, 5.4))
+    fig, ax = plt.subplots(figsize=(8.4, 5.6))
+
+    # ---- spread points that share an exact (lat, f1) so none hide ----------
+    # group by coordinate, fan the cluster out symmetrically in log-x
+    from collections import defaultdict
+    groups = defaultdict(list)
+    for d in data:
+        groups[(d["lat"], d["f1"])].append(d)
+    xpos = {}
+    for (lat, f1), members in groups.items():
+        n = len(members)
+        # multiplicative jitter so it stays even on the log axis
+        for i, d in enumerate(members):
+            frac = (i - (n - 1) / 2) / max(n, 1)
+            spread = 0.16 if n <= 2 else 0.26
+            xpos[d["name"]] = lat * (1.0 + spread * frac)
 
     for d in data:
         single = d["k"] == 1
-        color = "#2563eb" if single else "#16a34a"
-        marker = "o" if single else "*"
-        size = 130 if single else 200
-        # tint the miscalibrated-included ensembles differently
-        ax.scatter(d["lat"], d["f1"], s=size, marker=marker, color=color,
-                   edgecolor="black", linewidth=0.6, zorder=3, alpha=0.9)
+        x = xpos[d["name"]]
+        if single:
+            ax.scatter(x, d["f1"], s=150, marker="o", color=fs.QFIRE,
+                       edgecolor="white", linewidth=1.1, zorder=4, alpha=0.95)
+        else:
+            ax.scatter(x, d["f1"], s=320, marker="*", color=fs.GOOD,
+                       edgecolor="white", linewidth=1.0, zorder=4, alpha=0.95)
 
-    # Pareto frontier
+    # ---- Pareto frontier (use true coords, not jittered) -------------------
     front = pareto([(d["lat"], d["f1"], d["name"]) for d in data])
-    fx = [p[0] for p in front]; fy = [p[1] for p in front]
-    ax.plot(fx, fy, "--", color="#dc2626", lw=1.8, zorder=2, label="Pareto frontier")
+    fx = [p[0] for p in front]
+    fy = [p[1] for p in front]
+    ax.plot(fx, fy, "--", color=fs.BAD, lw=2.2, zorder=2)
 
-    # annotate a few key points with non-overlapping placements
     by = {d["name"]: d for d in data}
 
-    def note(name, dx, dy, text=None, color=None):
-        d = by[name]
-        ax.annotate(text or name, (d["lat"], d["f1"]), textcoords="offset points",
-                    xytext=(dx, dy), fontsize=8.5, ha="left",
-                    color=color or ("#166534" if d["k"] > 1 else "#1e3a8a"),
-                    arrowprops=dict(arrowstyle="-", color="#9ca3af", lw=0.6))
+    # ---- annotate ONLY the two points that matter --------------------------
+    # best single judge: Llama 3.1
+    d = by["L3.1"]
+    ax.annotate("Best single judge\nLlama 3.1 — F1 0.995 @ 0.4 s",
+                (xpos["L3.1"], d["f1"]), textcoords="offset points",
+                xytext=(14, -30), fontsize=12, ha="left", va="top",
+                color=fs.QFIRE_DARK, fontweight="bold",
+                arrowprops=dict(arrowstyle="-", color=fs.MUTED, lw=1.0,
+                                shrinkA=0, shrinkB=4))
 
-    note("L3.1", 6, -36, "Llama 3.1 (best single:\nF1 0.995 @ 0.4 s)", "#1e3a8a")
-    note("L3.2", 6, -4, "Llama 3.2 (over-blocks,\nFPR 0.28 alone)", "#1e3a8a")
-    note("L3.1+L3.2+Q3", -150, -52,
-         "L3.1+L3.2+Qwen3: F1 1.00\ndespite including\nmiscalibrated L3.2")
+    # 3-model majority vote reaching F1 1.00
+    d = by["L3.1+L3.2+G4"]
+    ax.annotate("3-model majority vote\nF1 1.00 @ 7.2 s",
+                (xpos["L3.1+L3.2+G4"], d["f1"]), textcoords="offset points",
+                xytext=(-12, 24), fontsize=12, ha="right", va="bottom",
+                color=fs.GOOD, fontweight="bold",
+                arrowprops=dict(arrowstyle="-", color=fs.MUTED, lw=1.0,
+                                shrinkA=0, shrinkB=4))
 
     ax.set_xscale("log")
-    ax.set_xlabel("Latency p50 (s, log scale) — parallel cost = slowest judge", fontsize=11)
-    ax.set_ylabel("F1", fontsize=11)
-    ax.set_ylim(0.84, 1.025)
-    ax.set_xlim(right=by["G4"]["lat"] * 1.7)
-    ax.grid(alpha=0.25)
-    # legend proxies
-    from matplotlib.lines import Line2D
+    ax.set_xlabel("Latency p50 (s, log scale) — parallel cost = slowest judge")
+    ax.set_ylabel("F1")
+    ax.set_ylim(0.84, 1.03)
+    ax.set_xlim(0.28, by["G4"]["lat"] * 2.0)
+    fs.despine(ax)
+
     ax.legend(handles=[
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="#2563eb",
-               markeredgecolor="black", markersize=10, label="single judge"),
-        Line2D([0], [0], marker="*", color="w", markerfacecolor="#16a34a",
-               markeredgecolor="black", markersize=15, label="k-of-n majority vote"),
-        Line2D([0], [0], ls="--", color="#dc2626", label="Pareto frontier"),
-    ], loc="lower right", fontsize=9)
-    ax.set_title("Cost-accuracy frontier: voting reaches F1 1.00 but Llama 3.1 alone\n"
-                 "gives 0.995 at 16x lower latency — voting buys robustness, not raw accuracy",
-                 fontsize=11, fontweight="bold")
+        Line2D([0], [0], marker="o", color="w", markerfacecolor=fs.QFIRE,
+               markeredgecolor="white", markersize=12, label="single judge"),
+        Line2D([0], [0], marker="*", color="w", markerfacecolor=fs.GOOD,
+               markeredgecolor="white", markersize=18, label="k-of-n majority vote"),
+        Line2D([0], [0], ls="--", color=fs.BAD, lw=2.2, label="Pareto frontier"),
+    ], loc="lower right")
+
+    ax.set_title("Voting buys robustness, not raw accuracy")
     fig.tight_layout()
-    fig.savefig(OUT, dpi=200, bbox_inches="tight")
+    fig.savefig(OUT)
     print(f"wrote {OUT} ({os.path.getsize(OUT)} bytes)")
     print("FRONTIER_DONE")
 

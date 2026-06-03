@@ -14,7 +14,10 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import numpy as np
+
+import figstyle as fs
 
 BASE = "/Users/jim/Desktop/qfire"
 DUMP = os.path.join(BASE, "bench-out/hb_dump")
@@ -71,28 +74,46 @@ def main():
             b = blocked[dump]
             M[i, j] = sum(1 for k in idx if b[k]) / max(len(idx), 1)
 
-    fig, ax = plt.subplots(figsize=(7.6, 6.8))
-    im = ax.imshow(M, cmap="RdYlGn", vmin=0.0, vmax=1.0, aspect="auto")
+    fs.apply()
+
+    combined_j = len(CHAINS) - 1  # rightmost "combined" column — the punchline
+
+    fig, ax = plt.subplots(figsize=(12.5, 10.0))
+    im = ax.imshow(M, cmap=fs.HEAT_CMAP, vmin=0.0, vmax=1.0, aspect="auto")
 
     ax.set_xticks(range(len(CHAINS)))
-    ax.set_xticklabels([lbl for _, lbl in CHAINS], fontsize=9.5)
+    ax.set_xticklabels([lbl for _, lbl in CHAINS], fontsize=15)
+    # emphasize the combined column header
+    for j, tick in enumerate(ax.get_xticklabels()):
+        if j == combined_j:
+            tick.set_fontweight("bold")
+            tick.set_color(fs.QFIRE_DARK)
+            tick.set_fontsize(16)
     ax.set_yticks(range(len(present)))
-    ax.set_yticklabels([f"{CAT_LABEL[c]}  (n={counts[c]})" for c in present], fontsize=10)
+    ax.set_yticklabels([f"{CAT_LABEL[c]}  (n={counts[c]})" for c in present], fontsize=15)
 
     for i in range(len(present)):
         for j in range(len(CHAINS)):
             v = M[i, j]
             ax.text(j, i, f"{v:.2f}", ha="center", va="center",
-                    color="black" if 0.25 < v < 0.85 else "white", fontsize=10)
+                    color="black" if 0.25 < v < 0.85 else "white",
+                    fontsize=18, fontweight="bold")
 
     ax.set_title("Per-category recall by detector chain\n(QFIRE-HealthBench, 1000 malicious prompts)",
-                 fontsize=11, pad=12)
+                 fontsize=19, pad=16)
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label("recall (fraction blocked)", fontsize=9)
+    cbar.set_label("recall (fraction blocked)", fontsize=15)
+    cbar.ax.tick_params(labelsize=12)
     ax.set_xticks(np.arange(-0.5, len(CHAINS), 1), minor=True)
     ax.set_yticks(np.arange(-0.5, len(present), 1), minor=True)
-    ax.grid(which="minor", color="white", linewidth=1.5)
+    ax.grid(which="minor", color="white", linewidth=1.8)
     ax.tick_params(which="minor", length=0)
+
+    # bold border around the rightmost "combined" column — the all-green punchline
+    rect = Rectangle((combined_j - 0.5, -0.5), 1, len(present),
+                     fill=False, edgecolor=fs.QFIRE, linewidth=4.5,
+                     zorder=5, clip_on=False)
+    ax.add_patch(rect)
 
     fig.tight_layout()
     fig.savefig(OUT, dpi=200, bbox_inches="tight")
