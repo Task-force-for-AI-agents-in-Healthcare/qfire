@@ -796,6 +796,16 @@ calibrated FPR of $0.08$.
 Appendix~\ref{app:examples} (Table~\ref{tab:failures}) lists verbatim examples of
 these missed-by-classifier, caught-by-QFIRE prompts, one per category.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{figs/heatmap.png}
+\caption{Per-category recall by detector chain on QFIRE-HealthBench (1{,}000
+malicious prompts; green = caught, red = missed). The injection classifier and the
+PHI detector have disjoint blind spots; only their composition (rightmost column)
+is uniformly high.}
+\label{fig:heatmap}
+\end{figure}
+
 \paragraph{Is the scaffold doing the work, or just the LLM?} To isolate the
 contribution of QFIRE's scope/PHI \emph{scaffold} from the raw judgment of an LLM, we
 also ran a bare \texttt{llama3.1:8B} judge---a single block/allow call with a generic
@@ -830,16 +840,6 @@ quantitative case for the paper's thesis: generic injection detection---even
 SOTA---is necessary but not sufficient in healthcare; the boolean composition of
 complementary detectors, not a stronger single model, closes a gap a classifier
 structurally cannot.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.82\linewidth]{figs/heatmap.png}
-\caption{Per-category recall by detector chain on QFIRE-HealthBench (1{,}000
-malicious prompts; green = caught, red = missed). The injection classifier and the
-PHI detector have disjoint blind spots; only their composition (rightmost column)
-is uniformly high.}
-\label{fig:heatmap}
-\end{figure}
 
 \FloatBarrier
 \subsection{Supporting ablations}
