@@ -533,7 +533,7 @@ result (\S\ref{sec:healthcare-result}).
 corpus: \texttt{deberta-v3-base-prompt-injection}~\cite{protectai_deberta} (the
 de-facto open detector, and the engine inside Protect~AI LLM Guard), executed in
 PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; a second,
-purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}
+purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}~\cite{qualifire_sentinel}
 (a ModernBERT detector); a bare \texttt{llama3.1:8B} LLM-judge with a generic
 block/allow prompt and \emph{no} QFIRE scaffold (to isolate the scaffold's
 contribution); and lexical regex / Aho-Corasick filters. As a \emph{full-stack
