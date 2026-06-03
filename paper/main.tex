@@ -1402,7 +1402,7 @@ De-obfuscation decodes such text back to plain form before the detectors inspect
 it. \emph{Recall} is the fraction of attacks caught and \emph{F1} is the combined
 precision/recall score ($\Delta$F1 is the change from the no-normalization row).
 Decoding raises recall from $0.55$ to $0.84$ (F1~$+0.08$), recovering disguised
-attacks the raw detectors would otherwise miss.}
+attacks the raw detectors would otherwise miss. Always-on decoding raises FPR to $0.27$ on clean traffic (\S\ref{sec:deobf}), motivating triggered-only deployment.}
 \label{tab:deobf}
 \end{table}
 
