@@ -504,6 +504,14 @@ configured provider; all reproducibility runs use local Ollama~\cite{ollama}.
 (\NumAttacks{} attack, \NumBenign{} benign) drawn from the
 deepset prompt-injections~\cite{deepset_pi} and jailbreak-classification
 \cite{jailbreak_cls} datasets, snapshotted and versioned in the repository.
+Beyond these and QFIRE-HealthBench (below), several experiments use purpose-built
+corpora, each introduced where it is used: an \emph{encoded} variant of the attack
+set (Base64/\allowbreak ROT13/\allowbreak leetspeak/\allowbreak homoglyphs) for the de-obfuscation study
+(\S\ref{sec:deobf}); a held-out, deepset-decontaminated split (\texttt{eval\_heldout},
+$666$ attack / $640$ benign) and a larger independent benign corpus ($1{,}294$
+synthetic clinical-adjacent prompts) for off-distribution transfer and over-refusal
+at scale (\S\ref{sec:external}); and a $150$-conversation corpus for multi-turn
+injection (\S\ref{sec:multiturn}). All snapshots are versioned in the repository.
 \paragraph{QFIRE-HealthBench.}\label{sec:healthbench} Because public corpora
 contain only generic injection, we additionally build \emph{QFIRE-HealthBench}, a
 healthcare-specific dataset of $1{,}000$ benign clinical-adjacent prompts and
@@ -522,7 +530,11 @@ PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; a second,
 purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}
 (a ModernBERT detector); a bare \texttt{llama3.1:8B} LLM-judge with a generic
 block/allow prompt and \emph{no} QFIRE scaffold (to isolate the scaffold's
-contribution); and lexical regex / Aho-Corasick filters. QFIRE runs the same DeBERTa
+contribution); and lexical regex / Aho-Corasick filters. As a \emph{full-stack
+framework} baseline we additionally run \textbf{NeMo Guardrails}~\cite{nemoguardrails2023}---its
+complete input-rail stack (jailbreak heuristics, an LLM scope self-check, and a
+Presidio PII rail; \texttt{llama3.1:8B} via Ollama)---on a stratified $400/400$
+sample (\S\ref{sec:nemo}). QFIRE runs the same DeBERTa
 weights via Rust ONNX. Meta PromptGuard-2 and qualifire Sentinel are run locally in
 PyTorch with an authorized Hugging Face token (gates accepted), and the PyTorch
 DeBERTa baseline---after resolving an unrelated
@@ -532,10 +544,38 @@ faithful. We deliberately do \emph{not} include Llama~Guard: it is a content-saf
 classifier over a fixed hazard taxonomy (violence, hate, self-harm), not a
 prompt-injection or scope/PHI detector, so scoring it as an injection baseline would
 be a category mismatch.
+\paragraph{Agent and adversarial evaluation.} Beyond static detection we evaluate
+QFIRE \emph{inline}, in front of tool-using agents and adaptive attackers.
+\emph{End-to-end agent harm} (\S\ref{sec:agentharm}): a ReAct agent
+(\texttt{llama3.1:8b}, temperature~$0$, seed~$42$) drives an in-process mock-EHR
+sandbox with ground-truth harm logging over $40$ benign and $40$ attack episodes,
+every untrusted input gated through \texttt{qfire check}. \emph{Standard agent
+benchmarks} (\S\ref{sec:agentbench}): a local tool-calling agent
+(\texttt{qwen3-coder:30b}) drives \textbf{AgentDojo}~\cite{agentdojo2024}
+(workspace/banking/travel/Slack suites) and \textbf{InjecAgent}~\cite{injecagent2024}
+(direct-harm and data-stealing splits), guard off vs.\ on, with $95\%$ Wilson
+intervals. \emph{Adaptive robustness} (\S\ref{sec:adaptive}): the 3-stage cascade
+of~\cite{firewallsbench2026}---standard attacks, defense-aware rewrites
+(\texttt{qwen3:8B}), and an in-the-loop paraphrase attacker (\texttt{gemma2:9B}
+mutator/judge, up to $10$ tries)---against the \emph{calibrated} deployable chain.
+\emph{Multi-turn injection} (\S\ref{sec:multiturn}): a deterministic
+$150$-conversation corpus comparing full-transcript vs.\ latest-turn evaluation.
+\emph{Judge sensitivity} (\S\ref{sec:judgeabl}): the LLM scope-judge is swapped across
+Llama~3.1/3.2, Gemma~4, and Qwen3~8B/3.6 on a $100/100$ HealthBench subset.
+
 \paragraph{Metrics.} Treating ``attack'' as the positive class we report
 precision, recall, F1, false-positive rate, accuracy with 95\% Wilson score
 intervals~\cite{wilson1927}, ROC--AUC (from continuous detector scores), and
 latency percentiles (p50/p95/p99). Runs are seeded and described by a manifest.
+
+\paragraph{Calibration.} The deployable chain (\texttt{bench\_combined}) is a
+deterministic injection$+$PHI blend whose decision threshold is set to a
+false-positive rate of $0.08$ on the in-distribution HealthBench benign prompts;
+this single operating point underlies the headline $0.83$-recall result and the
+inline agent guard, and is \emph{not} re-tuned per experiment. Its off-distribution
+stability---held-out FPR and threshold transfer---is probed in \S\ref{sec:external}.
+Reported \emph{statistical ties} (e.g.\ QFIRE vs.\ PromptGuard-2 on generic injection)
+are read from overlapping $95\%$ Wilson intervals rather than a paired test.
 \paragraph{Hardware and software.} All measurements were taken on a single
 Apple~M2~Max MacBook~Pro (12 CPU cores: 8 performance + 4 efficiency; 38-core
 integrated GPU; 96\,GB unified memory) running macOS~26.5 (Darwin~25.5.0, arm64).
