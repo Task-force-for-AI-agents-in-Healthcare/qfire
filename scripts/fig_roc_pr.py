@@ -23,9 +23,9 @@ OUT = os.path.join(BASE, "paper/figs/roc_pr.png")
 CURVES = [
     ("bench_hybrid",  "QFIRE hybrid",   fs.QFIRE,    3.2, 6),
     ("bench_deberta", "DeBERTa-v3",     fs.ACCENT_DK, 2.4, 5),
-    ("bench_aho",     "Aho-Corasick",   fs.BASELINE_D, 1.8, 3),
-    ("bench_regex",   "Regex denylist", fs.BASELINE,  1.8, 2),
-    ("bench_entropy", "Entropy",        fs.MUTED,     1.8, 2),
+    ("bench_aho",     "Aho-Corasick",   fs.GOOD,      2.0, 3),   # green
+    ("bench_regex",   "Regex denylist", "#8E5AC8",    2.0, 2),   # purple
+    ("bench_entropy", "Entropy",        "#3E4A5A",    2.0, 2),   # dark slate
 ]
 
 
