@@ -672,7 +672,9 @@ strongest system on public injection at F1~$0.98$---recovers just $0.64$, leavin
 more than a third of clinical threats through. QFIRE's classifier-only chain lands at
 $0.59$. The reason is structural: most healthcare threats carry no jailbreak token.
 Adding the PHI detector and positive-security scope rules (\texttt{bench\_combined})
-lifts recall to $0.83$ (F1 $0.73 \rightarrow 0.87$) at a calibrated FPR of $0.08$.
+lifts recall from the baseline classifier's $0.57$ to $0.83$ (protectai
+DeBERTa-v3 F1~$0.73$ $\rightarrow$ \texttt{bench\_combined} F1~$0.87$) at a
+calibrated FPR of $0.08$.
 Appendix~\ref{app:examples} (Table~\ref{tab:failures}) lists verbatim examples of
 these missed-by-classifier, caught-by-QFIRE prompts, one per category.
 
