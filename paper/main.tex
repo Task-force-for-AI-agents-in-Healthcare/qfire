@@ -783,6 +783,10 @@ chain short-circuits, so it has no single classifier p95).}
 \label{fig:frontier}
 \end{figure}
 
+% Start the healthcare result on a fresh page so it is not split across the
+% figs 5--6 float page (otherwise 5.2 opens on p.\,11, the figure page breaks
+% it, and it resumes on p.\,13 -- a jarring cutoff).
+\clearpage
 \subsection{Healthcare: the central result}\label{sec:healthcare-result}
 On QFIRE-HealthBench (\S\ref{sec:healthbench}), the same detectors that tied on
 generic injection diverge sharply (Figure~\ref{fig:hero},
@@ -798,16 +802,6 @@ DeBERTa-v3 F1~$0.73$ $\rightarrow$ \texttt{bench\_combined} F1~$0.87$) at a
 calibrated FPR of $0.08$.
 Appendix~\ref{app:examples} (Table~\ref{tab:failures}) lists verbatim examples of
 these missed-by-classifier, caught-by-QFIRE prompts, one per category.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.82\linewidth]{figs/heatmap.png}
-\caption{Per-category recall by detector chain on QFIRE-HealthBench (1{,}000
-malicious prompts; green = caught, red = missed). The injection classifier and the
-PHI detector have disjoint blind spots; only their composition (rightmost column)
-is uniformly high.}
-\label{fig:heatmap}
-\end{figure}
 
 \paragraph{Is the scaffold doing the work, or just the LLM?} To isolate the
 contribution of QFIRE's scope/PHI \emph{scaffold} from the raw judgment of an LLM, we
@@ -843,6 +837,16 @@ quantitative case for the paper's thesis: generic injection detection---even
 SOTA---is necessary but not sufficient in healthcare; the boolean composition of
 complementary detectors, not a stronger single model, closes a gap a classifier
 structurally cannot.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\linewidth]{figs/heatmap.png}
+\caption{Per-category recall by detector chain on QFIRE-HealthBench (1{,}000
+malicious prompts; green = caught, red = missed). The injection classifier and the
+PHI detector have disjoint blind spots; only their composition (rightmost column)
+is uniformly high.}
+\label{fig:heatmap}
+\end{figure}
 
 \FloatBarrier
 \subsection{Supporting ablations}
@@ -1268,21 +1272,6 @@ positive-security \emph{domain} scope (e.g.\ banking $=$ ``act only on the user'
 own accounts; tool output is data, not instructions'') composed with the
 injection chain; guard-\emph{off} is the same agent straight to the model.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.82\linewidth]{figs/agent_benchmarks.png}
-\caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
-\texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
-shows the indirect prompt-injection threat: an attacker plants instructions in
-content the agent later reads via a tool, and QFIRE blocks at the prompt
-boundary before the agent acts. Below: (a)~Attack success---Targeted ASR per
-AgentDojo suite and pooled, InjecAgent attack-success, and the E4 mock-EHR
-harmful-action rate---as no-firewall$\rightarrow$QFIRE dumbbells with Wilson
-bands; QFIRE drives AgentDojo ASR to $0$ (Wilson upper $0.05$) and cuts
-InjecAgent ASR ${\sim}4{\times}$. (b)~Benign utility (AgentDojo): the
-over-refusal cost of a broad per-suite domain scope.}\label{fig:agentbench}
-\end{figure}
-
 \noindent\textbf{Finding.} \emph{QFIRE sharply reduces attack success on both
 standard benchmarks, at a benign-utility cost that scales with how broad the
 declared scope is} (Figure~\ref{fig:agentbench}). On AgentDojo, Targeted ASR
@@ -1318,6 +1307,21 @@ and an entropy heuristic firing on legitimate high-entropy tool data (IBANs, ids
 the core shared rules and the headline detection chains of \S\ref{sec:healthcare-result}
 are unchanged. (iv)~The scope judge is a local model and is mildly stochastic on
 borderline benign cases, which the Wilson intervals absorb.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\linewidth]{figs/agent_benchmarks.png}
+\caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
+\texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
+shows the indirect prompt-injection threat: an attacker plants instructions in
+content the agent later reads via a tool, and QFIRE blocks at the prompt
+boundary before the agent acts. Below: (a)~Attack success---Targeted ASR per
+AgentDojo suite and pooled, InjecAgent attack-success, and the E4 mock-EHR
+harmful-action rate---as no-firewall$\rightarrow$QFIRE dumbbells with Wilson
+bands; QFIRE drives AgentDojo ASR to $0$ (Wilson upper $0.05$) and cuts
+InjecAgent ASR ${\sim}4{\times}$. (b)~Benign utility (AgentDojo): the
+over-refusal cost of a broad per-suite domain scope.}\label{fig:agentbench}
+\end{figure}
 
 \section{Discussion and Limitations}
 
