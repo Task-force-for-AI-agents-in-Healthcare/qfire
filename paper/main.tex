@@ -268,30 +268,25 @@ Table~\ref{tab:related} situates QFIRE against representative recent systems.
 \renewcommand{\arraystretch}{1.95}
 \begin{tabular}{L{2.7cm}L{3.1cm}L{3.0cm}L{3.15cm}L{2.75cm}}
 \toprule
-Framework & Core design & Threat focus & Primary advantage & Limitation \\
+Framework & Core design & Threat focus & Primary advantage & Trade-off \\
 \midrule
 LlamaFirewall~\cite{llamafirewall2025} & Modular Python middleware interceptor &
 Prompt injection, goal hijacking, insecure code generation & Deep multi-stage
-auditing (PromptGuard~2, AlignmentCheck, CodeShield) & High latency from Python /
-PyTorch inference \\
+auditing (PromptGuard~2, AlignmentCheck, CodeShield) & Python/PyTorch inference path (latency host-dependent) \\
 OneShield~\cite{oneshield2025} & Standalone parallelized multi-detector gateway &
 Enterprise policy violations, PII leakage, copyright & Dynamic scale-out; unified
-parallel low-latency execution & Reliance on external API management and standard
-datasets \\
+parallel low-latency execution & Depends on external API management \\
 Cognitive Firewall~\cite{cognitivefirewall2026} & Split-computing edge-to-cloud
 architecture & Indirect injection in autonomous browser agents & Fast lexical
-edge screening minimizes local load & Cloud semantic verification raises privacy
-and latency issues \\
+edge screening minimizes local load & Cloud semantic verification stage has privacy and latency trade-offs \\
 PSG-Agent~\cite{psgagent2025} & Training-free personalized runtime guardrail &
 Adaptive user-specific risk, intent drift over turns & Per-user profiling tailors
-safety thresholds & High compute cost; hard to deploy stateless \\
+safety thresholds & Per-user profiling cost; not stateless \\
 Semantic Firewalls~\cite{semanticfirewall2026} & Abstractive protocol transformer
 / online ensemble & Contextual data leakage, tool-parameter and syntax bypass &
-Type-safety, closed vocabularies, string isolation & Demands structured,
-application-specific translation schemas \\
+Type-safety, closed vocabularies, string isolation & Requires application-specific translation schemas \\
 garak~\cite{garak2024} & Vulnerability scanner / probe suite & Broad red-team
-attack coverage & Comprehensive offline attack library & Offline scanner, not an
-inline filter \\
+attack coverage & Comprehensive offline attack library & Offline scanner (not an inline filter) \\
 \textbf{QFIRE (ours)} & Rust async detector graph + positive scope, inline proxy &
 Injection \emph{and} out-of-scope/PHI drift in clinical agents & Low-latency local
 inference, de-obfuscation, declarative scope constraints, no Python in the hot
