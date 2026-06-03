@@ -105,7 +105,8 @@ def main():
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label("recall (fraction blocked)", fontsize=15)
     cbar.ax.tick_params(labelsize=12)
-    # thin black borders on every cell (improves readability)
+    # thin black borders on every cell (improves readability); no centre gridlines
+    ax.grid(False)
     ax.set_xticks(np.arange(-0.5, len(CHAINS), 1), minor=True)
     ax.set_yticks(np.arange(-0.5, len(present), 1), minor=True)
     ax.grid(which="minor", color="black", linewidth=0.7)
