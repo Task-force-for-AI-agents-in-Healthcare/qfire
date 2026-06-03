@@ -250,6 +250,31 @@ and \textsc{expression} (a boolean DAG over named rules, e.g.\
 return \textsc{block} or \textsc{abstain}, or \emph{scope deciders} (LLM judge,
 exemplar similarity), which return \textsc{allow}/\textsc{block}; the expression
 predicate ``rule did not block'' lets guards and scope rules compose uniformly.
+The shipped library spans 106 rules across nine domains, plus 16 chains
+(Table~\ref{tab:library}).
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrl}
+\toprule
+Domain & Rules & Example rule ids \\
+\midrule
+injection-defense & 12 & \texttt{injection\_instruction\_override}, \texttt{injection\_jailbreak\_dan} \\
+healthcare / PHI  & 16 & \texttt{hc\_no\_diagnosis}, \texttt{hc\_phi\_reidentification} \\
+marketing         & 12 & \texttt{mk\_product\_tagline}, \texttt{mk\_seo\_blog} \\
+customer support  & 12 & \texttt{sup\_order\_status}, \texttt{sup\_returns\_refunds} \\
+code assistance   & 12 & \texttt{code\_explain\_snippet}, \texttt{code\_readonly\_sql} \\
+content safety    & 12 & \texttt{safe\_self\_harm}, \texttt{safe\_malware} \\
+finance           & 10 & \texttt{fin\_no\_personalized\_advice} \\
+legal             & 10 & \texttt{legal\_no\_individualized\_advice} \\
+data / SQL        & 10 & \texttt{sql\_readonly\_select}, \texttt{sql\_no\_destructive} \\
+\midrule
+\textbf{Total}    & \textbf{106} & + 16 chains (10 benchmark, 6 application) \\
+\bottomrule
+\end{tabular}
+\caption{The shipped rule library: 106 rules across 9 domains, all validated by
+\texttt{qfire rules lint} and exercised by \texttt{qfire rules test}.}
+\label{tab:library}
+\end{table}
 
 \subsection{A declarative firewall language}\label{sec:language}
 The deepest difference from PromptGuard-2, LlamaFirewall, and Protect~AI LLM Guard
@@ -258,14 +283,13 @@ express policy in Python and model weights; QFIRE expresses it in
 version-controlled YAML that the engine interprets, making policy auditable,
 diff-able, and unit-testable (\texttt{qfire rules test} runs each rule's exemplars
 as fixtures). Figure~\ref{fig:spec} shows a rule, an expression chain, and an
-ordered chain verbatim from the repository; Table~\ref{tab:library} summarizes the
-shipped library. Detector nodes are typed---\texttt{regex}/\texttt{aho} (sub-ms
+ordered chain verbatim from the repository. Detector nodes are typed---\texttt{regex}/\texttt{aho} (sub-ms
 denylists), \texttt{entropy}, \texttt{phi} (18 HIPAA identifiers),
 \texttt{deberta} (local ONNX classifier), \texttt{judge} (LLM scope), and
 \texttt{similarity}---and are ordered cheap-before-expensive so a rule
 short-circuits on the first block before reaching the classifier or judge.
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centering
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single,
   keywordstyle=\bfseries,language=,columns=fullflexible,breaklines=true]
@@ -311,29 +335,6 @@ fixtures), an \emph{expression} chain (boolean DAG with a reusable group), and a
 diff, and test---unlike the code/model pipelines of the baselines.}
 \label{fig:spec}
 \end{figure}
-
-\begin{table}[t]\centering\small
-\begin{tabular}{lrl}
-\toprule
-Domain & Rules & Example rule ids \\
-\midrule
-injection-defense & 12 & \texttt{injection\_instruction\_override}, \texttt{injection\_jailbreak\_dan} \\
-healthcare / PHI  & 16 & \texttt{hc\_no\_diagnosis}, \texttt{hc\_phi\_reidentification} \\
-marketing         & 12 & \texttt{mk\_product\_tagline}, \texttt{mk\_seo\_blog} \\
-customer support  & 12 & \texttt{sup\_order\_status}, \texttt{sup\_returns\_refunds} \\
-code assistance   & 12 & \texttt{code\_explain\_snippet}, \texttt{code\_readonly\_sql} \\
-content safety    & 12 & \texttt{safe\_self\_harm}, \texttt{safe\_malware} \\
-finance           & 10 & \texttt{fin\_no\_personalized\_advice} \\
-legal             & 10 & \texttt{legal\_no\_individualized\_advice} \\
-data / SQL        & 10 & \texttt{sql\_readonly\_select}, \texttt{sql\_no\_destructive} \\
-\midrule
-\textbf{Total}    & \textbf{106} & + 16 chains (10 benchmark, 6 application) \\
-\bottomrule
-\end{tabular}
-\caption{The shipped rule library: 106 rules across 9 domains, all validated by
-\texttt{qfire rules lint} and exercised by \texttt{qfire rules test}.}
-\label{tab:library}
-\end{table}
 
 \subsection{Asynchronous detector graph}
 Given prompt $P$ and active rules $R=\{r_1,\dots,r_N\}$, QFIRE evaluates rules
