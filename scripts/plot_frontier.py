@@ -5,10 +5,12 @@ points; QFIRE's point is from the committed tables (paper/tables/{main,healthben
 using the hybrid p95 (242 ms) as QFIRE's latency on both panels (HealthBench combined
 short-circuits, so no separate p95 -- annotated in the caption). All numbers are measured.
 
-Each panel draws the Pareto frontier (highest F1 reachable at or below a given latency)
-as a light dashed step and shades the ideal corner. QFIRE is a large blue star with its
-label pinned right beside it; baseline labels are auto-placed (adjustText) with short
-leader lines so none overlap.
+To stay legible in the crowded classifier cluster, each baseline is a small numbered
+marker keyed in a single legend below the panels (consistent numbering across panels);
+QFIRE is a large blue star labelled in place. Each panel draws the Pareto frontier
+(highest F1 reachable at or below a given latency) as a light dashed step and shades the
+ideal corner. No two text labels can overlap because the only in-panel text is the tiny
+numbers (auto-nudged) and the single QFIRE label.
 """
 import json
 import os
@@ -16,6 +18,7 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from adjustText import adjust_text
 
 import figstyle as fs
@@ -27,13 +30,18 @@ DOT = fs.BAD          # baseline detectors -- red dots
 QCOL = fs.QFIRE       # QFIRE -- brand blue star
 
 NAMES = {
-    "deberta-v3-injection": "DeBERTa-v3 (protectai)",
-    "promptguard-2-86m": "PromptGuard-2 86M",
+    "deberta-70m-int8": "DeBERTa-70M (INT8)",
     "promptguard-2-22m": "PromptGuard-2 22M",
+    "promptguard-2-86m": "PromptGuard-2 86M",
+    "deberta-v3-injection": "DeBERTa-v3 (protectai)",
     "prompt-injection-sentinel": "Sentinel",
     "llm-judge-3.1-8b": "bare LLM-judge",
-    "deberta-70m-int8": "DeBERTa-70M (INT8)",
 }
+# stable numbering, ascending injection latency (fast -> slow)
+ORDER = ["deberta-70m-int8", "promptguard-2-22m", "promptguard-2-86m",
+         "deberta-v3-injection", "prompt-injection-sentinel", "llm-judge-3.1-8b"]
+NUM = {k: i + 1 for i, k in enumerate(ORDER)}
+
 QFIRE = {
     "injection": ("QFIRE hybrid", 242.26, 0.856),
     "healthbench": ("QFIRE combined", 242.26, 0.868),
@@ -48,7 +56,6 @@ def load(path):
 
 
 def _pareto(points):
-    """Non-dominated set: lowest latency wins; F1 must strictly improve to keep a point."""
     best, front = None, []
     for lat, f1 in sorted(points, key=lambda p: (p[0], -p[1])):
         if best is None or f1 > best:
@@ -56,7 +63,7 @@ def _pareto(points):
     return front
 
 
-def panel(ax, jsons, title, qfire, xlim):
+def panel(ax, jsons, title, qfire, xlim, qfire_xytext, legend_loc):
     seen = {}
     for jp in jsons:
         for k, v in load(jp).items():
@@ -87,51 +94,63 @@ def panel(ax, jsons, title, qfire, xlim):
             fx += [prev[0], lat]; fy += [prev[1], prev[1]]
         fx.append(lat); fy.append(f1); prev = (lat, f1)
     fx.append(xlim[1]); fy.append(front[-1][1])
-    ax.plot(fx, fy, ls="--", lw=1.6, color=fs.BASELINE_D, alpha=0.7, zorder=1,
-            label="Pareto frontier (optimal: best F1 per latency)")
+    ax.plot(fx, fy, ls="--", lw=1.5, color=fs.BASELINE_D, alpha=0.7, zorder=1,
+            label="Pareto frontier (best F1 per latency)")
 
-    # baseline detectors: small red dots + auto-placed labels
-    px, py, texts = [], [], []
+    # baseline detectors: small red dots with tiny numbered labels
+    px, py, nums = [], [], []
     for k, (lat, f1) in seen.items():
-        ax.scatter(lat, f1, s=58, color=DOT, edgecolor="white", linewidth=0.8, zorder=3)
+        ax.scatter(lat, f1, s=52, color=DOT, edgecolor="white", linewidth=0.7, zorder=3)
         px.append(lat); py.append(f1)
-        texts.append(ax.text(lat, f1, NAMES.get(k, k), fontsize=10,
-                             color=fs.INK, zorder=6))
+        nums.append(ax.text(lat, f1, str(NUM[k]), fontsize=10.5, fontweight="bold",
+                            color=fs.INK, ha="center", va="center", zorder=6))
 
-    # QFIRE: large blue star with its label pinned right beside it (fixed)
-    ax.scatter(qlat, qf1, s=420, marker="*", color=QCOL,
-               edgecolor="white", linewidth=1.2, zorder=5)
-    qtext = ax.annotate(qlbl, xy=(qlat, qf1), xytext=(15, 6), textcoords="offset points",
-                        fontsize=12.5, color=fs.QFIRE_DARK, fontweight="bold",
-                        ha="left", va="center", zorder=8)
+    # QFIRE: large blue star with its label pinned in place
+    ax.scatter(qlat, qf1, s=470, marker="*", color=QCOL,
+               edgecolor="white", linewidth=1.3, zorder=5)
+    qtext = ax.annotate(qlbl, xy=(qlat, qf1), xytext=qfire_xytext, textcoords="offset points",
+                        fontsize=13, color=fs.QFIRE_DARK, fontweight="bold",
+                        ha="center", va="bottom", zorder=8)
     px.append(qlat); py.append(qf1)
 
-    adjust_text(texts, x=px, y=py, ax=ax, objects=[qtext],
-                arrowprops=dict(arrowstyle="-", color="0.55", lw=0.7, shrinkA=3, shrinkB=4),
-                expand=(1.4, 2.0), force_text=(0.7, 1.1), force_static=(0.3, 0.5),
-                max_move=34, ensure_inside_axes=True)
+    # nudge only the tiny numbers apart (short faint leaders where needed)
+    adjust_text(nums, x=px, y=py, ax=ax, objects=[qtext],
+                arrowprops=dict(arrowstyle="-", color="0.6", lw=0.5, shrinkA=1, shrinkB=2),
+                expand=(1.6, 1.9), force_text=(0.5, 0.8), max_move=14,
+                ensure_inside_axes=True)
 
     ax.set_xlabel("p95 latency (ms, log scale)")
     ax.set_ylabel("F1")
     ax.set_title(title)
-    ax.grid(True, which="both", alpha=0.35)
+    ax.grid(True, which="both", alpha=0.3)
     fs.despine(ax)
-    ax.legend(loc="lower right", fontsize=10)
+    ax.legend(loc=legend_loc, fontsize=9.5, framealpha=0.95)
 
 
 def main():
     fs.apply()
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 5.6))
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 6.3))
     panel(a1, ["bench-out/baselines.json", "bench-out/baselines_e3_injection.json",
                "bench-out/baselines_e10_injection.json"],
-          "Public injection", QFIRE["injection"], xlim=(48, 2800))
+          "Public injection", QFIRE["injection"], (48, 2800),
+          qfire_xytext=(2, 15), legend_loc="lower right")
     panel(a2, ["bench-out/baselines_healthbench.json",
                "bench-out/baselines_e3_healthbench.json",
                "bench-out/baselines_e10_healthbench.json"],
-          "QFIRE-HealthBench", QFIRE["healthbench"], xlim=(35, 1300))
+          "QFIRE-HealthBench", QFIRE["healthbench"], (35, 1300),
+          qfire_xytext=(2, 15), legend_loc="lower right")
     fig.suptitle("Latency vs F1: fast classifiers are cheap but lose healthcare recall; "
                  "QFIRE holds at bounded latency", fontsize=15, fontweight="bold")
-    fig.tight_layout(rect=(0, 0, 1, 0.96))
+
+    # one numbered detector key below the panels (shared, two rows)
+    row1 = ("$\\mathbf{1}$ DeBERTa-70M (INT8)      $\\mathbf{2}$ PromptGuard-2 22M"
+            "      $\\mathbf{3}$ PromptGuard-2 86M")
+    row2 = ("$\\mathbf{4}$ DeBERTa-v3 (protectai)      $\\mathbf{5}$ Sentinel"
+            "      $\\mathbf{6}$ bare LLM-judge")
+    fig.text(0.5, 0.058, row1, ha="center", va="bottom", fontsize=11, color=fs.INK)
+    fig.text(0.5, 0.012, row2, ha="center", va="bottom", fontsize=11, color=fs.INK)
+
+    fig.tight_layout(rect=(0, 0.10, 1, 0.95))
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     fig.savefig(OUT, dpi=230)
     print("wrote", OUT)
