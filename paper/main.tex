@@ -1190,13 +1190,16 @@ borderline benign cases, which the Wilson intervals absorb.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{figs/agent_benchmarks.png}
-\caption{QFIRE on standard agent benchmarks, guard off (no firewall) vs.\ on
-(\texttt{qwen3-coder:30b} agent, \texttt{important\_instructions} attack, $95\%$
-Wilson CIs). (a)~Attack success: Targeted ASR per AgentDojo suite and pooled,
-InjecAgent attack-success, and the E4 mock-EHR harmful-action rate for reference;
-QFIRE drives AgentDojo ASR to $0$ and cuts InjecAgent ASR $\sim$4$\times$.
-(b)~Benign utility (AgentDojo): the over-refusal cost of a broad per-suite domain
-scope.}\label{fig:agentbench}
+\caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
+\texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
+shows the indirect prompt-injection threat: an attacker plants instructions in
+content the agent later reads via a tool, and QFIRE blocks at the prompt
+boundary before the agent acts. Below: (a)~Attack success---Targeted ASR per
+AgentDojo suite and pooled, InjecAgent attack-success, and the E4 mock-EHR
+harmful-action rate---as no-firewall$\rightarrow$QFIRE dumbbells with Wilson
+bands; QFIRE drives AgentDojo ASR to $0$ (Wilson upper $0.05$) and cuts
+InjecAgent ASR ${\sim}4{\times}$. (b)~Benign utility (AgentDojo): the
+over-refusal cost of a broad per-suite domain scope.}\label{fig:agentbench}
 \end{figure}
 
 \section{Discussion and Limitations}
