@@ -1387,8 +1387,7 @@ stratified $400/400$ sample, llama3.1:8B via local Ollama. QFIRE DeBERTa latenci
 public prompts. \emph{Accuracy} is the fraction of prompts (attack or benign)
 labelled correctly; the \emph{95\% Wilson confidence interval} is the statistical
 range in which the true accuracy plausibly lies given the sample size---a narrower
-interval means more certainty, and non-overlapping intervals indicate a real
-difference. The learned detectors (DeBERTa-v3 and the QFIRE hybrid, ${\approx}0.87$)
+interval means more certainty. Non-overlapping intervals here are indicative rather than a paired test; we report them on the same prompts. The learned detectors (DeBERTa-v3 and the QFIRE hybrid, ${\approx}0.87$)
 separate cleanly from the lexical baselines (${\approx}0.56$--$0.67$). The final row
 applies de-obfuscation to \emph{all} traffic, which lowers accuracy on this clean
 corpus---it is meant to be triggered only on encoded inputs (Table~\ref{tab:deobf}).}
