@@ -14,7 +14,9 @@ paper/main.blg
 paper/main.log
 paper/main.out
 paper/*.synctex.gz
-scripts/__pycache__/
+# Python bytecode
+__pycache__/
+*.py[cod]
 *.orig
 **/.DS_Store
 /haarf/
