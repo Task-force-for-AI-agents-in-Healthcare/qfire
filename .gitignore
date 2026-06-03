@@ -23,6 +23,8 @@ __pycache__/
 
 # git worktrees created by Claude Code (parallel sessions)
 .claude/worktrees/
+# Claude Code scheduler runtime lock (should not be tracked)
+.claude/scheduled_tasks.lock
 .venv-e6/
 
 # E7 agent-benchmark artifacts
