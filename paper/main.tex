@@ -13,6 +13,11 @@
 \usepackage{listings}
 \usepackage{url}
 \usepackage{multirow}
+\usepackage{array}
+\usepackage{ragged2e}
+% Left-aligned (ragged-right) fixed-width column: avoids the stretched
+% inter-word spacing that justified p{} columns produce in narrow tables.
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 % Allow long monospace identifiers (e.g. deberta-v3-base-prompt-injection) to
 % break at their hyphens so they never run past the right margin.
 \usepackage[htt]{hyphenat}
@@ -204,7 +209,7 @@ Table~\ref{tab:related} situates QFIRE against representative recent systems.
 \begin{table*}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{p{2.7cm}p{3.1cm}p{3.1cm}p{3.2cm}p{2.7cm}}
+\begin{tabular}{L{2.7cm}L{3.1cm}L{3.1cm}L{3.2cm}L{2.7cm}}
 \toprule
 Framework & Core design & Threat focus & Primary advantage & Operational limitation \\
 \midrule
