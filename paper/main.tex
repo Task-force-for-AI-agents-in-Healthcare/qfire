@@ -1377,7 +1377,7 @@ results subsection.
 positive class). Latency is per-prompt wall clock; QFIRE detectors run in
 Rust, PyTorch baselines on CPU. $^\dagger$NeMo Guardrails (full input-rail
 stack: jailbreak heuristics + LLM scope self-check + Presidio PII) on a
-stratified $400/400$ sample, llama3.1:8B via local Ollama.}
+stratified $400/400$ sample, llama3.1:8B via local Ollama. QFIRE DeBERTa latencies are \emph{cold} (uncached first call); PyTorch baselines are similarly uncached. Lexical detectors are warm.}
 \label{tab:main}
 \end{table}
 
