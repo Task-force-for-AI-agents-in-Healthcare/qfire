@@ -105,7 +105,13 @@ def main():
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label("recall (fraction blocked)", fontsize=15)
     cbar.ax.tick_params(labelsize=12)
-    ax.grid(False)
+    # thin black borders on every cell (improves readability)
+    ax.set_xticks(np.arange(-0.5, len(CHAINS), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(present), 1), minor=True)
+    ax.grid(which="minor", color="black", linewidth=0.7)
+    ax.tick_params(which="minor", length=0)
+    for spine in ax.spines.values():
+        spine.set_visible(True); spine.set_color("black"); spine.set_linewidth(0.7)
 
     # bold border around the rightmost "combined" column — the all-green punchline
     rect = Rectangle((combined_j - 0.5, -0.5), 1, len(present),

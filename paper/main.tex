@@ -1028,6 +1028,7 @@ Stage-3 evasions are a black-box upper bound (some are paraphrase-induced intent
 \label{fig:cascade}
 \end{figure}
 
+\FloatBarrier
 \subsection{Multi-turn / conversational injection}\label{sec:multiturn}
 A stateless per-message filter misses attacks that only become malicious \emph{across}
 turns. We test this with $150$ multi-turn conversations (deterministically built so the
@@ -1060,6 +1061,7 @@ buildup the last turn alone misses.}
 \label{fig:multiturn}
 \end{figure}
 
+\FloatBarrier
 \subsection{External validity: transfer, scale, and threshold stability}\label{sec:external}
 A standing caveat is that cross-dataset detection numbers drop. We convert it into
 three measured, bounded statements (all offline, seed 42; Figure~\ref{fig:external}).
