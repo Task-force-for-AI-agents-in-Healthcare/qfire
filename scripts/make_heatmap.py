@@ -87,7 +87,7 @@ def main():
     for j, tick in enumerate(ax.get_xticklabels()):
         if j == combined_j:
             tick.set_fontweight("bold")
-            tick.set_color(fs.QFIRE_DARK)
+            tick.set_color("black")
             tick.set_fontsize(16)
     ax.set_yticks(range(len(present)))
     ax.set_yticklabels([f"{CAT_LABEL[c]}  (n={counts[c]})" for c in present], fontsize=15)
@@ -104,14 +104,11 @@ def main():
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label("recall (fraction blocked)", fontsize=15)
     cbar.ax.tick_params(labelsize=12)
-    ax.set_xticks(np.arange(-0.5, len(CHAINS), 1), minor=True)
-    ax.set_yticks(np.arange(-0.5, len(present), 1), minor=True)
-    ax.grid(which="minor", color="white", linewidth=1.8)
-    ax.tick_params(which="minor", length=0)
+    ax.grid(False)
 
     # bold border around the rightmost "combined" column — the all-green punchline
     rect = Rectangle((combined_j - 0.5, -0.5), 1, len(present),
-                     fill=False, edgecolor=fs.QFIRE, linewidth=4.5,
+                     fill=False, edgecolor="black", linewidth=4.5,
                      zorder=5, clip_on=False)
     ax.add_patch(rect)
 
