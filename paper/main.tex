@@ -991,7 +991,7 @@ uniformly $100\%$. (Caveats: gemma2-generated attacks are a lower bound on a hum
 adversary; the paraphrase loop is a black-box attack on DeBERTa; the scope judge
 inherits its backing model's calibration.)
 
-\paragraph{Cascade stress test (in-the-loop adaptive).} The result above uses the strict
+\noindent\textbf{Cascade stress test (in-the-loop adaptive).} The result above uses the strict
 \texttt{hipaa\_phi}/\allowbreak\texttt{default} chains and single-shot attack families. We additionally
 ran the 3-stage cascade of~\cite{firewallsbench2026} against the \emph{calibrated}
 deployable chain (\texttt{bench\_combined}/\allowbreak\texttt{default}, the $0.08$-FPR operating
