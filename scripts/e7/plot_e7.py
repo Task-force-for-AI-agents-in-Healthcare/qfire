@@ -130,18 +130,29 @@ def dumbbell(ax, rows, xmax, xlabel, title, ideal_x, ideal_txt):
         # Wilson intervals as faint bands
         ax.plot(oci, [yy, yy], color=RED, lw=6, alpha=0.16, solid_capstyle="round", zorder=1)
         ax.plot(nci, [yy, yy], color=BLUE, lw=6, alpha=0.16, solid_capstyle="round", zorder=1)
-        if abs(off - on) > 0.012:
+        overlap = abs(off - on) <= 0.012
+        if not overlap:
             ax.annotate("", xy=(on, yy), xytext=(off, yy), zorder=2,
                         arrowprops=dict(arrowstyle="-|>", color="#aab2bd", lw=2.4,
                                         shrinkA=7, shrinkB=8))
-        ax.scatter(off, yy, s=135, color=RED, edgecolor="white", linewidth=1.3, zorder=4)
+        # When the two points coincide (e.g. both 0.00), nudge the red marker a
+        # hair right of the blue one so both dots stay visible and the reader can
+        # see they are *equal* rather than one value hiding the other.
+        red_x = off + 0.03 * xmax if overlap else off
+        ax.scatter(red_x, yy, s=135, color=RED, edgecolor="white", linewidth=1.3, zorder=4)
         ax.scatter(on, yy, s=135, color=BLUE, edgecolor="white", linewidth=1.3, zorder=5)
-        dy_off = 11 if off >= on else -15
-        dy_on = -15 if off >= on else 11
-        ax.annotate(f"{off:.2f}", (off, yy), xytext=(0, dy_off), textcoords="offset points",
-                    ha="center", fontsize=9.5, fontweight="bold", color=RED, zorder=6)
-        ax.annotate(f"{on:.2f}", (on, yy), xytext=(0, dy_on), textcoords="offset points",
-                    ha="center", fontsize=9.5, fontweight="bold", color=BLUED, zorder=6)
+        if overlap:
+            ax.annotate(f"{on:.2f}", (on, yy), xytext=(0, -15), textcoords="offset points",
+                        ha="center", fontsize=9.5, fontweight="bold", color=BLUED, zorder=6)
+            ax.annotate(f"{off:.2f}", (red_x, yy), xytext=(9, 0), textcoords="offset points",
+                        ha="left", va="center", fontsize=9.5, fontweight="bold", color=RED, zorder=6)
+        else:
+            dy_off = 11 if off >= on else -15
+            dy_on = -15 if off >= on else 11
+            ax.annotate(f"{off:.2f}", (off, yy), xytext=(0, dy_off), textcoords="offset points",
+                        ha="center", fontsize=9.5, fontweight="bold", color=RED, zorder=6)
+            ax.annotate(f"{on:.2f}", (on, yy), xytext=(0, dy_on), textcoords="offset points",
+                        ha="center", fontsize=9.5, fontweight="bold", color=BLUED, zorder=6)
 
     # group bracket only for multi-row families (single-row rows are self-labelled)
     from collections import Counter
@@ -175,7 +186,14 @@ def main():
     fig = plt.figure(figsize=(10.5, 12.6))
     gs = fig.add_gridspec(3, 1, height_ratios=[1.05, 1.55, 1.30], hspace=0.36,
                           left=0.135, right=0.965, top=0.945, bottom=0.085)
-    schematic(fig.add_subplot(gs[0]))
+    # The dumbbells need a wide left margin (0.135) for their rotated group
+    # labels, but the schematic carries no y-axis, so let it span the full figure
+    # width with margins symmetric to the right edge (0.965) — otherwise its left
+    # edge sits far inside the frame while its right edge nearly touches it.
+    ax_sch = fig.add_subplot(gs[0])
+    pos = ax_sch.get_position()
+    ax_sch.set_position([0.035, pos.y0, 0.965 - 0.035, pos.height])
+    schematic(ax_sch)
     dumbbell(fig.add_subplot(gs[1]), asr, 0.56,
              "attack-success / harmful-action rate",
              "(a) Attack success — lower is better", 0.0, "0 = no attack succeeds")
