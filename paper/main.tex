@@ -21,6 +21,35 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{listings}
+% Colored, readable YAML/spec rendering for the firewall-language figure.
+% (listings is used rather than minted so the tectonic build needs no shell-escape.)
+\definecolor{kwblue}{rgb}{0.10,0.20,0.65}
+\definecolor{typepurple}{rgb}{0.50,0.15,0.55}
+\definecolor{strred}{rgb}{0.62,0.12,0.12}
+\definecolor{cmtgreen}{rgb}{0.20,0.45,0.20}
+\lstdefinestyle{qfireyaml}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{black!3},
+  frame=single,
+  framesep=5pt,
+  rulecolor=\color{black!45},
+  columns=fullflexible,
+  breaklines=true,
+  keepspaces=true,
+  showstringspaces=false,
+  alsoletter=_,
+  commentstyle=\color{cmtgreen}\itshape,
+  stringstyle=\color{strred},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]',
+  keywordstyle=\color{kwblue}\bfseries,
+  keywords={id,scope,short_circuit,pipeline,type,deny,threshold,exemplars,%
+    in_scope,out_of_scope,mode,fail_policy,groups,expression,default,rules},
+  keywordstyle=[2]\color{typepurple}\bfseries,
+  keywords=[2]{regex,judge,deberta,entropy,phi,similarity,ordered,fail_closed,%
+    stop_on_first_block,allow},
+}
 \usepackage{url}
 \usepackage{multirow}
 \usepackage{array}
@@ -332,8 +361,7 @@ short-circuits on the first block before reaching the classifier or judge.
 
 \begin{figure}[H]
 \centering
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single,
-  keywordstyle=\bfseries,language=,columns=fullflexible,breaklines=true]
+\begin{lstlisting}[style=qfireyaml]
 # rules/healthcare/phi_panel.yaml -- a rule: scope + typed pipeline + exemplars
 - id: hc_no_diagnosis
   scope: "General health info only; no diagnosis or symptom interpretation."
