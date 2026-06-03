@@ -1,4 +1,16 @@
+```
+   ██████╗  ███████╗ ██╗ ██████╗  ███████╗
+  ██╔═══██╗ ██╔════╝ ██║ ██╔══██╗ ██╔════╝
+  ██║   ██║ █████╗   ██║ ██████╔╝ █████╗      a prompt firewall
+  ██║ ▄▄ ██║ ██╔══╝  ██║ ██╔══██╗ ██╔══╝       for LLM applications
+  ╚██████╔╝ ██║      ██║ ██║  ██║ ███████╗
+   ╚══▀▀═╝  ╚═╝      ╚═╝ ╚═╝  ╚═╝ ╚══════╝   ALLOW ▸ forward    BLOCK ▸ refuse
+```
+
 # QFIRE — a prompt firewall for LLM applications
+
+> **New here?** Start with the hands-on **[tutorials »](tutorials/)** — install,
+> proxy your app, write a rule, and reproduce the benchmarks in a few minutes.
 
 QFIRE is a local, provider-agnostic **prompt firewall**: a proxy daemon, a CLI,
 and a benchmark harness, delivered as a single self-contained Rust toolchain with
@@ -14,6 +26,17 @@ decision is instrumented, audited, and benchmarkable against real
 prompt-injection corpora. The repository ships a library of ~100 firewall rules
 — including a dedicated **healthcare/PHI panel** — and reproduces its headline
 benchmark tables end-to-end against local Ollama models with **no paid API keys**.
+
+<p align="center">
+  <img src="docs/assets/hero_recall_gap.png" alt="QFIRE vs. PromptGuard-2 and DeBERTa-v3: tied on generic injection, far apart on healthcare threats" width="820">
+</p>
+
+<p align="center">
+  <em>Generic prompt-injection detectors are interchangeable on a public corpus, but
+  general-purpose SOTA collapses on domain-specific (healthcare) threats — recall
+  0.99&nbsp;→&nbsp;0.40. QFIRE's purpose-scoped rules hold at 0.83. See the
+  <a href="paper/main.pdf">paper</a> for the full evaluation.</em>
+</p>
 
 ## Why a prompt firewall?
 
@@ -164,6 +187,7 @@ src/            engine, providers, detectors, proxy, bench, cli
 rules/          ~100 YAML rules by domain + healthcare/PHI panel
 chains/         chain definitions (ordered + expression)
 corpora/        bundled attack + benign snapshots; importers
+tutorials/      hands-on guides for the main user journeys
 docs/           design specification
 scripts/        model-fetch helper
 Makefile        build / test / bench targets
