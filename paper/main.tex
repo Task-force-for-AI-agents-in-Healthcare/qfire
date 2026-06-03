@@ -61,24 +61,29 @@
 \providecommand{\NumBenign}{1{,}039}
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
 
-\title{\oldincludegraphics[width=1.0cm]{figs/taskforce_logo.png}\\[2pt]
+\title{\oldincludegraphics[width=1.0cm]{figs/taskforce_logo.png}\\[3pt]
 Beyond Injection Detection: A Positive-Security Prompt Firewall that
-Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare}
+Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare%
+\thanks{Affiliations: James Schwoebel (Quome Inc.); Martin G. Frasch, MD, PhD
+(University of Washington); Rome Thorstenson (Rafter Inc.); Manish Bhatt
+(Independent). All authors are members of the \emph{Task Force for AI Agents in
+Healthcare}.}}
 
-\author{
-James Schwoebel\thanks{Quome Inc.} \and
-Martin G. Frasch, MD, PhD\thanks{University of Washington} \and
-Rome Thorstenson\thanks{Rafter Inc.} \and
-Manish Bhatt\thanks{Independent}\\[2pt]
-\normalsize Task Force for AI Agents in Healthcare
-}
+\author{\normalsize James Schwoebel \quad Martin G. Frasch, MD, PhD \quad
+Rome Thorstenson \quad Manish Bhatt}
 \date{\today}
 
 \begin{document}
 \maketitle
-\vspace{-2.4em}
+\vspace{-1em}
 
-\begin{abstract}
+\begin{center}
+\setlength{\fboxsep}{9pt}%
+\fbox{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\setlength{\parskip}{0pt}
+{\centering\textbf{Abstract}\par}
+\smallskip
+\small
 Large language models embedded in autonomous agents process trusted instructions
 and untrusted data in one context window, leaving them open to direct and
 indirect prompt injection. Existing runtime guardrails trade safety against
@@ -116,7 +121,13 @@ precision/recall/F1 with 95\% Wilson confidence intervals, ROC--AUC, and
 p50/p95/p99 latency. All code, rules, corpora snapshots, and scripts are released,
 and every table regenerates from a single \texttt{make paper} target against local
 models with no paid API keys.
-\end{abstract}
+
+\medskip
+\noindent\textbf{Keywords:}~prompt injection; prompt firewall; positive-security
+scope; PHI protection; healthcare AI agents; HIPAA; QFIRE-HealthBench.
+\end{minipage}}
+\end{center}
+\vspace{0.6em}
 
 \section{Introduction}
 The integration of large language models (LLMs) into agentic systems---tools,
