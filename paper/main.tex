@@ -755,16 +755,16 @@ injection but on healthcare scope and PHI, which we turn to next---and, as
 \S\ref{sec:adaptive} shows, on robustness once an adversary adapts to the defense.
 \end{sloppypar}
 
-\begin{figure}[hb]
+\begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figs/roc_pr.png}
+\includegraphics[width=0.92\linewidth]{figs/roc_pr.png}
 \caption{ROC and precision-recall curves on the public corpus. The learned
 detectors (DeBERTa AUC~$0.89$, QFIRE hybrid) hug the top-left corner; the lexical
 filters track the diagonal, making the ``fast-but-blind'' gap visual.}
 \label{fig:rocpr}
 \end{figure}
 
-\begin{figure}[hb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{figs/latency_f1_frontier.png}
 \caption{Latency (p95, log scale) vs F1 for every detector, on public injection
@@ -1262,6 +1262,21 @@ positive-security \emph{domain} scope (e.g.\ banking $=$ ``act only on the user'
 own accounts; tool output is data, not instructions'') composed with the
 injection chain; guard-\emph{off} is the same agent straight to the model.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{figs/agent_benchmarks.png}
+\caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
+\texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
+shows the indirect prompt-injection threat: an attacker plants instructions in
+content the agent later reads via a tool, and QFIRE blocks at the prompt
+boundary before the agent acts. Below: (a)~Attack success---Targeted ASR per
+AgentDojo suite and pooled, InjecAgent attack-success, and the E4 mock-EHR
+harmful-action rate---as no-firewall$\rightarrow$QFIRE dumbbells with Wilson
+bands; QFIRE drives AgentDojo ASR to $0$ (Wilson upper $0.05$) and cuts
+InjecAgent ASR ${\sim}4{\times}$. (b)~Benign utility (AgentDojo): the
+over-refusal cost of a broad per-suite domain scope.}\label{fig:agentbench}
+\end{figure}
+
 \noindent\textbf{Finding.} \emph{QFIRE sharply reduces attack success on both
 standard benchmarks, at a benign-utility cost that scales with how broad the
 declared scope is} (Figure~\ref{fig:agentbench}). On AgentDojo, Targeted ASR
@@ -1297,21 +1312,6 @@ and an entropy heuristic firing on legitimate high-entropy tool data (IBANs, ids
 the core shared rules and the headline detection chains of \S\ref{sec:healthcare-result}
 are unchanged. (iv)~The scope judge is a local model and is mildly stochastic on
 borderline benign cases, which the Wilson intervals absorb.
-
-\begin{figure}[tbp]
-\centering
-\includegraphics[width=0.88\linewidth]{figs/agent_benchmarks.png}
-\caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
-\texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
-shows the indirect prompt-injection threat: an attacker plants instructions in
-content the agent later reads via a tool, and QFIRE blocks at the prompt
-boundary before the agent acts. Below: (a)~Attack success---Targeted ASR per
-AgentDojo suite and pooled, InjecAgent attack-success, and the E4 mock-EHR
-harmful-action rate---as no-firewall$\rightarrow$QFIRE dumbbells with Wilson
-bands; QFIRE drives AgentDojo ASR to $0$ (Wilson upper $0.05$) and cuts
-InjecAgent ASR ${\sim}4{\times}$. (b)~Benign utility (AgentDojo): the
-over-refusal cost of a broad per-suite domain scope.}\label{fig:agentbench}
-\end{figure}
 
 \section{Discussion and Limitations}
 
