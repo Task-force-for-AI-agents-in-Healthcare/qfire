@@ -97,7 +97,8 @@ def main():
             v = M[i, j]
             ax.text(j, i, f"{v:.2f}", ha="center", va="center",
                     color="black" if 0.25 < v < 0.85 else "white",
-                    fontsize=18, fontweight="bold")
+                    fontsize=18,
+                    fontweight="bold" if j == combined_j else "normal")
 
     ax.set_title("Per-category recall by detector chain\n(QFIRE-HealthBench, 1000 malicious prompts)",
                  fontsize=19, pad=16)
