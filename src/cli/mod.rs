@@ -135,6 +135,12 @@ pub struct ServeArgs {
     /// Redact block reasons in the refusal envelope returned to clients.
     #[arg(long)]
     pub redact: bool,
+    /// On BLOCK, return a 200 OpenAI-shaped refusal completion for OpenAI-family
+    /// requests instead of the default 403 firewall envelope. Lets OpenAI-SDK
+    /// clients (agent benchmarks) treat a block as a refusal. Other families and
+    /// non-OpenAI routes still get the 403 envelope.
+    #[arg(long, default_value_t = false)]
+    pub openai_block_refusal: bool,
 }
 
 #[derive(Args)]
@@ -280,7 +286,14 @@ async fn dispatch(cli: Cli) -> crate::Result<i32> {
         }
         Command::Serve(args) => {
             let app = App::load(cli.config.as_deref())?;
-            crate::proxy::serve(app, &args.addr, &args.chain, args.redact).await?;
+            crate::proxy::serve(
+                app,
+                &args.addr,
+                &args.chain,
+                args.redact,
+                args.openai_block_refusal,
+            )
+            .await?;
             Ok(exit::ALLOW)
         }
         Command::Bench(args) => {

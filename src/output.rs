@@ -103,6 +103,35 @@ pub fn render_tree(trace: &EvalTrace, color: bool) -> String {
     out
 }
 
+/// Build an OpenAI-style `chat.completion` carrying a firewall refusal as the
+/// assistant message, so OpenAI-SDK clients see a normal 200 completion on BLOCK.
+pub fn openai_refusal_completion(decision: &Decision, model: &str, redact: bool) -> serde_json::Value {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let created = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let hash = &decision.prompt_hash[..decision.prompt_hash.len().min(8)];
+    const REFUSAL_MSG: &str = "I can't help with that request. It was blocked by the security policy.";
+    let content = if redact {
+        REFUSAL_MSG.to_string()
+    } else {
+        format!("{REFUSAL_MSG} (reason: {})", decision.reason)
+    };
+    serde_json::json!({
+        "id": format!("chatcmpl-qfire-{hash}"),
+        "object": "chat.completion",
+        "created": created,
+        "model": model,
+        "choices": [{
+            "index": 0,
+            "message": {"role": "assistant", "content": content},
+            "finish_reason": "stop"
+        }],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    })
+}
+
 /// A structured refusal envelope returned by the proxy on BLOCK.
 pub fn refusal_json(decision: &Decision, redact: bool) -> serde_json::Value {
     let reason = if redact { "request blocked by firewall policy".to_string() } else { decision.reason.clone() };
@@ -116,4 +145,54 @@ pub fn refusal_json(decision: &Decision, redact: bool) -> serde_json::Value {
             "prompt_hash": decision.prompt_hash,
         }
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::chain::{ChainMode, FailPolicy};
+    use crate::engine::EvalTrace;
+
+    fn block_decision() -> Decision {
+        Decision {
+            terminal: Verdict::Block,
+            deciding_rule: Some("hipaa_phi".to_string()),
+            deciding_node: Some("regex".to_string()),
+            reason: "matched exfiltration pattern".to_string(),
+            prompt_hash: "deadbeefcafef00d".to_string(),
+            trace: EvalTrace {
+                chain_id: "e7_agent".to_string(),
+                chain_version: "1".to_string(),
+                mode: ChainMode::Ordered,
+                fail_policy: FailPolicy::FailClosed,
+                rules: vec![],
+                wall_clock_ms: 0.0,
+                summed_detector_ms: 0.0,
+            },
+        }
+    }
+
+    #[test]
+    fn openai_refusal_completion_shape() {
+        let d = block_decision();
+        let v = openai_refusal_completion(&d, "llama3.1:8b", false);
+        assert_eq!(v["object"], "chat.completion");
+        assert_eq!(v["model"], "llama3.1:8b");
+        assert_eq!(v["choices"][0]["message"]["role"], "assistant");
+        let content = v["choices"][0]["message"]["content"].as_str().unwrap();
+        assert!(!content.is_empty());
+        assert!(content.contains("matched exfiltration pattern"));
+        assert_eq!(v["choices"][0]["finish_reason"], "stop");
+        assert_eq!(v["id"], "chatcmpl-qfire-deadbeef");
+    }
+
+    #[test]
+    fn openai_refusal_completion_redacts() {
+        let d = block_decision();
+        let v = openai_refusal_completion(&d, "gpt-4o", true);
+        let content = v["choices"][0]["message"]["content"].as_str().unwrap();
+        assert!(!content.is_empty());
+        assert!(content.contains("blocked by the security policy"));
+        assert!(!content.contains("matched exfiltration pattern"));
+    }
 }

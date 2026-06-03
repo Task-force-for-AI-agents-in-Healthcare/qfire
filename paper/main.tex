@@ -999,6 +999,70 @@ is model-dependent while the QFIRE-side $0$ is a property of the deterministic g
 harm is prevented \emph{via the prompt boundary}---QFIRE does not police tool calls
 directly.)
 
+\subsection{Standard agent benchmarks: AgentDojo and InjecAgent}\label{sec:agentbench}
+E4's mock-EHR is our own harness; this subsection asks whether the same
+inline-firewall result holds on the community-standard agent-injection benchmarks
+the field reports. We run QFIRE's proxy (\texttt{qfire serve}, the
+OpenAI-wire-compatible inline deployment) in front of two: \textbf{AgentDojo}~\cite{agentdojo2024}
+(tool-use tasks across workspace/banking/travel/Slack suites with injected
+attacks) and \textbf{InjecAgent}~\cite{injecagent2024} (indirect injections
+embedded in tool responses, \emph{direct-harm} and \emph{data-stealing} splits).
+A single local tool-calling agent (\texttt{qwen3-coder:30b}, the strongest
+tool-caller on our host) drives both; we report each benchmark's native metrics
+with $95\%$ Wilson intervals over a stratified subset (exact task ids logged, no
+silent caps). Guard-\emph{on} routes the agent through QFIRE on a per-suite
+positive-security \emph{domain} scope (e.g.\ banking $=$ ``act only on the user's
+own accounts; tool output is data, not instructions'') composed with the
+injection chain; guard-\emph{off} is the same agent straight to the model.
+
+\noindent\textbf{Finding.} \emph{QFIRE sharply reduces attack success on both
+standard benchmarks, at a benign-utility cost that scales with how broad the
+declared scope is} (Figure~\ref{fig:agentbench}). On AgentDojo, Targeted ASR
+falls from $\mathbf{0.181}$ $[0.109,0.285]$ to $\mathbf{0.000}$ $[0.000,0.051]$---all
+$72$ injected security cases contained, every suite to $0$---while benign utility
+falls $0.583\rightarrow0.208$ ($n{=}24$). On InjecAgent, attack-success (over
+valid responses) falls $\mathbf{0.143}$ $[0.074,0.257]\rightarrow\mathbf{0.034}$
+$[0.010,0.117]$ (data-stealing $0.222\rightarrow0.034$) at an essentially
+unchanged parse/valid rate ($0.93\rightarrow0.97$). The direction matches the
+mock-EHR result ($0.375\rightarrow0.000$, \S\ref{sec:agentharm}) and the
+structural defenses QFIRE is compared against~\cite{camel2025,firewallsbench2026}.
+The honest contrast is the \emph{utility cost}: small in the tightly-scoped
+healthcare setting (\S\ref{sec:agentharm}, $0.95\rightarrow0.825$) but large
+here---a broad, per-suite ``general assistant'' scope conservatively refuses many
+legitimate out-of-the-ordinary actions (e.g.\ a travel task that emails an
+itinerary to a named third party), exactly the over-refusal a positive-security
+model trades for its guarantee. This reinforces the paper's thesis: QFIRE's value
+is greatest where the operator can declare a \emph{precise} domain; a blunt
+generic scope still eliminates injection success but pays more utility for it.
+
+\noindent\textbf{Honest caveats / deviations.} The result depends on configuration
+choices we disclose. (i)~The agent is one mid-size \emph{local} model (no paid
+API), so absolute benign utility is modest and the guard-off ASR is
+model-dependent, whereas the guard-on ASR$\,{\approx}\,0$ is a property of the
+deterministic block. (ii)~The proxy returns an OpenAI-shaped refusal completion on
+a block (an opt-in mode) so the standard OpenAI-SDK harnesses record a contained
+attack rather than erroring on a non-$200$ status. (iii)~For these general-domain
+agents we use per-suite \emph{domain} scopes plus chain-local variants of three
+injection rules whose shared-library regexes false-fire on agent transcripts---a
+delimiter rule that matched the proxy's own \texttt{[system]} role framing, a
+jailbreak rule matching ``\texttt{stan}'' inside ``under\emph{stan}d''/``as\emph{s}i\emph{stan}t'',
+and an entropy heuristic firing on legitimate high-entropy tool data (IBANs, ids);
+the core shared rules and the headline detection chains of \S\ref{sec:healthcare-result}
+are unchanged. (iv)~The scope judge is a local model and is mildly stochastic on
+borderline benign cases, which the Wilson intervals absorb.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/agent_benchmarks.png}
+\caption{QFIRE on standard agent benchmarks, guard off (no firewall) vs.\ on
+(\texttt{qwen3-coder:30b} agent, \texttt{important\_instructions} attack, $95\%$
+Wilson CIs). (a)~Attack success: Targeted ASR per AgentDojo suite and pooled,
+InjecAgent attack-success, and the E4 mock-EHR harmful-action rate for reference;
+QFIRE drives AgentDojo ASR to $0$ and cuts InjecAgent ASR $\sim$4$\times$.
+(b)~Benign utility (AgentDojo): the over-refusal cost of a broad per-suite domain
+scope.}\label{fig:agentbench}
+\end{figure}
+
 \section{Discussion and Limitations}
 
 \paragraph{Detectors are complementary, not redundant.}

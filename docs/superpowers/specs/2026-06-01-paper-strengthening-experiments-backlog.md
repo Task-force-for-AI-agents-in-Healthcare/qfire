@@ -163,7 +163,7 @@ scope spec.
 ---
 
 ## E7 — Standard agent benchmarks (AgentDojo + InjecAgent)
-**Status:** [~] scoped — design: [2026-06-02-e7-standard-agent-benchmarks-design.md](2026-06-02-e7-standard-agent-benchmarks-design.md).
+**Status:** [x] done — design: [2026-06-02-e7-standard-agent-benchmarks-design.md](2026-06-02-e7-standard-agent-benchmarks-design.md); plan: [../plans/2026-06-02-e7-standard-agent-benchmarks.md](../plans/2026-06-02-e7-standard-agent-benchmarks.md); results: [2026-06-02-e7-standard-agent-benchmarks-results.md](2026-06-02-e7-standard-agent-benchmarks-results.md); figure `paper/figs/agent_benchmarks.png`; paper §3.13 (`sec:agentbench`). Headline: QFIRE (proxy, per-suite domain scope) cuts **AgentDojo** Targeted ASR **0.181→0.000** (all 72 cases contained) at benign-utility 0.583→0.208, and **InjecAgent** ASR-valid **0.143→0.034** (data-stealing 0.222→0.034) at valid-rate 0.93→0.97 — `qwen3-coder:30b` agent. Honest: ASR eliminated but high benign cost for a broad scope (small in healthcare) → reinforces the domain-specific-scope thesis. Surfaced + fixed: proxy 403→opt-in OpenAI refusal, framing self-collision, inverted ASR semantics, latent rule FPs.
 **Reviewer concern:** "E4's agent-harm result is on your own mock-EHR — does it hold on
 the community-standard benchmarks (AgentDojo, InjecAgent) that CaMeL and the firewalls
 paper use?" Run QFIRE (proxy) on **AgentDojo** (Benign Utility / Utility-Under-Attack /
