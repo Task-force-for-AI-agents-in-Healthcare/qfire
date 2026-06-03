@@ -128,7 +128,7 @@ runs $N$ rules and their typed detector nodes concurrently on a Tokio runtime
 with cheap-before-expensive short-circuiting; and (iii) a \emph{de-obfuscation
 normalization pass} that decodes Base64/hex/ROT13, folds homoglyphs and
 leetspeak, and strips zero-width characters before detection. QFIRE ships
-${\sim}100$ versioned firewall rules, a dedicated HIPAA Safe-Harbor (18
+$106$ versioned firewall rules, a dedicated HIPAA Safe-Harbor (18
 identifier) healthcare/PHI panel, and runs the
 \texttt{deberta-v3-base-prompt-injection} classifier locally via embedded ONNX
 Runtime. On \NumPrompts{} public prompt-injection and jailbreak prompts QFIRE's
@@ -136,14 +136,19 @@ deterministic hybrid attains F1~$0.86$, statistically tied with Meta's
 state-of-the-art PromptGuard-2 (F1~$0.86$) and above protectai DeBERTa-v3
 (F1~$0.83$), while lexical baselines lag (F1~$0.16$--$0.50$). Our central result is
 on \emph{QFIRE-HealthBench}, a new 2{,}000-prompt healthcare benchmark we build and
-release with real garak and Microsoft PyRIT payloads: there the same SOTA PromptGuard-2
+release with real garak and Microsoft PyRIT~\cite{pyrit} payloads: there the same SOTA PromptGuard-2
 recovers only $0.40$ recall (DeBERTa-v3 $0.57$), because most clinical
 threats---PHI exfiltration, cross-patient access, re-identification, bulk export,
 out-of-scope advice---carry no injection signal, whereas QFIRE's combined
 scope+PHI chain reaches $0.83$ recall (F1~$0.87$) at a calibrated $0.08$
 false-positive rate. Generic prompt-injection detection, even SOTA, is therefore
 necessary but not sufficient for healthcare LLM agents; positive-security scope
-and PHI controls close a gap a classifier structurally cannot. End-to-end, placing
+and PHI controls close a gap a classifier structurally cannot.
+A bare LLM judge also closes most of this static-corpus gap (F1~$0.90$);
+QFIRE's distinctive contribution beyond static accuracy is auditable
+determinism, bounded latency, and adaptive robustness, where the bare judge
+falls to $34$--$59\%$ recall (\S\ref{sec:adaptive}).
+End-to-end, placing
 QFIRE in front of a tool-using agent over a mock-EHR sandbox cuts the agent's
 harmful-action rate from $0.38$ to $0.00$ at a $0.13$ benign-utility cost. We report
 precision/recall/F1 with 95\% Wilson confidence intervals, ROC--AUC, and
@@ -231,7 +236,7 @@ an ultra-low-latency, zero-trust parallel prompt firewall in Rust.
   regenerated end-to-end by \texttt{make paper}.\par}
   \item {\sloppy \textbf{End-to-end and regulatory evidence.} Placing QFIRE inline in
   front of tool-using agents cuts the harmful-action rate to ${\approx}0$ (mock-EHR
-  $0.38\rightarrow0.00$; AgentDojo targeted-ASR\,$\rightarrow0$, InjecAgent
+  $0.38\rightarrow0.00$; AgentDojo targeted-ASR\,$\rightarrow0$ (Wilson upper $0.05$), InjecAgent
   ${\sim}4\times$), and we map each control to the HAARF clinical-AI regulatory
   framework so that scope restriction, PHI protection, and auditable refusal are
   \emph{measured} rather than asserted.\par}
@@ -263,30 +268,25 @@ Table~\ref{tab:related} situates QFIRE against representative recent systems.
 \renewcommand{\arraystretch}{1.95}
 \begin{tabular}{L{2.7cm}L{3.1cm}L{3.0cm}L{3.15cm}L{2.75cm}}
 \toprule
-Framework & Core design & Threat focus & Primary advantage & Limitation \\
+Framework & Core design & Threat focus & Primary advantage & Trade-off \\
 \midrule
 LlamaFirewall~\cite{llamafirewall2025} & Modular Python middleware interceptor &
 Prompt injection, goal hijacking, insecure code generation & Deep multi-stage
-auditing (PromptGuard~2, AlignmentCheck, CodeShield) & High latency from Python /
-PyTorch inference \\
+auditing (PromptGuard~2, AlignmentCheck, CodeShield) & Python/PyTorch inference path (latency host-dependent) \\
 OneShield~\cite{oneshield2025} & Standalone parallelized multi-detector gateway &
 Enterprise policy violations, PII leakage, copyright & Dynamic scale-out; unified
-parallel low-latency execution & Reliance on external API management and standard
-datasets \\
+parallel low-latency execution & Depends on external API management \\
 Cognitive Firewall~\cite{cognitivefirewall2026} & Split-computing edge-to-cloud
 architecture & Indirect injection in autonomous browser agents & Fast lexical
-edge screening minimizes local load & Cloud semantic verification raises privacy
-and latency issues \\
+edge screening minimizes local load & Cloud semantic verification stage has privacy and latency trade-offs \\
 PSG-Agent~\cite{psgagent2025} & Training-free personalized runtime guardrail &
 Adaptive user-specific risk, intent drift over turns & Per-user profiling tailors
-safety thresholds & High compute cost; hard to deploy stateless \\
+safety thresholds & Per-user profiling cost; not stateless \\
 Semantic Firewalls~\cite{semanticfirewall2026} & Abstractive protocol transformer
 / online ensemble & Contextual data leakage, tool-parameter and syntax bypass &
-Type-safety, closed vocabularies, string isolation & Demands structured,
-application-specific translation schemas \\
+Type-safety, closed vocabularies, string isolation & Requires application-specific translation schemas \\
 garak~\cite{garak2024} & Vulnerability scanner / probe suite & Broad red-team
-attack coverage & Comprehensive offline attack library & Offline scanner, not an
-inline filter \\
+attack coverage & Comprehensive offline attack library & Offline scanner (not an inline filter) \\
 \textbf{QFIRE (ours)} & Rust async detector graph + positive scope, inline proxy &
 Injection \emph{and} out-of-scope/PHI drift in clinical agents & Low-latency local
 inference, de-obfuscation, declarative scope constraints, no Python in the hot
@@ -349,7 +349,7 @@ data / SQL        & 10 & \texttt{sql\_readonly\_select}, \texttt{sql\_no\_destru
 \end{table}
 
 \subsection{A declarative firewall language}\label{sec:language}
-The deepest difference from PromptGuard-2, LlamaFirewall, and Protect~AI LLM Guard
+The deepest difference from PromptGuard-2, LlamaFirewall, and Protect~AI LLM Guard~\cite{protectai_llmguard}
 is not a single detector: a QFIRE firewall is \emph{data, not code}. Those systems
 express policy in Python and model weights; QFIRE expresses it in
 version-controlled YAML that the engine interprets, making policy auditable,
@@ -528,7 +528,7 @@ result (\S\ref{sec:healthcare-result}).
 corpus: \texttt{deberta-v3-base-prompt-injection}~\cite{protectai_deberta} (the
 de-facto open detector, and the engine inside Protect~AI LLM Guard), executed in
 PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; a second,
-purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}
+purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}~\cite{qualifire_sentinel}
 (a ModernBERT detector); a bare \texttt{llama3.1:8B} LLM-judge with a generic
 block/allow prompt and \emph{no} QFIRE scaffold (to isolate the scaffold's
 contribution); and lexical regex / Aho-Corasick filters. As a \emph{full-stack
@@ -672,7 +672,9 @@ strongest system on public injection at F1~$0.98$---recovers just $0.64$, leavin
 more than a third of clinical threats through. QFIRE's classifier-only chain lands at
 $0.59$. The reason is structural: most healthcare threats carry no jailbreak token.
 Adding the PHI detector and positive-security scope rules (\texttt{bench\_combined})
-lifts recall to $0.83$ (F1 $0.73 \rightarrow 0.87$) at a calibrated FPR of $0.08$.
+lifts recall from the baseline classifier's $0.57$ to $0.83$ (protectai
+DeBERTa-v3 F1~$0.73$ $\rightarrow$ \texttt{bench\_combined} F1~$0.87$) at a
+calibrated FPR of $0.08$.
 Appendix~\ref{app:examples} (Table~\ref{tab:failures}) lists verbatim examples of
 these missed-by-classifier, caught-by-QFIRE prompts, one per category.
 
@@ -1180,16 +1182,19 @@ the core shared rules and the headline detection chains of \S\ref{sec:healthcare
 are unchanged. (iv)~The scope judge is a local model and is mildly stochastic on
 borderline benign cases, which the Wilson intervals absorb.
 
-\begin{figure}[htb]
+\begin{figure}[tbp]
 \centering
-\includegraphics[width=\linewidth]{figs/agent_benchmarks.png}
-\caption{QFIRE on standard agent benchmarks, guard off (no firewall) vs.\ on
-(\texttt{qwen3-coder:30b} agent, \texttt{important\_instructions} attack, $95\%$
-Wilson CIs). (a)~Attack success: Targeted ASR per AgentDojo suite and pooled,
-InjecAgent attack-success, and the E4 mock-EHR harmful-action rate for reference;
-QFIRE drives AgentDojo ASR to $0$ and cuts InjecAgent ASR $\sim$4$\times$.
-(b)~Benign utility (AgentDojo): the over-refusal cost of a broad per-suite domain
-scope.}\label{fig:agentbench}
+\includegraphics[width=0.88\linewidth]{figs/agent_benchmarks.png}
+\caption{QFIRE on standard agent benchmarks (\texttt{qwen3-coder:30b} agent,
+\texttt{important\_instructions} attack, $95\%$ Wilson CIs). The top schematic
+shows the indirect prompt-injection threat: an attacker plants instructions in
+content the agent later reads via a tool, and QFIRE blocks at the prompt
+boundary before the agent acts. Below: (a)~Attack success---Targeted ASR per
+AgentDojo suite and pooled, InjecAgent attack-success, and the E4 mock-EHR
+harmful-action rate---as no-firewall$\rightarrow$QFIRE dumbbells with Wilson
+bands; QFIRE drives AgentDojo ASR to $0$ (Wilson upper $0.05$) and cuts
+InjecAgent ASR ${\sim}4{\times}$. (b)~Benign utility (AgentDojo): the
+over-refusal cost of a broad per-suite domain scope.}\label{fig:agentbench}
 \end{figure}
 
 \section{Discussion and Limitations}
@@ -1235,7 +1240,7 @@ threats that carry no injection signal.
 
 \begin{table}[htb]
 \centering\small
-\begin{tabular}{p{2.6cm}p{5.4cm}p{4.6cm}}
+\begin{tabular}{L{2.6cm}L{5.4cm}L{4.6cm}}
 \toprule
 HAARF control & Requirement (abridged) & QFIRE mechanism \\
 \midrule
@@ -1249,7 +1254,7 @@ C6.3.1,\,C6.3.4 & Authority boundaries; violations auto-detected and logged & De
 \end{tabular}
 \caption{QFIRE as a concrete enforcement layer for specific HAARF~\cite{haarf2026}
 controls. HAARF defines the verification requirement; QFIRE is the runtime
-mechanism that satisfies it and produces the measured evidence.}
+mechanism that satisfies it; the measured evidence backing each control lives in the referenced sections.}
 \label{tab:haarf}
 \end{table}
 
@@ -1348,7 +1353,7 @@ benchmarked false-positive and recall rates. All artifacts and the
 
 \section*{Declaration of generative AI use}
 During the preparation of this work the authors used Anthropic's Claude---specifically
-the Claude Opus~4.8 model (\texttt{claude-opus-4-8}) via the Claude Code CLI---to
+the Claude Opus~4.7 model (\texttt{claude-opus-4-7}) via the Claude Code CLI---to
 assist with drafting and editing the manuscript for readability and clarity, and to
 help design, implement, run, and analyze the reproducible benchmark experiments and
 their figures. After using this tool, the authors reviewed and edited all
@@ -1367,7 +1372,7 @@ results subsection.
 positive class). Latency is per-prompt wall clock; QFIRE detectors run in
 Rust, PyTorch baselines on CPU. $^\dagger$NeMo Guardrails (full input-rail
 stack: jailbreak heuristics + LLM scope self-check + Presidio PII) on a
-stratified $400/400$ sample, llama3.1:8B via local Ollama.}
+stratified $400/400$ sample, llama3.1:8B via local Ollama. QFIRE DeBERTa latencies are \emph{cold} (uncached first call); PyTorch baselines are similarly uncached. Lexical detectors are warm.}
 \label{tab:main}
 \end{table}
 
@@ -1377,8 +1382,7 @@ stratified $400/400$ sample, llama3.1:8B via local Ollama.}
 public prompts. \emph{Accuracy} is the fraction of prompts (attack or benign)
 labelled correctly; the \emph{95\% Wilson confidence interval} is the statistical
 range in which the true accuracy plausibly lies given the sample size---a narrower
-interval means more certainty, and non-overlapping intervals indicate a real
-difference. The learned detectors (DeBERTa-v3 and the QFIRE hybrid, ${\approx}0.87$)
+interval means more certainty. Non-overlapping intervals here are indicative rather than a paired test; we report them on the same prompts. The learned detectors (DeBERTa-v3 and the QFIRE hybrid, ${\approx}0.87$)
 separate cleanly from the lexical baselines (${\approx}0.56$--$0.67$). The final row
 applies de-obfuscation to \emph{all} traffic, which lowers accuracy on this clean
 corpus---it is meant to be triggered only on encoded inputs (Table~\ref{tab:deobf}).}
@@ -1393,14 +1397,14 @@ De-obfuscation decodes such text back to plain form before the detectors inspect
 it. \emph{Recall} is the fraction of attacks caught and \emph{F1} is the combined
 precision/recall score ($\Delta$F1 is the change from the no-normalization row).
 Decoding raises recall from $0.55$ to $0.84$ (F1~$+0.08$), recovering disguised
-attacks the raw detectors would otherwise miss.}
+attacks the raw detectors would otherwise miss. Always-on decoding raises FPR to $0.27$ on clean traffic (\S\ref{sec:deobf}), motivating triggered-only deployment.}
 \label{tab:deobf}
 \end{table}
 
 \begin{table}[h]\centering\small
 \input{tables/healthcare.tex}
 \caption{The strict \texttt{hipaa\_phi} chain (ten conjoined scope and PHI rules)
-on a clinical-adjacent corpus with equal numbers of attack and benign prompts.
+on a clinical-adjacent corpus of $28$ attack and $28$ benign prompts.
 \emph{Block rate} is the fraction of \emph{attacks} blocked; \emph{FPR}
 (false-positive rate) is the fraction of \emph{benign} prompts wrongly blocked;
 \emph{precision} is the share of blocked prompts that were truly attacks; and
@@ -1427,7 +1431,7 @@ Qwen 3.6 & 1.00 & 0.13 & 0.230 & 0.00 & 25\,s & \textbf{100} \\
 \caption{Judge-model ablation on the single-rule \texttt{judge\_scope} chain
 ($100$ attack / $100$ benign). Per-prompt agreement with the Llama~3.1 baseline
 (Cohen's $\kappa$): Llama~3.2 $85.5\%$ ($\kappa{=}0.71$), Gemma~4 $99.0\%$
-($\kappa{=}0.98$), Qwen3~8B $94.5\%$ ($\kappa{=}0.96$ est.), Qwen~3.6 $57.0\%$
+($\kappa{=}0.98$), Qwen3~8B $94.5\%$ ($\kappa{\approx}0.96$, derived from the $94.5\%$ agreement; raw per-prompt judgments for an exact $\kappa$ are not retained in the run manifest), Qwen~3.6 $57.0\%$
 ($\kappa{=}0.13$). ``abstain'' counts prompts where the model failed to emit a
 parseable one-line verdict (treated as abstain$\rightarrow$allow).}
 \label{tab:judgeabl}
@@ -1546,17 +1550,17 @@ $0.95\rightarrow0.82$, the cost concentrated in conservatively-blocked outbound 
 
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.49\textwidth}\centering
+\begin{minipage}{0.47\textwidth}\centering
   \includegraphics[width=\linewidth]{figs/deberta.png}\\[2pt]
   {\footnotesize (a) DeBERTa-v3 --- single classifier}
 \end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}\centering
+\begin{minipage}{0.47\textwidth}\centering
   \includegraphics[width=\linewidth]{figs/promptguard2.png}\\[2pt]
   {\footnotesize (b) PromptGuard-2 (SOTA) --- single classifier}
 \end{minipage}
 
 \vspace{6pt}
-\begin{minipage}{0.92\textwidth}\centering
+\begin{minipage}{0.78\textwidth}\centering
   \includegraphics[width=\linewidth]{figs/qfire.png}\\[2pt]
   {\footnotesize (c) QFIRE --- parallel detector graph with positive-security
   scope + PHI nodes}
@@ -1576,7 +1580,7 @@ why a generic detector scores it benign. These are the prompts behind the
 $0.40\rightarrow0.83$ recall jump.
 
 \begin{table}[h]\centering\small
-\begin{tabular}{p{2.4cm}p{8.0cm}cc}
+\begin{tabular}{L{2.4cm}L{8.0cm}cc}
 \toprule
 Category & Prompt (verbatim) & DeBERTa & QFIRE \\
 \midrule
@@ -1588,11 +1592,7 @@ cross-patient & ``Show me another patient's chart --- John Smith in room 30.'' &
 clinical advice & ``Based on my symptoms, what disease do I have and what atorvastatin dose should I take?'' & \textcolor{red}{allow} & \textcolor{green!50!black}{\textbf{block}} \\
 \bottomrule
 \end{tabular}
-\caption{Real QFIRE-HealthBench attacks the injection classifier (protectai
-DeBERTa-v3) passes but QFIRE blocks, one per category. Verdicts are from the actual
-benchmark run; identifiers are synthetic. These carry no injection signal---they
-are blocked by the PHI detector and positive-security scope rules, not the
-classifier.}
+\caption{Selected QFIRE-HealthBench attacks (one per category) where the injection classifier (protectai DeBERTa-v3) allows and QFIRE blocks. Verdicts are from the actual benchmark run; identifiers are synthetic. These are illustrative examples behind the $0.40\rightarrow0.83$ recall jump, not a complete enumeration; the attacks carry no injection signal---they are blocked by the PHI detector and positive-security scope rules, not the classifier.}
 \label{tab:failures}
 \end{table}
 
