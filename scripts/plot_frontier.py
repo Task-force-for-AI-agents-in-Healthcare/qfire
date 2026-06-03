@@ -41,27 +41,29 @@ QFIRE = {
     "healthbench": ("QFIRE combined", 242.26, 0.868),
 }
 
-# Per-point label placement for the crowded public-injection panel.
+# Per-point label placement for the crowded public-injection panel. The points
+# form two tight clusters (~106-113 ms and ~197-242 ms), so the cluster labels get
+# leader lines that fan them out into the empty lower region; no two labels overlap.
 # (dx_pts, dy_pts, ha, va, leader)  -- offset in POINTS from the marker.
 INJ_PLACE = {
-    "PromptGuard-2 86M":       ( 6,  10, "left",   "bottom", False),
-    "DeBERTa-v3 (protectai)":  ( 8,  -2, "left",   "center", False),
-    "PromptGuard-2 22M":       (-8,   8, "right",  "bottom", False),
-    "DeBERTa-70M (INT8)":      (-8,  -7, "right",  "top",    False),
-    "Sentinel":                (10,  -2, "left",   "center", False),
-    "bare LLM-judge":          (-9,   8, "right",  "bottom", False),
+    "DeBERTa-70M (INT8)":      (-16, -30, "right",  "top",    True),
+    "PromptGuard-2 22M":       (  2, -64, "center", "top",    True),
+    "PromptGuard-2 86M":       (-34,  22, "right",  "bottom", True),
+    "DeBERTa-v3 (protectai)":  ( 40, -34, "left",   "top",    True),
+    "Sentinel":                ( 11,  -3, "left",   "center", False),
+    "bare LLM-judge":          (  0, -20, "center", "top",    False),
 }
-INJ_QFIRE_PLACE = (14, -3, "left", "center")
-# HealthBench panel is well spread: simple per-point offsets.
+INJ_QFIRE_PLACE = (34, 10, "left", "bottom")
+# HealthBench panel is well spread: simple per-point offsets (a couple get leaders).
 HB_PLACE = {
-    "DeBERTa-70M (INT8)":      (8,   6, "left",  "bottom", False),
-    "PromptGuard-2 22M":       (8,  -7, "left",  "top",    False),
-    "PromptGuard-2 86M":       (9,  -2, "left",  "center", False),
-    "DeBERTa-v3 (protectai)":  (8,  10, "left",  "bottom", False),
-    "Sentinel":                (8,   7, "left",  "bottom", False),
-    "bare LLM-judge":          (-9,  6, "right", "bottom", False),
+    "DeBERTa-70M (INT8)":      (-10, 12, "right", "bottom", True),
+    "PromptGuard-2 22M":       (8,  -8, "left",  "top",    False),
+    "PromptGuard-2 86M":       (10,  4, "left",  "bottom", False),
+    "DeBERTa-v3 (protectai)":  (8,  13, "left",  "bottom", True),
+    "Sentinel":                (8, -12, "left",  "top",    False),
+    "bare LLM-judge":          (-9,  7, "right", "bottom", False),
 }
-HB_QFIRE_PLACE = (-13, 6, "right", "bottom")
+HB_QFIRE_PLACE = (-13, 8, "right", "bottom")
 
 
 def load(path):
@@ -131,7 +133,7 @@ def panel(ax, jsons, title, qfire, placements, qfire_place, xlim):
     fx.append(xlim[1])
     fy.append(front[-1][1])
     ax.plot(fx, fy, ls="--", lw=1.6, color=fs.BASELINE_D, alpha=0.7, zorder=1,
-            label="Pareto frontier")
+            label="Pareto frontier (optimal: best F1 per latency)")
 
     # --- baseline detectors: small red dots ------------------------------------
     for k, (lat, f1) in seen.items():
