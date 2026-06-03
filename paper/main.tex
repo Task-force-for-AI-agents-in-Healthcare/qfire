@@ -761,13 +761,12 @@ injection but on healthcare scope and PHI, which we turn to next---and, as
 % instead of leaving a band the next subsection creeps into.
 \begin{figure}[p]
 \centering
-\null\vfill
 \includegraphics[width=\linewidth]{figs/roc_pr.png}
 \caption{ROC and precision-recall curves on the public corpus. The learned
 detectors (DeBERTa AUC~$0.89$, QFIRE hybrid) hug the top-left corner; the lexical
 filters track the diagonal, making the ``fast-but-blind'' gap visual.}
 \label{fig:rocpr}
-\vfill
+\vspace{0.9in}
 \includegraphics[width=\linewidth]{figs/latency_f1_frontier.png}
 \caption{Latency (p95, log scale) vs F1 for every detector, on public injection
 (left) and QFIRE-HealthBench (right). Compressed classifiers (DeBERTa-70M,
@@ -777,7 +776,6 @@ classifiers, lose recall on healthcare; the bare LLM-judge is slowest. QFIRE
 QFIRE's HealthBench point uses the hybrid-chain p95 as a latency proxy (the combined
 chain short-circuits, so it has no single classifier p95).}
 \label{fig:frontier}
-\vfill\null
 \end{figure}
 
 \subsection{Healthcare: the central result}\label{sec:healthcare-result}
