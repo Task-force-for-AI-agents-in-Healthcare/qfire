@@ -1301,20 +1301,42 @@ stratified $400/400$ sample, llama3.1:8B via local Ollama.}
 
 \begin{table}[h]\centering\small
 \input{tables/accuracy_ci.tex}
-\caption{QFIRE accuracy with 95\% Wilson score confidence intervals.}
+\caption{Detection accuracy with 95\% confidence intervals on the \NumPrompts{}
+public prompts. \emph{Accuracy} is the fraction of prompts (attack or benign)
+labelled correctly; the \emph{95\% Wilson confidence interval} is the statistical
+range in which the true accuracy plausibly lies given the sample size---a narrower
+interval means more certainty, and non-overlapping intervals indicate a real
+difference. The learned detectors (DeBERTa-v3 and the QFIRE hybrid, ${\approx}0.87$)
+separate cleanly from the lexical baselines (${\approx}0.56$--$0.67$). The final row
+applies de-obfuscation to \emph{all} traffic, which lowers accuracy on this clean
+corpus---it is meant to be triggered only on encoded inputs (Table~\ref{tab:deobf}).}
 \label{tab:ci}
 \end{table}
 
 \begin{table}[h]\centering\small
 \input{tables/deobf.tex}
-\caption{Effect of the de-obfuscation normalization pass on obfuscated attacks.}
+\caption{Effect of the de-obfuscation pass on a corpus of \emph{encoded} attacks
+(payloads disguised with Base64, ROT13, leetspeak, or look-alike characters).
+De-obfuscation decodes such text back to plain form before the detectors inspect
+it. \emph{Recall} is the fraction of attacks caught and \emph{F1} is the combined
+precision/recall score ($\Delta$F1 is the change from the no-normalization row).
+Decoding raises recall from $0.55$ to $0.84$ (F1~$+0.08$), recovering disguised
+attacks the raw detectors would otherwise miss.}
 \label{tab:deobf}
 \end{table}
 
 \begin{table}[h]\centering\small
 \input{tables/healthcare.tex}
-\caption{Healthcare/PHI chain: block rate and false-positive rate on
-clinical-adjacent prompts.}
+\caption{The strict \texttt{hipaa\_phi} chain (ten conjoined scope and PHI rules)
+on a clinical-adjacent corpus with equal numbers of attack and benign prompts.
+\emph{Block rate} is the fraction of \emph{attacks} blocked; \emph{FPR}
+(false-positive rate) is the fraction of \emph{benign} prompts wrongly blocked;
+\emph{precision} is the share of blocked prompts that were truly attacks; and
+\emph{recall} is the share of attacks caught. The chain catches every attack
+(recall~$1.00$) but also blocks every benign prompt (FPR~$1.00$), so half of its
+blocks are false alarms (precision~$0.50$): naively conjoining many strict judges
+destroys usability, which is why the deployed chains are calibrated
+(\S\ref{sec:hcpanel}).}
 \label{tab:hc}
 \end{table}
 
