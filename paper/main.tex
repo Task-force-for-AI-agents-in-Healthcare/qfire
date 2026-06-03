@@ -70,7 +70,7 @@ latency: model-based auditors are accurate but add hundreds of milliseconds of
 Python inference, while lexical filters are fast but blind to obfuscated or
 semantically disguised payloads. We present \textbf{QFIRE}, an inline,
 provider-agnostic prompt firewall implemented as a single self-contained Rust
-toolchain (proxy, CLI, and benchmark harness). QFIRE contributes three ideas:
+toolchain (proxy, CLI, and benchmark harness). QFIRE combines three mechanisms:
 (i) \emph{positive-security scope constraints}, which restrict a model call to
 a declared natural-language purpose and block out-of-scope drift even when no
 overt attack token is present; (ii) an \emph{asynchronous detector graph} that
@@ -150,25 +150,34 @@ design.
 
 \paragraph{Contributions.} Our contributions are as follows:
 \begin{enumerate}
-  \item \textbf{Positive-security scope constraints.} Beyond flagging overt
-  attacks, QFIRE enforces a declared operational scope (e.g.\ ``marketing copy
-  only'', ``appointment scheduling, no clinical advice'') and blocks anything
-  outside it, neutralizing camouflaged or benign-looking drift.
-  \item \textbf{Asynchronous detector graph with collapse.} Rules and detector
-  nodes execute concurrently; a chain collapses $N$ per-rule verdicts into one
-  terminal decision in either an ordered (iptables-style) or boolean-expression
-  mode, with cheap-before-expensive short-circuiting.
-  \item \textbf{De-obfuscation normalization} that exposes hidden payloads
-  (Base64/hex/ROT13, homoglyphs, leetspeak, zero-width) before detection, and a
-  complete \textbf{HIPAA Safe-Harbor PHI} panel covering all 18 identifiers.
+  \item {\sloppy \textbf{The clinical-threat coverage gap (central result).} We show
+  that generic prompt-injection detection---even the SOTA PromptGuard-2---is
+  necessary but \emph{not} sufficient for healthcare LLM agents: most clinical
+  threats (PHI exfiltration, cross-patient access, re-identification, bulk export,
+  out-of-scope advice) carry no injection signal, so the strongest classifier
+  collapses to $0.40$ recall where QFIRE's complementary positive-security
+  scope\,+\,PHI chain holds at $0.83$. The two detector families have
+  \emph{disjoint} blind spots; their composition closes the gap.\par}
+  \item \textbf{QFIRE, a positive-security inline firewall.} A single self-contained
+  Rust toolchain (inline proxy, CLI, harness) that enforces a declared
+  natural-language scope and an 18-identifier HIPAA Safe-Harbor PHI panel as
+  version-controlled, auditable, unit-testable policy---no model retraining, no
+  white-box access, no Python in the hot path. An asynchronous detector graph runs
+  rules concurrently with cheap-before-expensive collapse, and a de-obfuscation pass
+  (Base64/hex/ROT13, homoglyphs, leetspeak, zero-width) exposes hidden payloads
+  before detection.
   \item {\sloppy \textbf{QFIRE-HealthBench and a reproducible benchmark.} We build
   and release a new healthcare dataset of $2{,}000$ prompts---$1{,}000$ benign
-  clinical-adjacent and $1{,}000$ malicious (PHI exfiltration, cross-patient access,
-  re-identification, bulk export, and out-of-scope clinical advice) built with real
-  garak and Microsoft PyRIT payloads---the corpus behind our central result, and
-  evaluate QFIRE head-to-head with open detectors on it and on public corpora with
-  Wilson confidence intervals and latency percentiles, regenerated end-to-end by
-  \texttt{make paper}.\par}
+  clinical-adjacent and $1{,}000$ malicious---built with real garak and Microsoft
+  PyRIT payloads, and evaluate QFIRE head-to-head with open detectors on it and on
+  public corpora with Wilson confidence intervals and latency percentiles,
+  regenerated end-to-end by \texttt{make paper}.\par}
+  \item {\sloppy \textbf{End-to-end and regulatory evidence.} Placing QFIRE inline in
+  front of tool-using agents cuts the harmful-action rate to ${\approx}0$ (mock-EHR
+  $0.38\rightarrow0.00$; AgentDojo targeted-ASR\,$\rightarrow0$, InjecAgent
+  ${\sim}4\times$), and we map each control to the HAARF clinical-AI regulatory
+  framework so that scope restriction, PHI protection, and auditable refusal are
+  \emph{measured} rather than asserted.\par}
 \end{enumerate}
 
 \paragraph{Positioning in the field.} A growing body of work argues that input
