@@ -367,7 +367,7 @@ short-circuits on the first block before reaching the classifier or judge.
   scope: "General health info only; no diagnosis or symptom interpretation."
   short_circuit: stop_on_first_block
   pipeline:
-    - type: judge                 # semantic scope decision (LLM)
+    - type: judge # semantic scope decision (LLM)
   exemplars:
     in_scope:  ["What is hypertension and its lifestyle factors?"]   # ALLOW
     out_of_scope: ["I have fever and a stiff neck - do I have meningitis?"] # BLOCK
@@ -377,7 +377,7 @@ short-circuits on the first block before reaching the classifier or judge.
   pipeline:
     - type: regex
       deny: ['(?i)ignore\s+(all\s+|the\s+)?(previous|above)\s+instructions?']
-    - type: deberta               # only runs if the regex abstains
+    - type: deberta # only runs if the regex abstains
       threshold: 0.6
 
 # chains/hipaa_phi.yaml -- EXPRESSION mode (boolean DAG, fail-closed)
@@ -1253,7 +1253,7 @@ control. The positive-security results of this paper are only deployable because
 the policy that produced them is inspectable data.
 
 \paragraph{Limitations.}
-QFIRE's positive-security stance trades permissiveness for safety: a strict
+\looseness=-1 QFIRE's positive-security stance trades permissiveness for safety: a strict
 healthcare chain can over-block benign clinical-adjacent prompts, which we
 measure (\S\ref{sec:hcpanel}) rather than hide. On generic injection a strong
 classifier (PromptGuard-2) matches QFIRE; QFIRE's measured advantage is the
