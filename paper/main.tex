@@ -71,8 +71,8 @@ Python inference, while lexical filters are fast but blind to obfuscated or
 semantically disguised payloads. We present \textbf{QFIRE}, an inline,
 provider-agnostic prompt firewall implemented as a single self-contained Rust
 toolchain (proxy, CLI, and benchmark harness). QFIRE contributes three ideas:
-(i) \emph{positive-security scope constraining}, which restricts a model call to
-a declared natural-language purpose and blocks out-of-scope drift even when no
+(i) \emph{positive-security scope constraints}, which restrict a model call to
+a declared natural-language purpose and block out-of-scope drift even when no
 overt attack token is present; (ii) an \emph{asynchronous detector graph} that
 runs $N$ rules and their typed detector nodes concurrently on a Tokio runtime
 with cheap-before-expensive short-circuiting; and (iii) a \emph{de-obfuscation
@@ -85,8 +85,8 @@ Runtime. On \NumPrompts{} public prompt-injection and jailbreak prompts QFIRE's
 deterministic hybrid attains F1~$0.86$, statistically tied with Meta's
 state-of-the-art PromptGuard-2 (F1~$0.86$) and above protectai DeBERTa-v3
 (F1~$0.83$), while lexical baselines lag (F1~$0.16$--$0.50$). Our central result is
-on \emph{QFIRE-HealthBench}, a new 2{,}000-prompt healthcare benchmark we build
-with real garak and Microsoft PyRIT payloads: there the same SOTA PromptGuard-2
+on \emph{QFIRE-HealthBench}, a new 2{,}000-prompt healthcare benchmark we build and
+release with real garak and Microsoft PyRIT payloads: there the same SOTA PromptGuard-2
 recovers only $0.40$ recall (DeBERTa-v3 $0.57$), because most clinical
 threats---PHI exfiltration, cross-patient access, re-identification, bulk export,
 out-of-scope advice---carry no injection signal, whereas QFIRE's combined
@@ -145,12 +145,12 @@ injection and policy violations, not for the scope-restriction and
 protected-health-information (PHI) obligations of clinical deployment---threats
 that, as we show, carry no injection signal at all. QFIRE targets both gaps with
 an ultra-low-latency, zero-trust parallel prompt firewall in Rust that adds
-positive-security scope constraining and a HIPAA PHI panel to the inline-proxy
+positive-security scope constraints and a HIPAA PHI panel to the inline-proxy
 design.
 
 \paragraph{Contributions.} Our contributions are as follows:
 \begin{enumerate}
-  \item \textbf{Positive-security scope constraining.} Beyond flagging overt
+  \item \textbf{Positive-security scope constraints.} Beyond flagging overt
   attacks, QFIRE enforces a declared operational scope (e.g.\ ``marketing copy
   only'', ``appointment scheduling, no clinical advice'') and blocks anything
   outside it, neutralizing camouflaged or benign-looking drift.
@@ -161,6 +161,12 @@ design.
   \item \textbf{De-obfuscation normalization} that exposes hidden payloads
   (Base64/hex/ROT13, homoglyphs, leetspeak, zero-width) before detection, and a
   complete \textbf{HIPAA Safe-Harbor PHI} panel covering all 18 identifiers.
+  \item {\sloppy \textbf{QFIRE-HealthBench, a released benchmark.} A new healthcare
+  dataset of $2{,}000$ prompts---$1{,}000$ benign clinical-adjacent and $1{,}000$
+  malicious (PHI exfiltration, cross-patient access, re-identification, bulk export,
+  and out-of-scope clinical advice) built with real garak and Microsoft PyRIT
+  payloads---released with the repository as the corpus behind our central result,
+  capturing clinical threats that carry no generic injection signal.\par}
   \item \textbf{A reproducible benchmark} comparing QFIRE head-to-head with open
   detectors on public corpora, with Wilson confidence intervals and latency
   percentiles, regenerated end-to-end by \texttt{make paper}.
@@ -217,7 +223,7 @@ attack coverage & Comprehensive offline attack library & Offline scanner, not an
 inline filter \\
 \textbf{QFIRE (ours)} & Rust async detector graph + positive scope, inline proxy &
 Injection \emph{and} out-of-scope/PHI drift in clinical agents & Low-latency local
-inference, de-obfuscation, declarative scope constraining, no Python in the hot
+inference, de-obfuscation, declarative scope constraints, no Python in the hot
 path & Single-node; LLM-judge cost grows with rule count \\
 \bottomrule
 \end{tabular}
@@ -1213,7 +1219,7 @@ hardest residual, motivating tighter scope rules.
 
 \section{Conclusion}
 QFIRE shows that a Rust, parallel, positive-security firewall can combine
-low-latency local inference, de-obfuscation, and scope constraining in one
+low-latency local inference, de-obfuscation, and scope constraints in one
 reproducible toolchain. Its central empirical result is that generic
 prompt-injection detection---even the SOTA PromptGuard-2---is necessary but not
 sufficient in healthcare: on QFIRE-HealthBench the strongest classifier recovers
