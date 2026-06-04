@@ -52,34 +52,42 @@ def main():
         ax.scatter(xs, ys, c=color, marker=marker, s=75, zorder=3,
                    edgecolors="white", linewidths=0.8, label=label)
 
-    # One compact params+quant label per config, above its T1 point. Quant tags
-    # are shortened (Q4_K_M -> Q4); alternating vertical offset and edge-aware
-    # horizontal alignment keep the dense 4-8 GB cluster off the frame edges.
+    # One compact params+quant label per config, hugging its T1 point. Quant tags
+    # are shortened (Q4_K_M -> Q4). rotation_mode="anchor" keeps each label pinned
+    # to its node; the labels lean up-and-right, except the rightmost which leans
+    # up-and-left so it stays clear of the frame edge.
     def short_quant(q):
         return q.split("_")[0] if q else q
     labeled = sorted((r for r in rows if r["meta"].get("peak_vram_mb")),
                      key=lambda r: r["meta"]["peak_vram_mb"])
     n = len(labeled)
+    prev_x, level = None, 0
     for i, r in enumerate(labeled):
         vram = r["meta"]["peak_vram_mb"] / 1024.0
         params = r["meta"].get("params_b")
         tm = r["tiers"].get("t1") or next(iter(r["tiers"].values()), None)
         if params is None or not tm:
             continue
-        ha = "left" if i == 0 else "right" if i == n - 1 else "center"
-        dx = 4 if i == 0 else -4 if i == n - 1 else 0
+        # Lift a label only when its neighbor is too close on the log axis, so the
+        # tight 4-5 GB cluster never overlaps but isolated labels stay pinned low.
+        level = (level ^ 1) if (prev_x and vram / prev_x < 1.22) else 0
+        prev_x = vram
+        last = i == n - 1
         ax.annotate(f"{params:g}B {short_quant(r['meta'].get('quant',''))}",
                     xy=(vram, tm["j"]),
-                    xytext=(dx, 9 if i % 2 == 0 else 22), textcoords="offset points",
-                    fontsize=7, color="#444", ha=ha, va="bottom", rotation=25)
+                    xytext=(-4 if last else 4, 5 + level * 13), textcoords="offset points",
+                    fontsize=7, color="#444",
+                    ha="right" if last else "left", va="bottom",
+                    rotation=22, rotation_mode="anchor")
 
     ax.set_xscale("log")
     ax.set_xlim(1.2, 22)            # pad so the 1.6 GB and 14.8 GB labels stay in-frame
-    ax.set_ylim(-0.12, 1.16)        # headroom above J=1.0 so labels clear the title
+    ax.set_ylim(-0.12, 1.18)        # headroom above J=1.0 so labels clear the title
     ax.set_xlabel("Judge model peak VRAM (GB, log scale)")
     ax.set_ylabel("Youden's J  (TPR − FPR)")
-    ax.set_title("How small can the firewall judge be?  Memory vs. detection quality",
-                 pad=12)
+    ax.set_title("How small can the firewall judge be?  Memory vs. detection quality\n"
+                 "Llama 3.1 / 3.2 judge, by parameter size and quantization",
+                 fontsize=12, pad=10)
     ax.grid(True, which="both", axis="both", alpha=0.25)
     ax.legend(title="Attack benchmark", loc="lower right", framealpha=0.95, fontsize=8.5)
     fig.tight_layout()
