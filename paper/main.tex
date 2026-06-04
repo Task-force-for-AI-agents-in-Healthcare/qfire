@@ -998,6 +998,14 @@ $255$\,ms p95 (cold), paid only when the cheap detectors abstain. The LLM judge 
 the only network-cost node; under local Ollama every call is \$0, so overhead is
 latency---and that latency is strongly model-dependent (\S\ref{sec:judgeabl}). Both
 facts motivate cheap-before-expensive ordering and modest rule counts.
+Because the judge is also the only \emph{memory}-sensitive node, deploying QFIRE to
+the edge reduces to how small that judge can be: Appendix~\ref{app:judgemem}
+(Figure~\ref{fig:judgemem}) traces detection quality against measured judge VRAM and
+finds a usable firewall fits in ${\approx}4.4$\,GB (an 8B judge at Q3) for standard
+threats, with a sharp capability cliff below ${\approx}3$B---a 1B judge degenerates
+into a block-everything classifier. Adaptive evasions push the knee to
+${\approx}8.3$\,GB and plateau lower, so for a hard adversary it is the edge memory
+budget, not latency, that bounds how far out the proxy can run.
 
 \medskip\noindent\textbf{Measurement integrity.} Within a single \texttt{bench} invocation the verdict
 cache is shared across chains, so a chain evaluated after the DeBERTa-only chain
@@ -1889,6 +1897,42 @@ $0.95\rightarrow0.82$, the cost concentrated in conservatively-blocked outbound 
 only on an injection signal; QFIRE (c) also fans out to PHI and scope detectors,
 catching threats the classifiers miss.}
 \label{fig:approaches}
+\end{figure}
+
+\subsection{Judge memory--quality frontier}\label{app:judgemem}
+The latency ablations (\S\ref{sec:judgeabl}, \S\ref{sec:verbablx}) cost the judge in
+\emph{time}; this study adds the orthogonal axis that decides edge deployability:
+\emph{memory}. The LLM scope-judge is QFIRE's only model-size-sensitive detector
+(every other node---regex, Aho--Corasick, entropy, DeBERTa---is fixed-size), so the
+judge's VRAM footprint determines whether the proxy fits on an edge box. Holding the
+chain fixed (a single \texttt{hc\_no\_diagnosis} scope rule, seed~42, \texttt{--no-cache})
+we sweep the Llama family by parameter count (1B/3B/8B) and quantization
+(Q3/Q4/Q8/FP16), scoring two difficulty tiers that share the same $100$ benign
+in-scope prompts: a standard tier ($100$ QFIRE-HealthBench attacks) and a hard tier
+($200$ adaptive impersonation/encoded evasions). We plot Youden's
+$J=\mathrm{TPR}-\mathrm{FPR}$ against measured peak VRAM (Figure~\ref{fig:judgemem}).
+
+Three findings. \emph{(i) A capability cliff below 3B}: the 1B judge is a degenerate
+block-everything classifier (FPR~$1.00$, $J\approx0$), so the edge floor is
+${\approx}3$B / $2.6$\,GB. \emph{(ii) Standard threats saturate at ${\approx}4.4$\,GB}:
+a heavily-quantized 8B (Q3) reaches $J=1.00$ on the standard tier, so routine defense
+needs no large judge. \emph{(iii) Hard threats push the knee right and plateau lower}
+(${\approx}0.84$ at $8.3$\,GB, unsolved even at 8B-FP16)---the shape-change between
+tiers, not any single point, is the result. Quantization is nearly free (8B-Q3 at
+$4.4$\,GB recovers ${\sim}95\%$ of 8B-FP16's hard-tier $J$ at under a third the
+memory), and at equal footprint a quantized larger model beats a smaller one at full
+precision.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.92\linewidth]{figs/judge_memory_frontier.png}
+\caption{Judge memory--quality frontier: Youden's $J$ (TPR$-$FPR) vs.\ measured peak
+judge VRAM (log scale), for Llama~3.1/3.2 judges across parameter count and
+quantization. Standard tier = QFIRE-HealthBench; hard tier = adaptive
+impersonation/encoded evasions (same $100$ benign prompts). Note the sharp cliff
+below 3B, saturation at ${\approx}4.4$\,GB on standard threats, and a higher knee
+(${\approx}8.3$\,GB) that plateaus lower on adaptive threats.}
+\label{fig:judgemem}
 \end{figure}
 
 \section{Example prompts and failure cases}\label{app:examples}
