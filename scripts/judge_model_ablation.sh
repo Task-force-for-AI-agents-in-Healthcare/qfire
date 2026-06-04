@@ -9,7 +9,7 @@
 # models. qwen3-coder is coding-tuned and included as a Qwen-family data point
 # with that caveat.
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export QFIRE_DEBERTA_DIR=models/deberta
 BIN=./target/release/qfire
 HB=corpora/healthcare_bench

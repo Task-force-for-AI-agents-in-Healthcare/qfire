@@ -10,7 +10,7 @@ import glob
 import json
 import os
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Which ablation output dir to analyze: judge_scope (single-rule, discriminating)
 # by default; pass a chain name as argv[1] (e.g. hipaa_phi) to inspect another.
 import sys as _sys

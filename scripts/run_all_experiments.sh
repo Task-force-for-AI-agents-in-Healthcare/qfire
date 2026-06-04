@@ -2,7 +2,7 @@
 # Run the full QFIRE paper experiment matrix end-to-end with the real DeBERTa
 # ONNX binary, then the Python baselines, then generate the LaTeX tables.
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export QFIRE_DEBERTA_DIR=models/deberta
 BIN=./target/release/qfire
 SEED=42
@@ -30,9 +30,9 @@ $BIN bench \
 echo "HC_DONE"
 
 echo "== BASELINES: open Python detectors (deberta, promptguard-2) =="
-python3 /Users/jim/Desktop/qfire/scripts/baselines.py 2>&1 | tail -10
+python3 scripts/baselines.py 2>&1 | tail -10
 echo "BASE_DONE"
 
 echo "== TABLES =="
-python3 /Users/jim/Desktop/qfire/scripts/make_tables.py 2>&1 | tail -3
+python3 scripts/make_tables.py 2>&1 | tail -3
 echo "ALL_EXPERIMENTS_DONE"

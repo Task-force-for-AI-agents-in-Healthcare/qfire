@@ -20,7 +20,7 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(BASE, "scripts"))
 import gen_multiturn as g
 
-QB = os.environ.get("QFIRE_BIN", "/Users/jim/Desktop/qfire/target/release/qfire")
+QB = os.environ.get("QFIRE_BIN", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "target/release/qfire"))
 # Use the *calibrated* operating-point chains, not the strict hipaa_phi conjunction
 # (which over-blocks ~1.00 benign at scale, per the paper's 3.7 calibration cross-check).
 # bench_combined is QFIRE-HealthBench's deployable inj+PHI+scope chain (0.83 R / 0.08 FPR).

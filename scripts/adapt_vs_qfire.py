@@ -17,7 +17,7 @@ import subprocess
 import tempfile
 import urllib.request
 
-QB = os.environ.get("QFIRE_BIN", "/Users/jim/Desktop/qfire/target/release/qfire")
+QB = os.environ.get("QFIRE_BIN", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "target/release/qfire"))
 
 
 def evade_loop(attack, blocker, mutate, budget=10):

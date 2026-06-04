@@ -9,7 +9,7 @@ Usage: analyze_paired.py <dumpdir> <chainA> <chainB>
 import json, math, os, random, sys
 
 random.seed(42)
-DUMP = sys.argv[1] if len(sys.argv) > 1 else "/Users/jim/Desktop/qfire/bench-out/dump1"
+DUMP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bench-out/dump1")
 A = sys.argv[2] if len(sys.argv) > 2 else "bench_deberta"
 B = sys.argv[3] if len(sys.argv) > 3 else "bench_hybrid"
 

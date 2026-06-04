@@ -2,7 +2,7 @@
 # Benchmark QFIRE on HealthBench + read the de-obfuscation (mirror vs independent)
 # results, and per-category recall.
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export QFIRE_DEBERTA_DIR=models/deberta
 BIN=./target/release/qfire
 HB=corpora/healthcare_bench

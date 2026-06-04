@@ -5,7 +5,7 @@
 #  - triggered de-obfuscation vs always-on, on mirror AND independent obfuscators
 #  - honest per-chain latency (--no-cache) + measured parallel fan-out speedup
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export QFIRE_DEBERTA_DIR=models/deberta
 BIN=./target/release/qfire
 SEED=42

@@ -2,7 +2,7 @@
 # Rebuild with the corrected AUC score aggregation and re-run exp1 + exp2,
 # then regenerate tables and print the new F1/AUC per chain.
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export QFIRE_DEBERTA_DIR=models/deberta
 echo "== build --features onnx =="
 cargo build --release --features onnx 2>&1 | tail -3

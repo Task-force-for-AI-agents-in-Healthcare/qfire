@@ -21,7 +21,7 @@ PHI-solicitation, NOT operational-harm content.
 import base64, glob, json, os, random, re, subprocess
 
 random.seed(1337)
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(BASE, "corpora/healthcare_bench")
 GARAK_REPO = "/tmp/garak_repo/garak/data"
 PYRIT_PY = "/tmp/gp311/bin/python"
