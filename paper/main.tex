@@ -418,8 +418,10 @@ blockers (regex, Aho-Corasick, entropy, the injection classifier), which
 return \textsc{block} or \textsc{abstain}, or \emph{scope deciders} (LLM judge,
 exemplar similarity), which return \textsc{allow}/\textsc{block}; the expression
 predicate ``rule did not block'' lets guards and scope rules compose uniformly.
-The shipped library spans 106 rules across nine domains, plus 16 chains
-(Table~\ref{tab:library}).
+The shipped library spans 106 rules across nine application domains, plus 24 chains
+(Table~\ref{tab:library}); evaluation-only rules and chains used by the ablations and
+agent benchmarks live under \texttt{rules/bench}, \texttt{rules/e7}, and
+\texttt{chains/bench}.
 
 \begin{table}[H]\centering\small
 \begin{tabular}{lrl}
@@ -436,7 +438,7 @@ finance           & 10 & \texttt{fin\_no\_personalized\_advice} \\
 legal             & 10 & \texttt{legal\_no\_individualized\_advice} \\
 data / SQL        & 10 & \texttt{sql\_readonly\_select}, \texttt{sql\_no\_destructive} \\
 \midrule
-\textbf{Total}    & \textbf{106} & + 16 chains (10 benchmark, 6 application) \\
+\textbf{Total}    & \textbf{106} & + 24 chains (6 application, 18 benchmark/eval) \\
 \bottomrule
 \end{tabular}
 \caption{The shipped rule library: 106 rules across 9 domains, all validated by
@@ -707,7 +709,7 @@ are synthetic; the dataset and its card ship in
 \texttt{corpora/healthcare\_bench/}. This is the corpus behind the paper's central
 result (\S\ref{sec:healthcare-result}).
 \paragraph{Baselines.} We compare against open detectors run on the identical
-corpus: \texttt{deberta-\allowbreak v3-\allowbreak base-\allowbreak prompt-\allowbreak injection}~\cite{protectai_deberta} (the
+corpus: \texttt{deberta-\allowbreak v3-\allowbreak base-\allowbreak prompt-\allowbreak injection}~\cite{protectai_deberta}, a DeBERTa-v3~\cite{deberta2021} classifier (the
 de-facto open detector, and the engine inside Protect~AI LLM Guard), executed in
 PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; a second,
 purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}~\cite{qualifire_sentinel}
@@ -730,7 +732,7 @@ be a category mismatch.
 \paragraph{Agent and adversarial evaluation.} Beyond static detection we evaluate
 QFIRE inline, in front of tool-using agents and adaptive attackers.
 \emph{End-to-end agent harm} (\S\ref{sec:agentharm}): a ReAct agent
-(\texttt{llama3.1:8b}, temperature~$0$, seed~$42$) drives an in-process mock-EHR
+(\texttt{llama3.1:8b}, temperature~$0$) drives an in-process mock-EHR
 sandbox with ground-truth harm logging over $40$ benign and $40$ attack episodes,
 every untrusted input gated through \texttt{qfire check}. \emph{Standard agent
 benchmarks} (\S\ref{sec:agentbench}): a local tool-calling agent
@@ -749,7 +751,9 @@ Llama~3.1/3.2, Gemma~4, and Qwen3~8B/3.6 on a $100$-attack/$100$-benign HealthBe
 \paragraph{Metrics.} Treating ``attack'' as the positive class we report
 precision, recall, F1, false-positive rate, accuracy with 95\% Wilson score
 intervals~\cite{wilson1927}, ROC--AUC (from continuous detector scores), and
-latency percentiles (p50/p95/p99). Runs are seeded and described by a manifest.
+latency percentiles (p50/p95/p99). Unless noted, every evaluation run uses
+seed~$42$ (QFIRE-HealthBench itself was generated under seed~$1337$) and is
+described by a manifest.
 
 \paragraph{Calibration.} The deployable chain (\texttt{bench\_combined}) is a
 deterministic injection$+$PHI blend whose decision threshold is set to a
@@ -1007,7 +1011,7 @@ The LLM scope-judge node delegates the in/out-of-scope decision to a backing
 model. To isolate that model's effect we hold everything else fixed---a single
 scope rule (\texttt{hc\_no\_diagnosis}) in a one-rule chain so the model's verdict
 is the only deciding factor, the same $100$-attack/$100$-benign HealthBench
-subset, prompt, seed, and \texttt{--no-cache}---and vary only the Ollama model via
+subset, prompt, and \texttt{--no-cache}---and vary only the Ollama model via
 \texttt{QFIRE\_JUDGE\_MODEL}. Figure~\ref{fig:judgebars} and Table~\ref{tab:judgeabl} (Appendix~\ref{app:tables}) report two within-family
 points (Llama~3.1~8B vs.\ 3.2) and two cross-family models pulled at evaluation
 time (Gemma~4, Qwen~3.6).
@@ -1089,7 +1093,7 @@ four verbosity rungs (T0 terse, T1 one sentence, T2 structured paragraph, T3 ful
 firewall) in each of four domains (marketing, healthcare, code, SQL). Each of the
 $16$ conditions is a judge-only single-rule chain---no lexical node, so the scope
 wording is the sole deciding factor---evaluated with \texttt{--no-cache} (the
-verdict cache key omits scope) and seed $42$ on the same $929$ public injection
+verdict cache key omits scope) on the same $929$ public injection
 attacks (out-of-scope $\rightarrow$ expected \textsc{block}) and $50$ generated
 in-domain benign requests per domain (in-scope $\rightarrow$ expected
 \textsc{allow}); judge model Llama~3.2. We report Youden's
@@ -1123,7 +1127,7 @@ here---we test in the next section.)
 \subsubsection{Across judge models: capability substitutes for verbosity}\label{sec:verbablx}
 We repeat the ablation across six judge models spanning ${\sim}3$B--$12$B and four
 families (Llama~3.2, Phi-3.5~3.8B, Llama~3.1~8B, Gemma~2~9B, Gemma~4, and the
-reasoning model DeepSeek-R1), on a seeded $150$-attack subset. Each model judges all $16$
+reasoning model DeepSeek-R1), on a $150$-attack subset. Each model judges all $16$
 conditions; we pool $J$ across domains per rung and read per-call latency from each
 run's manifest (Figure~\ref{fig:verbablx}).
 
@@ -1191,7 +1195,7 @@ versus QFIRE's deployed positive-security scope+PHI chain
 \emph{scope-impersonation} (PHI-exfiltration phrased as routine clinical workflow),
 \emph{paraphrase-to-evade} (each attack iteratively paraphrased until DeBERTa allows
 it), and \emph{encoding/suffix} (Base64/\allowbreak ROT13/\allowbreak homoglyph/\allowbreak zero-width plus an
-adversarial suffix). Attacks were generated by a local model (gemma2:9B, seed 42);
+adversarial suffix). Attacks were generated by a local model (gemma2:9B);
 we report recall (fraction blocked) in Figure~\ref{fig:adaptive}.
 
 \medskip\noindent\textbf{Finding.} \emph{Generic classifiers---and a full guardrails
@@ -1222,7 +1226,7 @@ ran the 3-stage cascade of~\cite{firewallsbench2026} against the calibrated
 deployable chain (\texttt{bench\_combined}/\allowbreak\texttt{default}, the $0.08$-FPR operating
 point), with the strongest stage being an \emph{in-the-loop} paraphrase loop that mutates
 each attack and re-queries QFIRE's actual chain (up to $10$ tries) until it ALLOWs
-(60 attacks, gemma2:9B mutator/judge, seed~42; Figure~\ref{fig:cascade}). Stage~1
+(60 attacks, gemma2:9B mutator/judge; Figure~\ref{fig:cascade}). Stage~1
 (standard) and Stage~2 (defense-aware rewrites, qwen3:8B) hold---recall
 $0.80\rightarrow0.83$ (healthcare) and $0.67\rightarrow0.60$ (injection), i.e.\ scope-fitting
 rewrites do not help the attacker. But Stage~3 does: the adaptive loop drops recall
@@ -1255,7 +1259,7 @@ Stage-3 evasions are a black-box upper bound (some are paraphrase-induced intent
 \subsection{Multi-turn / conversational injection}\label{sec:multiturn}
 A stateless per-message filter misses attacks that only become malicious across
 turns. We test this with $150$ multi-turn conversations (deterministically built so the
-malicious core is verbatim, never diluted; seed~42): \emph{split-payload} (the
+malicious core is verbatim, never diluted): \emph{split-payload} (the
 instruction fragmented across turns), \emph{context-priming} (benign turns establish a
 false premise, then the payload), \emph{crescendo} (escalating individually-benign turns),
 plus $30$ benign clinical-adjacent conversations. Because QFIRE evaluates
@@ -1287,7 +1291,7 @@ buildup the last turn alone misses.}
 \FloatBarrier
 \subsection{External validity: transfer, scale, and threshold stability}\label{sec:external}
 A standing caveat is that cross-dataset detection numbers drop. We convert it into
-three measured, bounded statements (all offline, seed 42; Figure~\ref{fig:external}).
+three measured, bounded statements (all offline; Figure~\ref{fig:external}).
 \emph{(a) Transfer.} On a held-out, deepset-decontaminated split
 (\texttt{eval\_heldout}, $666$ attacks / $640$ benign; protectai DeBERTa never trained
 on it), recall does not collapse: DeBERTa rises $0.74\rightarrow0.84$ and QFIRE's
@@ -1322,7 +1326,7 @@ miscalibrated, which is precisely why the deployed chain is deterministic.)
 The results so far firewall prompts; this end-to-end agent test shows blocking prevents
 \emph{downstream harm}. We place QFIRE's decision in front of a tool-using agent and
 measure the harmful-action rate end-to-end. A hand-rolled ReAct agent
-(\texttt{llama3.1:8b}, temperature~$0$, seed~$42$) drives an in-process mock-EHR
+(\texttt{llama3.1:8b}, temperature~$0$) drives an in-process mock-EHR
 sandbox over synthetic data; the sandbox logs every tool call with a ground-truth
 harm flag (cross-patient read, bulk/external export, PHI email, system-prompt reveal).
 Every \emph{untrusted} input---the task and each tool observation---is gated through
@@ -1826,7 +1830,7 @@ of them. (\S\ref{sec:adaptive})}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\linewidth]{figs/external_validity.png}
-\caption{External validity (offline, seed 42). (a) Transfer: recall in-distribution
+\caption{External validity (offline). (a) Transfer: recall in-distribution
 vs.\ the deepset-decontaminated held-out split; QFIRE's positive-security chain stays
 ahead of DeBERTa on both and does not collapse off-distribution. (b) Threshold
 transfer: the QFIRE chain-score FPR-vs-threshold curve for in-distribution
@@ -1841,7 +1845,7 @@ $0.023\,[0.016,0.033]$. (\S\ref{sec:external})}
 \centering
 \includegraphics[width=\linewidth]{figs/agent_harm.png}
 \caption{End-to-end agent harm reduction (mock-EHR sandbox, \texttt{llama3.1:8b} agent,
-seed 42; $95\%$ Wilson CIs). (a) On $40$ attack episodes the harmful-action rate falls
+$95\%$ Wilson CIs). (a) On $40$ attack episodes the harmful-action rate falls
 from $0.38$ without the firewall to $0.00$ with QFIRE gating the agent's untrusted
 inputs. (b) Benign task-completion on $40$ benign episodes falls only
 $0.95\rightarrow0.82$, the cost concentrated in conservatively-blocked outbound emails.
