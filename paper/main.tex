@@ -279,17 +279,13 @@ missed-by-classifier examples: Appendix~\ref{app:examples}, Table~\ref{tab:failu
 \label{fig:hero}
 \end{figure}
 
-A review of recent runtime guardrails reveals several distinct architectural
-philosophies (Table~\ref{tab:related}). LlamaFirewall~\cite{llamafirewall2025}
-chains modular Python detectors (PromptGuard~2, AlignmentCheck, CodeShield) for
-deep multi-stage auditing; OneShield~\cite{oneshield2025} runs a parallelized
-multi-detector gateway for enterprise policy and PII; the Cognitive
-Firewall~\cite{cognitivefirewall2026} splits computation between fast edge lexical
-screening and cloud semantic verification for browser agents;
-PSG-Agent~\cite{psgagent2025} builds per-user personality profiles to adapt safety
-thresholds to intent drift; and Semantic Firewalls~\cite{semanticfirewall2026}
-pair an online-ensemble-learning semantic firewall with a self-correcting RAG
-agent to secure financial chatbots.
+Recent runtime guardrails span several architectural philosophies
+(Table~\ref{tab:related}): deep multi-stage Python auditing
+(LlamaFirewall~\cite{llamafirewall2025}), parallelized multi-detector gateways
+(OneShield~\cite{oneshield2025}), edge/cloud split computation (the Cognitive
+Firewall~\cite{cognitivefirewall2026}), per-user adaptive profiling
+(PSG-Agent~\cite{psgagent2025}), and online-ensemble semantic firewalls
+(Semantic Firewalls~\cite{semanticfirewall2026}).
 
 Across these designs a key tension recurs: \emph{security robustness
 is tightly coupled to latency}. Heavy semantic verifiers and model-based auditors
