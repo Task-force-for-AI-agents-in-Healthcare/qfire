@@ -5,7 +5,7 @@ Shows which detector catches which healthcare threat class.
 """
 import json, os, collections
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DUMP = os.path.join(BASE, "bench-out/hb_dump")
 DS = os.path.join(BASE, "corpora/healthcare_bench/dataset.jsonl")
 

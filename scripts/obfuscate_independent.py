@@ -11,8 +11,8 @@ Output: corpora/eval/attacks_obf_indep/obf_attacks.jsonl
 """
 import base64, json, os, sys, urllib.parse
 
-SRC = sys.argv[1] if len(sys.argv) > 1 else "/Users/jim/Desktop/qfire/corpora/eval/attacks/public_attacks.jsonl"
-OUTDIR = sys.argv[2] if len(sys.argv) > 2 else "/Users/jim/Desktop/qfire/corpora/eval/attacks_obf_indep"
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "corpora/eval/attacks/public_attacks.jsonl")
+OUTDIR = sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "corpora/eval/attacks_obf_indep")
 
 # Homoglyphs NOT all present in normalize.rs's map (mix of Greek/fullwidth).
 HOMO = {"a": "ɑ", "e": "ҽ", "o": "ⲟ", "i": "í", "s": "ѕ", "t": "т", "n": "ո", "c": "ϲ"}

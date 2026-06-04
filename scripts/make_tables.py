@@ -6,7 +6,7 @@ writes paper/tables/*.tex and paper/numbers.tex. All numbers are measured.
 """
 import json, os
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTDIR = os.path.join(BASE, "paper/tables")
 os.makedirs(OUTDIR, exist_ok=True)
 

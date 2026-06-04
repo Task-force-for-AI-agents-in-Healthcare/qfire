@@ -24,7 +24,7 @@ import shutil
 import subprocess
 import sys
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAPER_DIR = os.path.join(BASE, "paper")
 MAIN = "main.tex"
 

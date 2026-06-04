@@ -15,7 +15,7 @@ import os
 import subprocess
 import sys
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIAG = os.path.join(BASE, "paper", "diagrams")
 FIGS = os.path.join(BASE, "paper", "figs")
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

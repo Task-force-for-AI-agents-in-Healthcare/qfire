@@ -11,7 +11,7 @@ Output: bench-out/baselines.json
 """
 import json, os, sys, time, math
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ATTACKS = os.path.join(BASE, "corpora/eval/attacks/public_attacks.jsonl")
 BENIGN = os.path.join(BASE, "corpora/eval/benign/public_benign.jsonl")
 OUT = os.path.join(BASE, "bench-out/baselines.json")

@@ -10,7 +10,7 @@ Reads corpora/eval/combined.jsonl ({"prompt","label","source"}) and writes:
 """
 import json, os
 
-BASE = "/Users/jim/Desktop/qfire"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(BASE, "corpora/eval/combined.jsonl")
 OUT = os.path.join(BASE, "corpora/eval_heldout")
 

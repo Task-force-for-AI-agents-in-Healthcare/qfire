@@ -2,7 +2,7 @@
 # Wait for a new qwen3.x (non-coder) Ollama tag to appear + respond, then run the
 # judge-model ablation on it after the base sweep (llama3.1+gemma4) finishes.
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 
 echo "[qwen-poller] waiting for a qwen3.x tag (not qwen3-coder)..."
 TAG=""

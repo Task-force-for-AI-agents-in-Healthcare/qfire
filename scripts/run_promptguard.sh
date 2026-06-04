@@ -2,7 +2,7 @@
 # Run Meta Llama-Prompt-Guard-2 (+ PromptGuard-1) head-to-head on the SAME
 # corpora QFIRE is evaluated on. Token is read from HF_TOKEN in the environment.
 set +e
-cd /Users/jim/Desktop/qfire || exit 1
+cd "$(dirname "$0")/.." || exit 1
 PY=/tmp/qbase/bin/python
 export TOKENIZERS_PARALLELISM=false
 
