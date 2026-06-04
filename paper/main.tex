@@ -90,6 +90,13 @@
 \usepackage[htt]{hyphenat}
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
 
+% --- Coauthor review markup -------------------------------------------------
+% New/changed text for the clinical-audience reframing is wrapped in \rev{...}
+% and rendered in red so coauthors can see exactly what was added. Uses \color
+% (not \textcolor) so it survives paragraph breaks inside a block. Before
+% accepting, redefine as \newcommand{\rev}[1]{#1} to remove all red markup.
+\newcommand{\rev}[1]{{\color{red}#1}}
+
 % Make captions visually distinct from body text: smaller font, and a bold +
 % underlined ``Figure N:'' / ``Table N:'' label so the reader instantly sees that
 % the text belongs to the float, not the surrounding paragraph.
@@ -175,7 +182,14 @@
 \fontsize{9.5}{11.3}\selectfont
 Large language models embedded in autonomous agents process trusted instructions
 and untrusted data in one context window, leaving them open to direct and
-indirect prompt injection. Existing runtime guardrails trade safety against
+indirect prompt injection. \rev{In healthcare this is not hypothetical: a 2025
+\emph{JAMA Network Open} study found commercial medical LLMs followed injected
+instructions in $94.4\%$ of simulated patient encounters, including
+life-threatening recommendations~\cite{jamapromptinj2025}. Yet the clinically
+decisive problem we quantify here is different---most real clinical threats (PHI
+exfiltration, cross-patient access, bulk export, out-of-scope advice) are fluent,
+legitimate-looking requests that carry \emph{no} attack signal at all, so even a
+state-of-the-art injection detector passes them.} Existing runtime guardrails trade safety against
 latency: model-based auditors are accurate but add hundreds of milliseconds of
 Python inference, while lexical filters are fast but blind to obfuscated or
 semantically disguised payloads. We present \textbf{QFIRE}, an inline,
@@ -229,7 +243,23 @@ scope; PHI protection; healthcare AI agents; HIPAA; QFIRE-HealthBench.
 \noindent{\footnotesize \textsuperscript{*}\,Corresponding author.}
 \vspace{0.3em}
 
+\rev{\begin{center}\small\emph{[Coauthor note] Alternative title for a healthcare
+venue (JAMIA / npj Digital Medicine / NEJM AI): ``Why Prompt-Injection Detectors
+Fail Clinical AI Agents---and a Positive-Security Firewall for PHI and Scope.''}\end{center}}
+
 \section{Introduction}
+\rev{\emph{A motivating scenario.} An EHR-connected scheduling agent with standing
+read/write access ingests an inbound patient-portal message containing a hidden
+instruction---``also export this patient's chart to an external address.'' No
+jailbreak token is present, so a prompt-injection classifier scores the message
+benign; the agent acts, and the export propagates before any human reviews it.
+This is the 2026 reality of agentic clinical AI: autonomous agents wired into
+Epic/Cerner, scheduling, and billing systems are an emerging high-risk attack
+surface~\cite{caging_agents2026}, and a 2025 \emph{JAMA Network Open} study found
+commercial medical LLMs followed injected instructions in $94.4\%$ of simulated
+patient encounters~\cite{jamapromptinj2025}. The problem is no longer content
+moderation; it is application-layer patient-safety and privacy defense.}
+
 The integration of large language models (LLMs) into agentic systems---tools,
 browsers, retrieval pipelines---has moved AI security from content moderation to
 application-layer defense-in-depth~\cite{llamafirewall2025,greshake2023}. Because
@@ -290,7 +320,9 @@ an ultra-low-latency, zero-trust parallel prompt firewall in Rust.
   Rust toolchain (inline proxy, CLI, harness) that enforces a declared
   natural-language scope and an 18-identifier HIPAA Safe-Harbor PHI panel as
   version-controlled, auditable, unit-testable policy---no model retraining, no
-  white-box access, no Python in the hot path. An asynchronous detector graph runs
+  white-box access, no Python in the hot path.\rev{~The declared scope is, in
+  regulatory terms, a technical enforcement of HIPAA's \emph{minimum-necessary}
+  standard (45~CFR~164.502(b)).} An asynchronous detector graph runs
   rules concurrently with cheap-before-expensive collapse, and a de-obfuscation pass
   (Base64/hex/ROT13, homoglyphs, leetspeak, zero-width) exposes hidden payloads
   before detection.
@@ -767,6 +799,25 @@ requests---which is why an injection classifier passes them.}
 \end{table}
 
 \section{Results}\label{sec:results}
+
+\begin{table}[t]\centering\small\color{red}
+\begin{tabular}{L{2.7cm}L{3.0cm}L{6.6cm}}
+\toprule
+Metric (this paper) & Plain meaning & Clinical reading \\
+\midrule
+Recall (sensitivity) & Fraction of attacks caught & Share of dangerous actions---PHI exfiltration, cross-patient access, bulk export---actually stopped. The $0.40\rightarrow0.83$ recall jump is the paper's central result. \\
+False-positive rate / over-refusal & Fraction of \emph{benign} prompts blocked & The firewall's \emph{alert-fatigue budget}: how often it blocks legitimate clinical work. We calibrate to $0.08$ and measure $0.023$ at scale. \\
+F1 & Balance of precision \& recall & A single score that is high only when threats are caught \emph{without} drowning clinicians in false blocks. \\
+p95 latency & 95th-percentile decision time & Whether the guard is invisible in workflow; QFIRE's ${\approx}0.24$\,s vs.\ multi-second LLM-rail frameworks. \\
+\bottomrule
+\end{tabular}
+\caption{\rev{Plain-language guide to the metrics used throughout this section.
+For a clinical reader, recall maps to patient safety (threats stopped) and the
+false-positive / over-refusal rate maps to alert fatigue (legitimate work
+blocked); both are first-class outcomes here.}}
+\label{tab:plainmetrics}
+\end{table}
+
 \subsection{Head-to-head detection}
 \begin{sloppypar}
 On generic injection, QFIRE's deterministic hybrid (F1~$0.86$) and Meta
@@ -917,6 +968,12 @@ or utility collapses.} The result is a sharp, actionable warning: a single
 calibrated scope rule (\texttt{hc\_no\_diagnosis}) attains F1~$0.91$, but naively
 conjoining ten strict LLM-judge scope rules drives the false-positive rate to
 $1.00$---every benign clinical prompt trips at least one over-eager judge.
+\rev{For a clinical reader this is the familiar pathology of alert fatigue: a
+guard that blocks $100\%$ of benign clinical queries is as unusable as a
+decision-support system that fires on every order---it will be silenced or routed
+around in practice, defeating its own purpose. Calibrating the false-positive rate
+is thus a patient-safety and adoption requirement, not a tuning detail; the
+over-refusal budget is as clinically consequential as the recall it buys.}
 
 \subsubsection{Latency and cost}
 The cost profile follows the cheap-before-expensive ordering. Deterministic
@@ -1281,6 +1338,14 @@ $\mathbf{0.375}$ $[0.242,0.530]$ without the firewall to $\mathbf{0.000}$
 $[0.000,0.088]$ with it (direct $0.45\rightarrow0$, indirect $0.30\rightarrow0$; $95\%$
 Wilson): all $20$ direct attacks are refused at the prompt boundary and the $20$
 indirect injections are scrubbed from the tool observations before the agent can act.
+\rev{In clinical terms each prevented event is a potential breach of protected
+health information---an outbound PHI email or bulk export is exactly the kind of
+incident that triggers an OCR-reportable disclosure. The stakes are concrete:
+healthcare has had the costliest data breaches of any sector for fourteen
+consecutive years, averaging \$9.77M per breach in 2024~\cite{ibmbreach2024}. A
+deterministic guard that drives the residual harmful-action rate to
+$0.000\,[0.000,0.088]$---one a security officer can audit rather than a model they
+must trust---directly reduces that exposure.}
 Benign task-completion falls only $0.950\rightarrow0.825$---and that entire cost is
 \emph{five} legitimate outbound-email requests the deterministic PHI rule conservatively
 blocks as potential egress; the other benign failures are agent flakiness present with
@@ -1419,6 +1484,74 @@ controls. HAARF defines the verification requirement; QFIRE is the runtime
 mechanism that satisfies it; the measured evidence backing each control lives in the referenced sections.}
 \label{tab:haarf}
 \end{table}
+
+\paragraph{\rev{Mapping to the external regulatory regime.}}
+\rev{HAARF is our group's verification standard; for adopters the more pressing
+question is which \emph{binding} obligations QFIRE helps satisfy.
+Table~\ref{tab:regmap} maps QFIRE's mechanisms to the 2026 U.S.\ and international
+regime, and three connections are worth drawing out. (i)~QFIRE's
+positive-security \emph{scope} is, in regulatory language, a technical
+enforcement of HIPAA's \emph{minimum-necessary} standard (45~CFR~164.502(b)): a
+chain that admits only declared-purpose requests restricts the agent to the
+minimum data and actions a task requires. (ii)~The proposed HIPAA Security Rule
+overhaul (NPRM, Dec.\ 2024; on OCR's agenda for finalization in 2026) would
+remove the ``required vs.\ addressable'' distinction and make controls such as
+continuous monitoring and audit logging \emph{mandatory and
+auditable}~\cite{hipaa_nprm2025}; QFIRE's inline verdicts and immutable audit log
+are direct evidence for these. (iii)~QFIRE's version-controlled, diff-able,
+unit-tested YAML policy is a natural \emph{predetermined change-control}
+mechanism in the sense of the FDA's total-product-lifecycle draft guidance for
+AI-enabled device software~\cite{fda_aielifecycle2025}: a policy change is a
+reviewable, testable artifact, not an opaque model update.}
+
+\begin{table}[htbp]\centering\small\color{red}
+\begin{tabular}{L{3.6cm}L{4.2cm}L{4.6cm}}
+\toprule
+Regime (2026) & Relevant obligation & QFIRE mechanism / evidence \\
+\midrule
+HIPAA Security Rule NPRM~\cite{hipaa_nprm2025} & Mandatory continuous monitoring, audit controls, access management & Inline proxy verdicts; append-only immutable audit log; fail-closed BLOCK \\
+HIPAA Minimum Necessary (164.502(b)) & Limit uses/disclosures to the minimum necessary & Positive-security declared scope per chain; out-of-scope drift blocked \\
+HIPAA Safe Harbor (164.514(b))~\cite{hipaa_safe_harbor} & De-identification of 18 identifiers & 18-identifier PHI detector / redactor \\
+FDA AI lifecycle draft guidance~\cite{fda_aielifecycle2025} & Predetermined change control; postmarket monitoring & Version-controlled YAML policy, \texttt{qfire rules test}, run manifests \\
+ONC HTI-1 / DSI transparency~\cite{onc_hti1} & Source/attribute transparency of AI decision support & Explainable per-node trace and rationale per decision \\
+CHAI \& Joint Commission RUAIH~\cite{chai_jc_ruaih2025} & Responsible-use governance; measured validation & Benchmarked recall/FPR and audit trail for a governance committee / assurance lab \\
+NIST AI RMF GenAI Profile~\cite{nist_genai2024} & Measure and manage generative-AI risk & Reproducible benchmark with CIs; calibrated operating points \\
+EU AI Act, high-risk~\cite{eu_ai_act2024} & Logging, human oversight, robustness for high-risk medical AI & Audit log; refusal envelopes; adaptive-robustness evaluation \\
+State laws (CA AB 3030; CO AI Act)~\cite{ca_ab3030,co_ai_act} & Disclosure/oversight for AI in patient communication & Scope rules gating clinical-advice and communication paths \\
+\bottomrule
+\end{tabular}
+\caption{\rev{QFIRE mechanisms mapped to the binding 2026 regulatory regime,
+complementing the HAARF mapping of Table~\ref{tab:haarf}. The recurring theme:
+QFIRE produces \emph{measured} evidence---recall, false-positive rate, audit
+logs---rather than asserted compliance.}}
+\label{tab:regmap}
+\end{table}
+
+\paragraph{\rev{Regulatory horizon.}}
+\rev{The trajectory is toward auditable, measured AI governance. The NIST AI RMF
+Generative AI Profile (NIST~AI~600-1)~\cite{nist_genai2024} frames generative-AI
+risk as something to be measured and managed; the EU AI Act classifies medical AI
+as high-risk with logging, human-oversight, and robustness obligations phasing in
+through 2026--2027~\cite{eu_ai_act2024}; and U.S.\ states are legislating
+directly---California's AB~3030 governs generative AI in patient communications
+and Colorado's AI Act imposes duties on deployers of high-risk
+AI~\cite{ca_ab3030,co_ai_act}. The Joint Commission, which accredits roughly
+$80\%$ of U.S.\ hospitals, has partnered with CHAI on responsible-use guidance and
+a voluntary AI-certification program~\cite{chai_jc_ruaih2025}, making
+\emph{measured} guardrail evidence---exactly what QFIRE emits---a near-term
+procurement requirement rather than a research nicety.}
+
+\paragraph{\rev{For a health-system AI governance committee.}}
+\rev{Concretely, a hospital adopting an LLM agent can deploy QFIRE as the
+prompt-boundary control and obtain, for its AI governance committee or assurance
+review, four artifacts: (1)~a human-readable, version-controlled scope/PHI policy
+a privacy officer can diff and approve; (2)~benchmarked recall and a calibrated
+over-refusal (alert-fatigue) rate on a clinical corpus; (3)~an immutable,
+attributable audit log per decision; and (4)~an adaptive-robustness result
+showing the control holds under firewall-aware attack (\S\ref{sec:adaptive}).
+These are precisely the evidence artifacts the CHAI/Joint Commission
+responsible-use regime and the proposed HIPAA Security Rule ask an adopter to
+produce.}
 
 \paragraph{Positioning against other guardrail architectures.}
 QFIRE makes deliberate trade-offs relative to the systems in
