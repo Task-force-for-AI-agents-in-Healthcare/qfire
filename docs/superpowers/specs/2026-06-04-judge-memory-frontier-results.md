@@ -48,8 +48,9 @@ parameter count and by precision. 8 configs, all on an L4 (~$1.50 total).
 | Llama 3.1 8B | Q8 | 8.0 | **8.3** | 1.00 | 0.00 | **0.84** | 0.92 |
 | Llama 3.1 8B | FP16 | 8.0 | 14.8 | 1.00 | 0.00 | 0.84 | 0.92 |
 
-Figure: `paper/figs/judge_memory_frontier.png` (memory log-x vs J, both tiers,
-Pareto staircase + saturation-knee annotations). Raw record:
+Figure: `paper/figs/judge_memory_frontier.png` (memory log-x vs J; the two series
+tie to the paper benchmarks — **QFIRE-HealthBench** for the standard tier and the
+**adaptive-attack** family for the hard tier). Raw record:
 `bench-out/judge_frontier/results.{json,md}`.
 
 ## Findings
