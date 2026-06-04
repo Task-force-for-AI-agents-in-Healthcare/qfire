@@ -350,11 +350,56 @@ scope/PHI dimension those works do not address.
 
 \section{Threat Model and Positioning}
 We assume an adversary who controls all or part of the prompt reaching the model
-(direct injection) or content the agent ingests (indirect
-injection~\cite{greshake2023}). The defender controls a network position
-\emph{in front of} the model and wishes to (a) reject prompts outside a declared
-purpose and (b) detect injection/jailbreak attempts, while preserving throughput.
-Table~\ref{tab:related} situates QFIRE against representative recent systems.
+(\emph{direct} injection) or---more often in clinical deployments---controls content
+the agent later ingests as data (\emph{indirect} injection~\cite{greshake2023}). The
+setting is an agent wired into production hospital systems (EHRs such as Epic or
+Cerner, scheduling, billing, and release-of-information workflows) with standing
+read/write credentials, where trusted instructions and untrusted data share one
+context window---an emerging high-risk surface for agentic clinical
+AI~\cite{caging_agents2026,jamapromptinj2025}.
+
+\paragraph{Clinical actors and their authorized scope.}
+A clinical agent's users are heterogeneous, and each carries a different
+\emph{authorized scope}: an attending physician reads and writes the charts of patients
+on their service; a covering clinician has narrower, time-bounded access; a nurse
+documents within a unit; a release-of-information (ROI) or health-information-management
+(HIM) clerk discloses only the minimum necessary for a specific, authorized request;
+scheduling and billing staff touch demographics and coverage but not clinical detail;
+and a patient, through a portal, reaches only their own record. The agent acts
+\emph{on behalf of} one of these actors and inherits their credentials, so ``in scope''
+depends on who is asking and what they may do---a distinction a firewall that only asks
+``is this an attack?'' cannot make, but QFIRE's per-deployment declared purpose can.
+
+\paragraph{Threats native to the health system.}
+The clinically decisive threats are requests that are fluent, polite, and carry
+\emph{no} attack signal yet violate the actor's scope or HIPAA's minimum-necessary rule
+(\S\,164.502(b)): reading another patient's chart (cross-patient access), exporting a
+cohort or full panel (bulk export), emailing or faxing a record off-site (PHI
+exfiltration), disclosing beyond the authorized date-of-service, re-identifying a
+de-identified dataset, or soliciting diagnosis or dosing the agent may not give
+(out-of-scope advice). The actor may be a malicious insider, a well-meaning but
+unauthorized clinician, a compromised or shared account, or a socially engineered
+employee; in every case a state-of-the-art injection classifier passes the request,
+because nothing is syntactically adversarial. These are what QFIRE's positive-security
+scope rules and HIPAA Safe-Harbor PHI panel~\cite{hipaa_safe_harbor} target.
+
+\paragraph{Injection, and machine-to-machine payloads.}
+Orthogonally, the agent faces genuine injection---and not only human-typed text.
+\emph{Direct} attacks are entered by a user (jailbreak/``DAN'' framings,
+instruction-override, system-prompt exfiltration); \emph{indirect}
+attacks~\cite{greshake2023} ride inside untrusted data the agent reads---a
+patient-portal message, a referral note, a faxed document, an HL7/FHIR feed, or
+another tool's output---moved between systems with no human in the loop. Such payloads
+are frequently obfuscated to evade lexical filters: Base64/hex/ROT13 ciphers,
+homoglyph/Unicode-confusable substitution, leetspeak, ASCII/tag smuggling, and
+zero-width characters. These are machine-generated and unreadable to a human reviewer;
+we exercise exactly these variants in QFIRE-HealthBench with real garak~\cite{garak2024}
+and Microsoft PyRIT~\cite{pyrit} converters, so QFIRE normalizes and de-obfuscates each
+payload before detection---the same rule fires whether an instruction is typed or
+smuggled through a machine channel. The defender thus sits \emph{in front of} the model
+and must reject prompts outside the declared, actor-specific purpose, detect direct and
+indirect injection, and de-obfuscate before doing either---failing closed and auditing
+every decision. Table~\ref{tab:related} situates QFIRE against representative systems.
 
 \begin{table*}[p]
 \centering\small
