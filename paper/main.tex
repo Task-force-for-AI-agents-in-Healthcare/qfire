@@ -138,8 +138,8 @@ Firewall~\cite{cognitivefirewall2026} splits computation between fast edge lexic
 screening and cloud semantic verification for browser agents;
 PSG-Agent~\cite{psgagent2025} builds per-user personality profiles to adapt safety
 thresholds to intent drift; and Semantic Firewalls~\cite{semanticfirewall2026}
-transform prompts into a type-safe closed vocabulary to eliminate syntactic
-bypasses.
+pair an online-ensemble-learning semantic firewall with a self-correcting RAG
+agent to secure financial chatbots.
 
 Across these designs a single tension recurs: \emph{security robustness
 is tightly coupled to latency}. Heavy semantic verifiers and model-based auditors
@@ -228,10 +228,10 @@ and latency issues \\
 PSG-Agent~\cite{psgagent2025} & Training-free personalized runtime guardrail &
 Adaptive user-specific risk, intent drift over turns & Per-user profiling tailors
 safety thresholds & High compute cost; hard to deploy stateless \\
-Semantic Firewalls~\cite{semanticfirewall2026} & Abstractive protocol transformer
-/ online ensemble & Contextual data leakage, tool-parameter and syntax bypass &
-Type-safety, closed vocabularies, string isolation & Demands structured,
-application-specific translation schemas \\
+Semantic Firewalls~\cite{semanticfirewall2026} & Online-ensemble semantic firewall
++ self-correcting RAG agent & Customer-data leakage in financial RAG chatbots &
+Online adaptation to new attack patterns & Evaluated in a single financial-chatbot
+domain \\
 garak~\cite{garak2024} & Vulnerability scanner / probe suite & Broad red-team
 attack coverage & Comprehensive offline attack library & Offline scanner, not an
 inline filter \\
@@ -470,7 +470,7 @@ corpus: \texttt{deberta-v3-base-prompt-injection}~\cite{protectai_deberta} (the
 de-facto open detector, and the engine inside Protect~AI LLM Guard), executed in
 PyTorch; Meta \texttt{Llama-Prompt-Guard-2-86M}~\cite{promptguard2}; a second,
 purpose-built injection classifier, qualifire \texttt{prompt-injection-sentinel}
-(a ModernBERT detector); a bare \texttt{llama3.1:8B} LLM-judge with a generic
+(a ModernBERT detector)~\cite{sentinel_qualifire}; a bare \texttt{llama3.1:8B} LLM-judge with a generic
 block/allow prompt and \emph{no} QFIRE scaffold (to isolate the scaffold's
 contribution); and lexical regex / Aho-Corasick filters. QFIRE runs the same DeBERTa
 weights via Rust ONNX. Meta PromptGuard-2 and qualifire Sentinel are run locally in
@@ -839,7 +839,7 @@ QFIRE compares to a complete \emph{guardrails framework}. We add NVIDIA \textbf{
 Guardrails}~\cite{nemoguardrails2023}, the leading open framework and the first baseline
 that covers all three QFIRE pillars at once: a \emph{jailbreak-detection} rail (injection),
 an LLM \emph{scope self-check} rail (positive-security scope), and a Presidio
-\emph{sensitive-data} rail (PHI). We run its full input-rail stack fail-closed (any rail
+\emph{sensitive-data} rail (PHI)~\cite{presidio}. We run its full input-rail stack fail-closed (any rail
 blocks $\Rightarrow$ block) on the same corpora, backed by the same local
 \texttt{llama3.1:8B} as our bare-judge baseline so the comparison isolates the
 \emph{framework} rather than the model; the PII rail uses a good-faith high-signal
@@ -1181,16 +1181,16 @@ cost of not exploiting edge/cloud offloading for scale. Versus
 than per-user-adaptive: it cannot model intent drift across a user's history, but
 it deploys trivially in stateless, audit-friendly environments where PSG-Agent's
 profiling is impractical. Versus \textbf{Semantic
-Firewalls}~\cite{semanticfirewall2026}, QFIRE accepts free-form prompts and natural
-scope descriptions rather than demanding an application-specific type-safe protocol,
-trading the strongest syntactic-bypass guarantees for drop-in adoption (only the
-base URL changes). The common thread: QFIRE's contribution is not a single stronger
+Firewalls}~\cite{semanticfirewall2026}, QFIRE enforces scope with declarative rules
+and no training signal, rather than an online-learning firewall tuned to a specific
+(financial) deployment, trading online adaptivity for drop-in, domain-agnostic
+adoption (only the base URL changes). The common thread: QFIRE's contribution is not a single stronger
 detector but the combination of \emph{low-latency local execution},
 \emph{declarative auditable policy}, and \emph{positive-security scope+PHI
 enforcement}---a point in the design space none of these systems occupies, and the
 one clinical agents need. The flip side is honest: QFIRE is single-node, its
 LLM-judge cost grows with rule count, and it does not provide the cross-turn
-reasoning audits, per-user adaptation, or formal protocol guarantees that
+reasoning audits, per-user adaptation, or online attack-pattern adaptation that
 specialized systems do.
 
 \paragraph{Why a declarative language matters in regulated settings.}
