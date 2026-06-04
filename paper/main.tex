@@ -91,11 +91,11 @@
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
 
 % --- Coauthor review markup -------------------------------------------------
-% New/changed text for the clinical-audience reframing is wrapped in \rev{...}
-% and rendered in red so coauthors can see exactly what was added. Uses \color
-% (not \textcolor) so it survives paragraph breaks inside a block. Before
-% accepting, redefine as \newcommand{\rev}[1]{#1} to remove all red markup.
-\newcommand{\rev}[1]{{\color{red}#1}}
+% New/changed text for the clinical-audience reframing was wrapped in \rev{...}.
+% Edits have been ACCEPTED: \rev is now a no-op so its content renders in the
+% normal body color. (To re-enable red review markup, restore
+% \newcommand{\rev}[1]{{\color{red}#1}}.)
+\newcommand{\rev}[1]{#1}
 
 % Make captions visually distinct from body text: smaller font, and a bold +
 % underlined ``Figure N:'' / ``Table N:'' label so the reader instantly sees that
@@ -147,13 +147,13 @@
   \raggedleft\itshape\large \monthyeartoday
 \end{minipage}
 
-\vspace{1.1em}
+\vspace{1.0em}
 \begin{center}
   {\LARGE\bfseries Beyond Injection Detection: A Positive-Security\\[2pt]
    Prompt Firewall that Closes the Scope and PHI Gap\\[2pt]
    SOTA Classifiers Miss in Healthcare\par}
 
-  \vspace{0.9em}
+  \vspace{0.8em}
   {\large
    James Schwoebel\textsuperscript{1,\,*}\quad
    Ingrida Semenec, PhD\textsuperscript{1}\quad
@@ -173,13 +173,13 @@
    \emph{Task Force for AI Agents in Healthcare}.\par}
 \end{center}
 
-\vspace{0.5em}
-\begin{tcolorbox}[breakable, enhanced jigsaw, colback=black!4, colframe=black!4,
-  arc=5pt, boxrule=0pt, left=16pt, right=16pt, top=10pt, bottom=10pt]
+\vfill
+\begin{tcolorbox}[enhanced, colback=black!4, colframe=black!4,
+  arc=5pt, boxrule=0pt, left=16pt, right=16pt, top=8pt, bottom=8pt]
 \setlength{\parskip}{0pt}
 {\centering\large\bfseries Abstract\par}
 \smallskip
-\fontsize{9.5}{11.3}\selectfont
+\fontsize{8.8}{10.4}\selectfont
 Large language models embedded in autonomous agents process trusted instructions
 and untrusted data in one context window, leaving them open to direct and
 indirect prompt injection. \rev{In healthcare this is not hypothetical: a 2025
@@ -237,13 +237,11 @@ scope; PHI protection; healthcare AI agents; HIPAA; QFIRE-HealthBench.
 \noindent\textcolor{blue}{\textbf{Correspondence:}}~\href{mailto:jim@quome.com}{jim@quome.com}
 \end{tcolorbox}
 
-\vspace{2pt}
+\vspace{4pt}
 \noindent{\footnotesize \textsuperscript{*}\,Corresponding author.}
-\vspace{0.3em}
 
-\rev{\begin{center}\small\emph{[Coauthor note] Alternative title for a healthcare
-venue (JAMIA / npj Digital Medicine / NEJM AI): ``Why Prompt-Injection Detectors
-Fail Clinical AI Agents---and a Positive-Security Firewall for PHI and Scope.''}\end{center}}
+\vfill
+\clearpage
 
 \section{Introduction}
 \rev{\emph{A motivating scenario.} An EHR-connected scheduling agent with standing
@@ -824,7 +822,7 @@ requests---which is why an injection classifier passes them.}
 
 \section{Results}\label{sec:results}
 
-\begin{table}[t]\centering\small\color{red}
+\begin{table}[t]\centering\small
 \begin{tabular}{L{2.7cm}L{3.0cm}L{6.6cm}}
 \toprule
 Metric (this paper) & Plain meaning & Clinical reading \\
@@ -1547,7 +1545,7 @@ mechanism in the sense of the FDA's total-product-lifecycle draft guidance for
 AI-enabled device software~\cite{fda_aielifecycle2025}: a policy change is a
 reviewable, testable artifact, not an opaque model update.}
 
-\begin{table}[htbp]\centering\small\color{red}
+\begin{table}[htbp]\centering\small
 \begin{tabular}{L{3.6cm}L{4.2cm}L{4.6cm}}
 \toprule
 Regime (2026) & Relevant obligation & QFIRE mechanism / evidence \\
