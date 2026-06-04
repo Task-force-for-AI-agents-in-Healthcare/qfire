@@ -1,0 +1,306 @@
+[
+  {
+    "config": "llama3.2_1b_q4",
+    "meta": {
+      "config": "llama3.2_1b_q4",
+      "label": "Llama 3.2 1B",
+      "family": "Llama",
+      "params_b": 1.0,
+      "quant": "Q4_K_M",
+      "model_tag": "llama3.2:1b",
+      "peak_vram_mb": 1666.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 1536.0,
+      "gpu": "L4",
+      "wall_s": 280.1
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 0.97,
+        "fpr": 1.0,
+        "j": -0.030000000000000027,
+        "f1": 0.6531986531986531,
+        "auc": 0.48,
+        "p50_ms": 450.5619015,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.965,
+        "fpr": 1.0,
+        "j": -0.03500000000000003,
+        "f1": 0.7829614604462474,
+        "auc": 0.4825,
+        "p50_ms": 452.686363,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.2_3b_q4",
+    "meta": {
+      "config": "llama3.2_3b_q4",
+      "label": "Llama 3.2 3B",
+      "family": "Llama",
+      "params_b": 3.0,
+      "quant": "Q4_K_M",
+      "model_tag": "llama3.2:3b",
+      "peak_vram_mb": 2660.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 2662.4,
+      "gpu": "L4",
+      "wall_s": 371.3
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 1.0,
+        "fpr": 0.25,
+        "j": 0.75,
+        "f1": 0.888888888888889,
+        "auc": 0.875,
+        "p50_ms": 486.81691950000004,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.93,
+        "fpr": 0.25,
+        "j": 0.68,
+        "f1": 0.9051094890510948,
+        "auc": 0.84,
+        "p50_ms": 486.299038,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.2_3b_q8",
+    "meta": {
+      "config": "llama3.2_3b_q8",
+      "label": "Llama 3.2 3B",
+      "family": "Llama",
+      "params_b": 3.0,
+      "quant": "Q8_0",
+      "model_tag": "llama3.2:3b-instruct-q8_0",
+      "peak_vram_mb": 4002.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 4096.0,
+      "gpu": "L4",
+      "wall_s": 395.0
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 0.99,
+        "fpr": 0.04,
+        "j": 0.95,
+        "f1": 0.9753694581280788,
+        "auc": 0.9798,
+        "p50_ms": 578.399978,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.805,
+        "fpr": 0.04,
+        "j": 0.765,
+        "f1": 0.8821917808219177,
+        "auc": 0.8825,
+        "p50_ms": 594.688384,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.1_8b_q3",
+    "meta": {
+      "config": "llama3.1_8b_q3",
+      "label": "Llama 3.1 8B",
+      "family": "Llama",
+      "params_b": 8.0,
+      "quant": "Q3_K_M",
+      "model_tag": "llama3.1:8b-instruct-q3_K_M",
+      "peak_vram_mb": 4461.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 4505.6,
+      "gpu": "L4",
+      "wall_s": 474.3
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 1.0,
+        "fpr": 0.0,
+        "j": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "p50_ms": 547.4064014999999,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.795,
+        "fpr": 0.0,
+        "j": 0.795,
+        "f1": 0.8857938718662953,
+        "auc": 0.8975,
+        "p50_ms": 568.8183859999999,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.1_8b_q4",
+    "meta": {
+      "config": "llama3.1_8b_q4",
+      "label": "Llama 3.1 8B",
+      "family": "Llama",
+      "params_b": 8.0,
+      "quant": "Q4_K_M",
+      "model_tag": "llama3.1:8b",
+      "peak_vram_mb": 5249.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 5427.2,
+      "gpu": "L4",
+      "wall_s": 552.2
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 0.99,
+        "fpr": 0.0,
+        "j": 0.99,
+        "f1": 0.9949748743718593,
+        "auc": 0.995,
+        "p50_ms": 549.6224735000001,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.76,
+        "fpr": 0.0,
+        "j": 0.76,
+        "f1": 0.8636363636363636,
+        "auc": 0.88,
+        "p50_ms": 567.0412349999999,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.2_3b_fp16",
+    "meta": {
+      "config": "llama3.2_3b_fp16",
+      "label": "Llama 3.2 3B",
+      "family": "Llama",
+      "params_b": 3.0,
+      "quant": "FP16",
+      "model_tag": "llama3.2:3b-instruct-fp16",
+      "peak_vram_mb": 6882.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 7168.0,
+      "gpu": "L4",
+      "wall_s": 651.7
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 0.98,
+        "fpr": 0.03,
+        "j": 0.95,
+        "f1": 0.9751243781094527,
+        "auc": 0.9847,
+        "p50_ms": 855.022383,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.825,
+        "fpr": 0.03,
+        "j": 0.7949999999999999,
+        "f1": 0.8967391304347827,
+        "auc": 0.8975,
+        "p50_ms": 828.2864334999999,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.1_8b_q8",
+    "meta": {
+      "config": "llama3.1_8b_q8",
+      "label": "Llama 3.1 8B",
+      "family": "Llama",
+      "params_b": 8.0,
+      "quant": "Q8_0",
+      "model_tag": "llama3.1:8b-instruct-q8_0",
+      "peak_vram_mb": 8456.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 8806.4,
+      "gpu": "L4",
+      "wall_s": 590.6
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 1.0,
+        "fpr": 0.0,
+        "j": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "p50_ms": 698.5792180000001,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.835,
+        "fpr": 0.0,
+        "j": 0.835,
+        "f1": 0.9100817438692098,
+        "auc": 0.9175,
+        "p50_ms": 771.6074,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  },
+  {
+    "config": "llama3.1_8b_fp16",
+    "meta": {
+      "config": "llama3.1_8b_fp16",
+      "label": "Llama 3.1 8B",
+      "family": "Llama",
+      "params_b": 8.0,
+      "quant": "FP16",
+      "model_tag": "llama3.1:8b-instruct-fp16",
+      "peak_vram_mb": 15160.0,
+      "base_vram_mb": 0.0,
+      "weights_mb": 15360.0,
+      "gpu": "L4",
+      "wall_s": 1399.9
+    },
+    "tiers": {
+      "t1": {
+        "tpr": 1.0,
+        "fpr": 0.0,
+        "j": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "p50_ms": 1150.084061,
+        "attacks": 100,
+        "benign": 100
+      },
+      "t2": {
+        "tpr": 0.84,
+        "fpr": 0.0,
+        "j": 0.84,
+        "f1": 0.9130434782608696,
+        "auc": 0.92,
+        "p50_ms": 1172.6227225,
+        "attacks": 200,
+        "benign": 100
+      }
+    }
+  }
+]
