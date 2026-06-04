@@ -881,10 +881,11 @@ superset: the lexical pre-filter adds 22 catches at the cost of 7 new false
 positives. We reframe the claim accordingly: *the cheap lexical stage adds a small,
 significant recall gain at a modest precision cost* — not "beats SOTA."
 
-### 6.2 De-contamination: the result survives removing DeBERTa's training data
-28% of the corpus is from `deepset` (546 of those rows are its **train** split,
-which protectai-DeBERTa trained on). We removed **all** deepset rows and re-ran on
-the held-out jailbreak-classification subset (666 attack / 640 benign):
+### 6.2 De-contamination: the result survives removing the deepset split
+28% of the corpus is the `deepset` split (546 rows from its **train** split). To
+rule out any train/eval distributional overlap inflating the classifier, we removed
+**all** deepset rows and re-ran on the held-out jailbreak-classification subset
+(666 attack / 640 benign):
 
 | Chain | F1 | AUC | Recall |
 |---|---|---|---|
