@@ -439,7 +439,12 @@ dedicated healthcare panel. The PHI engine implements all 18 HIPAA Safe-Harbor
 identifiers~\cite{hipaa_safe_harbor} (SSN, dates, phone/fax, email, MRN,
 beneficiary/account numbers, URLs, IP addresses, VINs, device/license serials,
 geographic and contextual name/biometric cues), reporting each hit's category and
-supporting typed redaction.
+supporting typed redaction. Automated clinical \emph{de-identification} of free text is
+itself a long-studied task---the i2b2/n2c2 shared tasks~\cite{i2b2deid2015}, neural and
+rule-based systems such as Philter~\cite{philter2020}, and production tools like
+Microsoft Presidio---but those target redacting \emph{stored notes},
+whereas QFIRE's panel is an inline, agent-facing control that composes with the scope
+judge to block PHI exfiltration and re-identification on a live agent's prompts.
 
 \subsection{Implementation}
 QFIRE is ${\sim}7$k lines of Rust (Tokio, axum, reqwest). The injection
@@ -1111,14 +1116,19 @@ their threat model needs.
 
 \paragraph{Relation to structural defenses.}
 QFIRE belongs to an emerging line that treats prompt injection as a \emph{structural}
-problem rather than a classification one. CaMeL~\cite{camel2025} separates control flow
-from untrusted data across a privileged and a quarantined LLM; tool-boundary
-firewalls~\cite{firewallsbench2026} mediate an agent's tool inputs and outputs;
-Polymorphic Prompt Assembling~\cite{ppa2025} randomizes prompt structure to break
-attacker predictability; and methods such as Attention
-Tracker~\cite{attentiontracker2025} and SPIN~\cite{spin2024} exploit model internals or
-self-supervised reversal. These deliver strong robustness but demand two models,
-model-internal access, or fine-tuning. QFIRE occupies a complementary niche: a single,
+problem rather than a classification one. CaMeL~\cite{camel2025} extends the Dual-LLM
+pattern~\cite{willison2023}, separating control flow from untrusted data across a
+privileged and a quarantined LLM and adding a capability-tracking interpreter;
+tool-boundary firewalls~\cite{firewallsbench2026} mediate an agent's tool inputs and
+outputs; StruQ~\cite{struq2024} and Jatmo~\cite{jatmo2023} harden the model itself,
+enforcing a structured instruction/data channel or fine-tuning a task-specific model
+that ignores injected instructions, while spotlighting~\cite{spotlighting2024} marks
+untrusted content so the model can discount it; Polymorphic Prompt
+Assembling~\cite{ppa2025} randomizes prompt structure to break attacker
+predictability; and methods such as Attention Tracker~\cite{attentiontracker2025} and
+SPIN~\cite{spin2024} exploit model internals or self-supervised reversal. These deliver
+strong robustness but demand two models, model retraining, model-internal access, or a
+structured rewrite of the application's prompts. QFIRE occupies a complementary niche: a single,
 black-box, declarative inline proxy that enforces a positive-security \emph{scope} and a
 PHI panel with no retraining or white-box access, and---uniquely among these---targets
 the out-of-scope/PHI threats specific to clinical agents. Notably,

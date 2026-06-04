@@ -307,9 +307,14 @@ recall while keeping clean-traffic FPR near baseline:
 
 ### 3.3 Healthcare / PHI panel
 
-The PHI engine matches all 18 HIPAA Safe-Harbor identifiers. On a
-clinical-adjacent corpus (diagnosis/treatment/dosing/PHI-exfiltration attacks vs.
-legitimate general-health benign prompts):
+The PHI engine matches all 18 HIPAA Safe-Harbor identifiers. (Automated clinical
+*de-identification* of free text is a long-studied task — the i2b2/n2c2 shared tasks
+[Stubbs et al. 2015], Philter [Norgeot et al. 2020], and tools like Microsoft Presidio
+— but those redact *stored notes*, whereas QFIRE's panel is an inline, agent-facing
+control that composes with the scope judge to block PHI exfiltration and
+re-identification on a live agent's prompts.) On a clinical-adjacent corpus
+(diagnosis/treatment/dosing/PHI-exfiltration attacks vs. legitimate general-health
+benign prompts):
 
 | Configuration | Block | FPR | Prec. | Rec. | F1 |
 |---|---|---|---|---|---|
@@ -766,12 +771,17 @@ closes the gap (0.40/0.57/0.59 → 0.83 recall).
 
 **Relation to structural defenses.** QFIRE belongs to an emerging line that treats
 prompt injection as a *structural* problem, not a classification one: CaMeL
-[arXiv:2503.18813] separates control flow from untrusted data across a privileged and a
-quarantined LLM; tool-boundary firewalls [arXiv:2510.05244] mediate agent tool I/O;
-Polymorphic Prompt Assembling [arXiv:2506.05739] randomizes prompt structure; and
-Attention Tracker [arXiv:2411.00348] / SPIN [arXiv:2410.13236] exploit model internals or
-self-supervised reversal. These are robust but require two models, white-box access, or
-fine-tuning. QFIRE's niche is complementary: a single black-box declarative proxy
+[arXiv:2503.18813] extends the Dual-LLM pattern (Willison 2023) — separating control
+flow from untrusted data across a privileged and a quarantined LLM, adding a
+capability-tracking interpreter; tool-boundary firewalls [arXiv:2510.05244] mediate
+agent tool I/O; StruQ [arXiv:2402.06363] and Jatmo [arXiv:2312.17673] harden the model
+itself (a structured instruction/data channel, or task-specific fine-tuning that
+ignores injected instructions) and spotlighting [arXiv:2403.14720] marks untrusted
+content so the model discounts it; Polymorphic Prompt Assembling [arXiv:2506.05739]
+randomizes prompt structure; and Attention Tracker [arXiv:2411.00348] / SPIN
+[arXiv:2410.13236] exploit model internals or self-supervised reversal. These are robust
+but require two models, model retraining, white-box access, or a structured rewrite of
+the application's prompts. QFIRE's niche is complementary: a single black-box declarative proxy
 enforcing positive-security scope + PHI with no retraining or white-box access, and —
 uniquely — targeting the out-of-scope/PHI threats specific to clinical agents. Notably,
 [arXiv:2510.05244] independently finds static agent benchmarks are easily saturated and
