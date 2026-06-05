@@ -147,13 +147,13 @@
   \raggedleft\itshape\large \monthyeartoday
 \end{minipage}
 
-\vspace{1.0em}
+\vspace{0.7em}
 \begin{center}
   {\LARGE\bfseries Beyond Injection Detection: A Positive-Security\\[2pt]
    Prompt Firewall that Closes the Scope and PHI Gap\\[2pt]
    SOTA Classifiers Miss in Healthcare\par}
 
-  \vspace{0.8em}
+  \vspace{0.7em}
   {\large
    James Schwoebel\textsuperscript{1,\,*}\quad
    Ingrida Semenec, PhD\textsuperscript{1}\quad
@@ -162,7 +162,7 @@
    Rome Thorstenson\textsuperscript{3}\quad
    Manish Bhatt\textsuperscript{4}\par}
 
-  \vspace{0.7em}
+  \vspace{0.6em}
   {\small
    \textsuperscript{1}\,Quome Inc. \qquad
    \textsuperscript{2}\,University of Washington \qquad
@@ -180,7 +180,7 @@
 \setlength{\parskip}{0pt}
 {\centering\large\bfseries Abstract\par}
 \smallskip
-\fontsize{9.3}{11.0}\selectfont
+\fontsize{9.0}{10.6}\selectfont
 Large language models embedded in autonomous agents process trusted instructions
 and untrusted data in one context window, leaving them open to direct and
 indirect prompt injection. In healthcare this is not hypothetical: a 2025
@@ -1682,12 +1682,10 @@ the policy that produced them is inspectable data.
 \textbf{Over-refusal.} QFIRE's positive-security stance trades permissiveness for
 safety: a strict healthcare chain can over-block benign clinical-adjacent prompts,
 which we measure (\S\ref{sec:hcpanel}) rather than hide.
-
 \textbf{Generic-injection parity.} On generic injection a strong classifier
 (PromptGuard-2) matches QFIRE; QFIRE's measured advantage is the scope/PHI coverage
 of \S\ref{sec:healthcare-result} and single-binary deployment with no Python in the
 hot path, not a generic-detector win.
-
 \textbf{Off-distribution transfer.} Cross-dataset detection numbers shift
 off-distribution, but the shift is bounded and the deployable claims hold: on a
 held-out decontaminated split QFIRE recall stays $\ge$ the classifier's, the
@@ -1695,14 +1693,12 @@ calibrated over-refusal is $0.023\,[0.016,0.033]$ on a $1.3$k independent benign
 corpus, and a calibrated threshold transfers within $\sim\!0.04$ FPR
 (\S\ref{sec:external}). We nonetheless report a public, mixed corpus and release the
 snapshot; the held-out evidence is one decontaminated split, not a guarantee.
-
 \textbf{Judge cost and bias.} The LLM-judge node's cost grows with the number of
 scope rules, motivating the cheap-before-expensive ordering. Our PHI matchers are
 conservative for identifiers (names, biometrics, face photos) that are not reliably
 recoverable from text alone. The LLM scope judge also inherits the biases and failure
 modes of its backing model; we mitigate but do not eliminate this by keeping
 deterministic detectors ahead of it and reporting judge-chain over-blocking explicitly.
-
 \textbf{Out of scope: multi-modal and residual multi-turn.} QFIRE is a
 \emph{text-prompt} firewall: multi-modal injection---pixel-level perturbations,
 text-in-image (leetspeak/overlay) payloads, or instructions hidden in image
