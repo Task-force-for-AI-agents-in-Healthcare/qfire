@@ -1714,23 +1714,22 @@ motivating tighter scope rules.
 QFIRE shows that a Rust, parallel, positive-security firewall can combine
 low-latency local inference, de-obfuscation, and scope constraints in one
 reproducible toolchain. Its central empirical result is that generic
-prompt-injection detection---even the SOTA PromptGuard-2---is necessary but not
-sufficient in healthcare: on QFIRE-HealthBench the strongest classifier recovers
-only $0.40$ recall, while QFIRE's combined scope+PHI chain reaches $0.83$, because
-most clinical threats carry no injection signal.
+prompt-injection detection---even SOTA PromptGuard-2---is necessary but not
+sufficient in healthcare: on QFIRE-HealthBench it recovers only $0.40$ recall
+where QFIRE's scope+PHI chain reaches $0.83$, because most clinical threats carry
+no injection signal.
 
 Beyond the benchmark, QFIRE gives the HAARF framework~\cite{haarf2026} a concrete,
 testable enforcement layer (Table~\ref{tab:haarf}): the abstract controls for
 adversarial robustness (C3.2), input sanitization (C3.2.3), PHI protection
 (C3.6.1), real-time monitoring (C3.4), autonomy authority boundaries (C6.3), and
-immutable audit trails (C2.5.1) are each realized as a versioned rule, a detector
-node, or the audit log---and, crucially, are \emph{measured} rather than asserted.
+immutable audit trails (C2.5.1) are each realized as a versioned rule, detector
+node, or audit-log entry---and, crucially, \emph{measured} rather than asserted.
 A compliance reviewer can read the YAML that satisfies a control, run
 \texttt{qfire rules test} to check it, and inspect the audit log for evidence.
-This is what we believe a security-verification standard needs to become
-operational: not more conceptual requirements, but inspectable mechanisms with
-benchmarked false-positive and recall rates. All artifacts and the
-\texttt{make paper} pipeline are released for independent verification.
+A security-verification standard should require not more conceptual checklists but
+inspectable, independently verifiable mechanisms with benchmarked false-positive
+and recall rates.
 
 \section*{Declaration of generative AI use}
 During the preparation of this work the authors used Anthropic's Claude---specifically
