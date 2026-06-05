@@ -65,7 +65,7 @@ pub struct Chain {
     #[serde(default)]
     pub provider: Option<String>,
 
-    /// Apply the de-obfuscation normalization pass (decode Base64/hex/ROT13,
+    /// Apply the de-obfuscation normalization pass (decode Base64/hex/ROT13/URL,
     /// fold homoglyphs/leetspeak, strip zero-width) before detector evaluation.
     /// `true` means "always"; for finer control set `normalize_mode`.
     #[serde(default)]
