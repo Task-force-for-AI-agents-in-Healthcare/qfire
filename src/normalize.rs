@@ -111,10 +111,14 @@ pub fn normalize(text: &str) -> Normalized {
         layers.push(Layer { kind: "hex", text: decoded });
     }
 
-    // 5. Percent/URL decode (decodes %XX escapes in place).
-    let url = decode_percent(text);
-    if url != text {
-        layers.push(Layer { kind: "url", text: url });
+    // 5. Percent/URL decode (decodes %XX escapes in place). The `contains('%')`
+    // guard avoids allocating a full copy of the prompt in the common case where
+    // there is nothing to decode (notably under normalize_mode = "always").
+    if text.contains('%') {
+        let url = decode_percent(text);
+        if url != text {
+            layers.push(Layer { kind: "url", text: url });
+        }
     }
 
     // 6. ROT13 the whole text (cheap; catches rot13-wrapped instructions).
@@ -272,10 +276,12 @@ pub fn decode_hex_runs(text: &str) -> Vec<String> {
 }
 
 /// Percent-decode `%XX` escapes in place (RFC 3986). Literal text and `+` are
-/// preserved; invalid escapes are left untouched. Decodes to bytes first so
-/// multi-byte UTF-8 (e.g. `%C3%A9` -> `é`) reconstructs correctly. Whole-text
-/// transform (like ROT13): no printable gate and no minimum-escape threshold, so
-/// a single escape used to split a keyword (`ign%6Fre`) is still recovered.
+/// preserved; a `%` not followed by two hex digits is left untouched. Decodes to
+/// bytes first so multi-byte UTF-8 (e.g. `%C3%A9` -> `é`) reconstructs correctly;
+/// decoded byte sequences that are not valid UTF-8 (e.g. `%FF`) are converted
+/// lossily to U+FFFD via `from_utf8_lossy`. Whole-text transform (like ROT13): no
+/// printable gate and no minimum-escape threshold, so a single escape used to
+/// split a keyword (`ign%6Fre`) is still recovered.
 pub fn decode_percent(s: &str) -> String {
     let b = s.as_bytes();
     let mut out: Vec<u8> = Vec::with_capacity(b.len());
