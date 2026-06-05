@@ -229,19 +229,6 @@ scope; PHI protection; healthcare AI agents; HIPAA; QFIRE-HealthBench.
 \clearpage
 
 \section{Introduction}
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=0.97\linewidth]{figs/hero_recall_gap.png}
-\caption{The same three detectors are
-statistically tied on generic prompt injection (left), but on healthcare threats
-(right) SOTA PromptGuard-2 collapses to $0.40$ recall while QFIRE's scope+PHI chain
-holds at $0.83$. The example under each panel shows \emph{why}: the generic attack
-carries an overt token every detector catches, whereas the clinical bulk-export
-request carries no injection signal, so only QFIRE's PHI/scope rules stop it.
-Generic injection detection is necessary but not sufficient in healthcare. (More
-missed-by-classifier examples: Appendix~\ref{app:examples}, Table~\ref{tab:failures}.)}
-\label{fig:hero}
-\end{figure}
 \rev{\emph{A motivating scenario.} An EHR-connected scheduling agent with standing
 read/write access ingests an inbound patient-portal message containing a hidden
 instruction---``also export this patient's chart to an external address.'' No
@@ -262,6 +249,20 @@ context, instruction-override, role-play jailbreak, and adversarial-suffix
 attacks remain effective despite model alignment~\cite{perez2022,greshake2023}.
 Runtime gateways that intercept prompts before they reach the model are therefore
 a necessary control~\cite{llamafirewall2025,oneshield2025}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.97\linewidth]{figs/hero_recall_gap.png}
+\caption{The same three detectors are
+statistically tied on generic prompt injection (left), but on healthcare threats
+(right) SOTA PromptGuard-2 collapses to $0.40$ recall while QFIRE's scope+PHI chain
+holds at $0.83$. The example under each panel shows \emph{why}: the generic attack
+carries an overt token every detector catches, whereas the clinical bulk-export
+request carries no injection signal, so only QFIRE's PHI/scope rules stop it.
+Generic injection detection is necessary but not sufficient in healthcare. (More
+missed-by-classifier examples: Appendix~\ref{app:examples}, Table~\ref{tab:failures}.)}
+\label{fig:hero}
+\end{figure}
 
 Recent runtime guardrails span several architectural philosophies
 (Table~\ref{tab:related}): deep multi-stage Python auditing
