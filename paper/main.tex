@@ -180,49 +180,38 @@
 \setlength{\parskip}{0pt}
 {\centering\large\bfseries Abstract\par}
 \smallskip
-\fontsize{9.4}{11.0}\selectfont
-Large language models embedded in autonomous agents process trusted instructions
-and untrusted data in one context window, leaving them open to direct and
-indirect prompt injection. In healthcare this is not hypothetical: a 2025
-\emph{JAMA Network Open} study found commercial medical LLMs followed injected
-instructions in $94.4\%$ of simulated patient encounters, including
-life-threatening recommendations~\cite{jamapromptinj2025}. Yet the clinically
-decisive problem we quantify here is different. Most real clinical
-threats---protected health information (PHI) exfiltration, cross-patient access,
-bulk export, out-of-scope advice---are fluent, legitimate-looking requests that carry
-\emph{no} attack signal, so even a state-of-the-art injection detector passes
-them. Existing runtime guardrails trade safety against latency: model-based
-auditors are accurate but add hundreds of milliseconds of Python inference, while
-lexical filters are fast but blind to obfuscated or semantically disguised
-payloads. We present \textbf{QFIRE}, an inline, provider-agnostic prompt firewall
-implemented as a single self-contained Rust toolchain (proxy, CLI, and benchmark
-harness). QFIRE combines three mechanisms: (i) \emph{positive-security scope
-constraints}, which restrict a model call to a declared natural-language purpose
-and block out-of-scope drift even when no overt attack token is present; (ii) an
-\emph{asynchronous detector graph} that runs $N$ rules and their detector nodes
-concurrently, cheapest checks first; and (iii) a \emph{de-obfuscation pass} that
-decodes Base64/hex/ROT13, folds homoglyphs and leetspeak, and strips zero-width
-characters before detection. QFIRE ships $106$ versioned firewall rules and a
-dedicated HIPAA Safe-Harbor (18-identifier) PHI panel, and runs a local
-DeBERTa-v3 injection classifier via embedded ONNX Runtime. On \NumPrompts{} public
-prompt-injection and jailbreak prompts QFIRE's deterministic hybrid attains
-$F1~0.86$, statistically tied with Meta's state-of-the-art PromptGuard-2 ($0.86$)
-and above protectai DeBERTa-v3 ($0.83$); lexical baselines lag ($0.16$--$0.50$).
-Our central result is on \emph{QFIRE-HealthBench}, a new $2{,}000$-prompt
-healthcare benchmark we build and release with real garak and Microsoft
-PyRIT~\cite{pyrit} payloads. There the same PromptGuard-2 recovers only $0.40$
-recall (DeBERTa-v3 $0.57$), because most clinical threats carry no injection
-signal; QFIRE's combined scope$+$PHI chain reaches $0.83$ recall ($F1~0.87$) at a
-calibrated $0.08$ false-positive rate. Generic injection detection, even
-state-of-the-art, is therefore necessary but not sufficient for healthcare agents.
-A bare LLM judge also closes most of this static-corpus gap ($F1~0.90$); QFIRE's
-contribution beyond static accuracy is auditable determinism, bounded latency, and
-adaptive robustness, where the bare judge falls to $34$--$59\%$ recall
-(\S\ref{sec:adaptive}). End-to-end, placing QFIRE in front of a tool-using agent
-over a mock-EHR sandbox cuts the agent's harmful-action rate from $0.38$ to $0.00$
-at a $0.13$ benign-utility cost. All code, rules, corpora snapshots, and scripts
-are released, and every table regenerates from a single \texttt{make paper} target
-against local models with no paid API keys.
+\fontsize{10}{12}\selectfont
+Large language models in autonomous agents process trusted instructions and
+untrusted data in one context window, exposing them to direct and indirect prompt
+injection. In healthcare the stakes are concrete: a 2025 \emph{JAMA Network Open}
+study found commercial medical LLMs followed injected instructions in $94.4\%$ of
+simulated patient encounters, including life-threatening
+recommendations~\cite{jamapromptinj2025}. Yet the decisive problem is different:
+most real clinical threats---protected health information (PHI) exfiltration,
+cross-patient access, bulk export, out-of-scope advice---are fluent,
+legitimate-looking requests that carry \emph{no} attack signal, so even a
+state-of-the-art injection detector passes them. We present \textbf{QFIRE}, an
+inline, provider-agnostic prompt firewall built as a single self-contained Rust
+toolchain (proxy, CLI, harness). QFIRE combines (i) \emph{positive-security scope
+constraints} that confine a call to a declared natural-language purpose and block
+out-of-scope drift, (ii) an \emph{asynchronous detector graph} that runs $N$ rules
+concurrently, cheapest first, and (iii) a \emph{de-obfuscation pass}
+(Base64/hex/ROT13, homoglyphs, leetspeak, zero-width). It ships $106$ versioned
+rules and a HIPAA Safe-Harbor (18-identifier) PHI panel, and runs a local
+DeBERTa-v3 classifier via embedded ONNX Runtime. On \NumPrompts{} public prompts
+QFIRE attains $F1~0.86$, statistically tied with Meta's PromptGuard-2 ($0.86$) and
+above protectai DeBERTa-v3 ($0.83$). Our central result is on
+\emph{QFIRE-HealthBench}, a new $2{,}000$-prompt healthcare benchmark we release
+with real garak and Microsoft PyRIT~\cite{pyrit} payloads: there PromptGuard-2
+recovers only $0.40$ recall while QFIRE's combined scope$+$PHI chain reaches $0.83$
+($F1~0.87$) at a calibrated $0.08$ false-positive rate---generic injection
+detection is necessary but not sufficient for healthcare. A bare LLM judge matches
+QFIRE on static accuracy ($F1~0.90$) but falls to $34$--$59\%$ recall under
+adaptive attack (\S\ref{sec:adaptive}), where QFIRE adds auditable determinism and
+bounded latency. End-to-end, placing QFIRE in front of a tool-using agent over a
+mock-EHR sandbox cuts its harmful-action rate from $0.38$ to $0.00$ at a $0.13$
+benign-utility cost. All code, rules, and corpora snapshots are released and
+regenerate from a single \texttt{make paper} target with no paid API keys.
 
 \smallskip
 \noindent\textbf{Keywords:}~prompt injection; prompt firewall; positive-security
