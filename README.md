@@ -153,6 +153,45 @@ qfire attack import garak-report.jsonl --format garak --out corpora/attacks/gara
 qfire attack mutate corpora/benign/benign_samples.txt --out corpora/attacks/aip.jsonl
 ```
 
+## QFIRE-HealthBench dataset
+
+The full healthcare prompt-injection benchmark — **1000 benign + 1000 malicious**
+clinical prompts (PHI exfiltration, re-identification, cross-patient access, bulk
+export, out-of-scope clinical advice, system-prompt exfiltration, direct
+injection, and real DAN/jailbreak framings, plus obfuscated variants from
+garak/PyRIT) — is published on the Hugging Face Hub:
+
+**📊 [H3althAg3nt/QFIRE-Healthbench](https://huggingface.co/datasets/H3althAg3nt/QFIRE-Healthbench)**
+
+Each row carries `prompt`, `label` (`benign`/`malicious`), `category`,
+`technique` (obfuscation), and `source` (`native`/`garak`/`pyrit`). All
+identifiers are synthetic — no real PHI.
+
+Download with the Hugging Face CLI:
+
+```bash
+# install the CLI (pick one)
+pip install -U huggingface_hub        # or: brew install hf
+
+# (optional) authenticate for higher rate limits
+hf auth login
+
+# download the whole dataset into ./QFIRE-Healthbench
+hf download H3althAg3nt/QFIRE-Healthbench --repo-type dataset --local-dir QFIRE-Healthbench
+```
+
+Or load it directly in Python:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("H3althAg3nt/QFIRE-Healthbench")          # 2000 rows
+benign  = ds["train"].filter(lambda r: r["label"] == "benign")
+attacks = ds["train"].filter(lambda r: r["label"] == "malicious")
+```
+
+A small snapshot also ships in-repo at `corpora/healthcare_bench/` for offline runs.
+
 ## CLI summary
 
 | command | purpose | exit codes |
