@@ -199,6 +199,29 @@ scripts/        model-fetch helper
 Makefile        build / test / bench targets
 ```
 
+## Citation
+
+If you use QFIRE in your research, please cite the paper
+([medRxiv preprint](https://www.medrxiv.org/content/10.64898/2026.06.04.26354950v1)):
+
+```bibtex
+@article{schwoebel2026qfire,
+  title   = {Beyond Injection Detection: A Positive-Security Prompt Firewall
+             that Closes the Scope and PHI Gap SOTA Classifiers Miss in Healthcare},
+  author  = {Schwoebel, James and Semenec, Ingrida and Rousseva, Jenia and
+             Frasch, Martin G. and Thorstenson, Rome and Bhatt, Manish},
+  journal = {medRxiv},
+  year    = {2026},
+  doi     = {10.64898/2026.06.04.26354950},
+  url     = {https://www.medrxiv.org/content/10.64898/2026.06.04.26354950v1},
+  note    = {Preprint. Task Force for AI Agents in Healthcare}
+}
+```
+
+> To reproduce the paper's results, use the pinned
+> **[v1.02](https://github.com/Task-force-for-AI-agents-in-Healthcare/qfire/releases/tag/v1.02)**
+> release (see the note at the top of this README).
+
 ## License
 
 Apache-2.0.
