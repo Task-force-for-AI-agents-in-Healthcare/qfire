@@ -54,6 +54,13 @@ const INJECTION_SIGNALS: &[(&str, f64)] = &[
     ("output your system", 2.2),
     ("base64", 0.8),
     ("rot13", 0.9),
+    ("url-decode", 0.8),
+    ("url decode", 0.8),
+    ("urldecode", 0.8),
+    ("percent-decode", 0.8),
+    ("percent decode", 0.8),
+    ("percent-encoded", 0.8),
+    ("url-encoded", 0.8),
     ("hypothetically", 0.6),
     ("roleplay", 0.7),
 ];
