@@ -12,6 +12,12 @@
 > **New here?** Start with the hands-on **[tutorials »](tutorials/)** — install,
 > proxy your app, write a rule, and reproduce the benchmarks in a few minutes.
 
+> **Reproducing the paper?** QFIRE is an actively developed project, and `master`
+> moves ahead of the published results. For the exact code behind the paper's
+> reproducible findings, use the pinned release
+> **[v1.02](https://github.com/Task-force-for-AI-agents-in-Healthcare/qfire/releases/tag/v1.02)**.
+> Later versions may produce different numbers as the toolchain evolves.
+
 QFIRE is a local, provider-agnostic **prompt firewall**: a proxy daemon, a CLI,
 and a benchmark harness, delivered as a single self-contained Rust toolchain with
 **no web frontend**. A *firewall rule* scopes an LLM call to a declared,
