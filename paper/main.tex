@@ -1525,7 +1525,7 @@ robustness---the same motivation behind our adaptive-attack evaluation
 
 \paragraph{Relationship to HAARF.}
 This work operationalizes the Healthcare AI Agents Regulatory Framework
-(HAARF)~\cite{haarf2026}, a security-verification standard for clinical AI agents
+(HAARF)~\cite{schwoebel2026haarf}, a security-verification standard for clinical AI agents
 from the same group. HAARF defines the security-verification \emph{standard}
 a clinical AI agent must meet---scope restriction, minimum-necessary access, PHI
 protection, and auditable refusal---but is deliberately implementation-agnostic.
@@ -1550,7 +1550,7 @@ C2.5.1 & Immutable audit trail: timestamp, input, decision, confidence & Append-
 C6.3.1,\,C6.3.4 & Authority boundaries; violations auto-detected and logged & Declared per-chain scope, fail-closed BLOCK, audit escalation \\
 \bottomrule
 \end{tabular}
-\caption{QFIRE as a concrete enforcement layer for specific HAARF~\cite{haarf2026}
+\caption{QFIRE as a concrete enforcement layer for specific HAARF~\cite{schwoebel2026haarf}
 controls. HAARF defines the verification requirement; QFIRE is the runtime
 mechanism that satisfies it; the measured evidence backing each control lives in the referenced sections.}
 \label{tab:haarf}
@@ -1708,7 +1708,7 @@ sufficient in healthcare: on QFIRE-HealthBench it recovers only $0.40$ recall
 where QFIRE's scope+PHI chain reaches $0.83$, because most clinical threats carry
 no injection signal.
 
-Beyond the benchmark, QFIRE gives the HAARF framework~\cite{haarf2026} a concrete,
+Beyond the benchmark, QFIRE gives the HAARF framework~\cite{schwoebel2026haarf} a concrete,
 testable enforcement layer (Table~\ref{tab:haarf}): the abstract controls for
 adversarial robustness (C3.2), input sanitization (C3.2.3), PHI protection
 (C3.6.1), real-time monitoring (C3.4), autonomy authority boundaries (C6.3), and
