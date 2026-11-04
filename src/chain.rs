@@ -34,6 +34,11 @@ pub enum FailPolicy {
     FailClosed,
     /// Treat detector errors as pass-through (ABSTAIN).
     FailOpen,
+    /// Treat detector errors as ABSTAIN inside each rule (like `fail_open`), but
+    /// if any rule errored and the chain did not BLOCK, the terminal verdict is
+    /// ERROR (CLI exit 1). An unreachable model is visible, never a silent pass
+    /// and never a BLOCK of every request.
+    FailError,
 }
 
 /// A chain definition as authored in YAML.
@@ -383,6 +388,12 @@ mod tests {
         assert!(set.contains("marketing"));
         assert!(set.contains("support"));
         assert!(set.contains("guard"));
+    }
+
+    #[test]
+    fn parses_fail_error() {
+        let c = Chain::from_yaml("id: t\nfail_policy: fail_error\nrules: [r]\n").unwrap();
+        assert_eq!(c.fail_policy, FailPolicy::FailError);
     }
 
     #[test]
