@@ -32,7 +32,7 @@ pub mod exit {
                   this CLI, structured output, and benchmark report artifacts."
 )]
 pub struct Cli {
-    /// Path to a config file (default: ./qfire.toml or ~/.config/qfire/config.toml).
+    /// Path to a config file (default: $QFIRE_CONFIG, ./qfire.toml or ~/.config/qfire/config.toml).
     #[arg(long, global = true)]
     pub config: Option<PathBuf>,
 

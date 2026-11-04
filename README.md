@@ -206,6 +206,13 @@ A small snapshot also ships in-repo at `corpora/healthcare_bench/` for offline r
 
 Every command accepts `--json` (machine-readable) and `--quiet` (CI).
 
+Configuration is read from `--config <file>`, else the `QFIRE_CONFIG`
+environment variable, else `./qfire.toml`, else `~/.config/qfire/config.toml`.
+When the file comes from `--config` or `QFIRE_CONFIG`, relative `rules_dir`,
+`chains_dir` and `audit_path` are resolved against the config file's directory,
+so `qfire` can run as a subprocess from any working directory. Set
+`audit_path = ""` to turn the audit log off.
+
 ## Reproducibility & audit
 
 Every decision is appended to an immutable JSONL audit log (`audit.jsonl`):
