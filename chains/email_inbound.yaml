@@ -1,0 +1,48 @@
+# Inbound service mail that an AI agent will read (e.g. an agent's signup
+# inbox). Expression mode: the message must pass the reused injection guards AND
+# the three positive-security email rules (rules/email/email_inbound.yaml).
+#
+# Offline and deterministic: no judge node and no embedding node, so the verdict
+# is the same with or without a model provider. For the opt-in LLM judge see
+# chains/email_inbound_judge.yaml (shadow mode).
+#
+# Input shape: "Subject: <subject>\n\n<visible text>".
+#
+# Shared guards left out, with the false positives measured on 114 synthetic
+# benign service mails (visible text):
+#   - injection_encoding_obfuscation: 96/114 blocked by its entropy node
+#     (whole-text entropy ~4.72 bits/char vs a 4.70 limit).
+#   - e7_injection_encoding_obfuscation (its E7 variant, entropy dropped): also
+#     left out. Under `normalize_mode: triggered`, any message with an encoding
+#     signal (an accented name, a Japanese footer, a long base64url magic-link
+#     token) is expanded, and the expansion always carries a `[deobf:rot13]`
+#     layer label, which that rule's `(?i)rot13` pattern matches. It blocked
+#     5/48 benign entries of corpora/email/benign this way. The decoded layers
+#     are still scanned by every other rule, and the "decode ... and do what it
+#     says" instruction is caught by email_task_hijack.
+#   - injection_jailbreak_dan: 4/114 blocked; `STAN` has no word boundary and
+#     matches "Standard". Replaced by e7_injection_jailbreak_dan.
+#   - injection_role_manipulation: left out; `you are now (a|an|the)` matches
+#     account notices like "You are now an admin of the Acme workspace". Its
+#     attack forms are covered by email_task_hijack.
+#   - injection_restriction_bypass: left out; plan copy such as "no
+#     limitations" or "no restrictions on seats" reads as a restriction bypass.
+#   - scope_agent_on_task: its regex blocked 44/114 (`to <email>`, "send ... to",
+#     "also ... pay", "you are now a ..."). Its zero-false-positive subset lives
+#     in email_task_hijack instead.
+# The shared rules themselves are untouched (the paper and E7 numbers depend
+# on them); the fixed variant is reused by id, following the E7 precedent.
+id: email_inbound
+description: "Inbound service mail read by an AI agent: injection guards + positive-security email rules. Offline, no LLM."
+mode: expression
+fail_policy: fail_closed
+normalize_mode: triggered
+groups:
+  injection: >
+    injection_instruction_override AND injection_system_prompt_exfil AND
+    injection_delimiter_escape AND injection_tool_command_abuse AND
+    injection_multi_step_smuggle AND injection_classifier_only AND
+    e7_injection_jailbreak_dan
+  email_scope: >
+    email_reader_addressed AND email_task_hijack AND email_out_of_scope_action
+expression: "injection AND email_scope"

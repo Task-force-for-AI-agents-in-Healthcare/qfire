@@ -7,8 +7,11 @@
 # task, or asks it to act outside the inbox's purpose is BLOCKed. Each rule is a
 # single offline regex node so the chain is deterministic and needs no model.
 #
-# Patterns use bounded gaps only. The shared rules are reused by id from the
-# chain and are not edited here.
+# Patterns use bounded gaps only. Word boundaries are ASCII (`(?-u:\b)`): a
+# Unicode `\b` makes the regex engine leave its fast DFA on any non-ASCII byte
+# (an em dash in a footer is enough), which cost ~200 ms on a 200 kB message;
+# the ASCII form costs ~1 ms. The shared rules are reused by id from the chain
+# and are not edited here.
 #
 # IMP below stands for the imperative anchor
 #   (^\s*(\[\w+\]\s+)?|[.!?:]\s+|\b(please|kindly|then|also|first|now|and)\s+)
@@ -25,15 +28,15 @@
     - type: regex
       deny:
         # Addressed to the model by name.
-        - '(?i)\bto\s+you,?\s+(the\s+)?(ai|a\.i\.)(\s+(model|assistant|agent|system))?\b'
-        - '(?i)\bif\s+you\s+are\s+(an?\s+)?(ai|a\.i\.|llm|bot|(large\s+)?language\s+model|ai\s+(model|assistant|agent|system)|automated\s+(agent|assistant|system))\b'
-        - '(?i)\bnote\s+to\s+(the\s+)?(ai|assistant|llm|agent|model)\b'
+        - '(?i)(?-u:\b)to\s+you,?\s+(the\s+)?(ai|a\.i\.)(\s+(model|assistant|agent|system))?(?-u:\b)'
+        - '(?i)(?-u:\b)if\s+you\s+are\s+(an?\s+)?(ai|a\.i\.|llm|bot|(large\s+)?language\s+model|ai\s+(model|assistant|agent|system)|automated\s+(agent|assistant|system))(?-u:\b)'
+        - '(?i)(?-u:\b)note\s+to\s+(the\s+)?(ai|assistant|llm|agent|model)(?-u:\b)'
         # A line that opens by hailing the AI reader ("AI agents:", "Hello assistant,").
         - '(?im)^\s*(\[\w+\]\s+)?((hello|hi|hey|dear|attention)[,:]?\s+)?(the\s+)?(ai\s+)?(assistants?|agents?|llms?|ai\s+models?)\s*[:.,!]'
         # AgentDojo-style wrapper and its "the task I gave you" framing.
         - '(?i)</?\s*information\s*>'
-        - '(?i)\bthe\s+task\s+(that\s+)?(i|the\s+user|they)\s+gave\s+you\b'
-        - '(?i)\bbefore\s+(doing|you\s+do)\s+anything\s+else\b'
+        - '(?i)(?-u:\b)the\s+task\s+(that\s+)?(i|the\s+user|they)\s+gave\s+you(?-u:\b)'
+        - '(?i)(?-u:\b)before\s+(doing|you\s+do)\s+anything\s+else(?-u:\b)'
   exemplars:
     in_scope:
       - "Your Acme verification code is 482913. It expires in 10 minutes."
@@ -70,12 +73,14 @@
         - '(?i)your\s+(real|true|actual|new)\s+(task|goal|job|instructions?)\s+(is|are)'
         # Role change. Not `you are now (a|an|the)`: "You are now an admin of the
         # Acme workspace" is a normal account notice.
-        - '(?i)\bfrom\s+now\s+on,?\s+you\s+(are|will|must|should)\b'
-        - '(?i)\byou\s+are\s+now\s+(in\s+)?(developer|admin|god|root|dan|unrestricted|jailbroken)\b'
-        - '(?i)\bact\s+as\s+(DAN|an?\s+(unrestricted|unfiltered|jailbroken)\b)'
+        - '(?i)(?-u:\b)from\s+now\s+on,?\s+you\s+(are|will|must|should)(?-u:\b)'
+        - '(?i)(?-u:\b)you\s+are\s+now\s+(in\s+)?(developer|admin|god|root|dan|unrestricted|jailbroken)(?-u:\b)'
+        - '(?i)(?-u:\b)act\s+as\s+(DAN|an?\s+(unrestricted|unfiltered|jailbroken)(?-u:\b))'
         # Permission change and fake authority tags.
-        - '(?i)\b(grant|give|escalate)\s+(yourself|me)\s+(admin|root|full|elevated|owner)\s+(access|permissions?|privileges?|rights)'
+        - '(?i)(?-u:\b)(grant|give|escalate)\s+(yourself|me)\s+(admin|root|full|elevated|owner)\s+(access|permissions?|privileges?|rights)'
         - '(?i)\[\s*(admin|system|developer)\s+(override|mode|instructions?)\s*\]'
+        # Encoded payload with an instruction to decode and obey it.
+        - '(?i)(?-u:\b)(decode|decrypt)\s+(this|that|it|the\s+(following|reference|text|string|blob|payload))(?-u:\b)[^.\n]{0,40}(?-u:\b)(and\s+)?(then\s+)?(execute|follow|do|run|obey)(?-u:\b)'
   exemplars:
     in_scope:
       - "Your Acme verification code is 482913. It expires in 10 minutes."
@@ -107,23 +112,24 @@
     - type: regex
       deny:
         # Exfiltrating secrets or mail data to an address or URL (imperative only, so
-        # "we will send a new code to you@example.com" passes).
-        - '(?im)(^\s*(\[\w+\]\s+)?|[.!?:]\s+|\b(please|kindly|then|also|first|now|and)\s+)(send|forward|email|share|post|upload|transmit|leak|relay|cc|bcc)\s+(\S+\s+){0,6}?((security|verification|login|sign-?in|one-?time|2fa|mfa|reset|recovery)\s+(codes?|links?|tokens?)|codes?|passwords?|passcodes?|(api|secret|private|ssh)\s+keys?|tokens?|secrets?|credentials|(all|every|the\s+user''?s|my|your)\s+(emails?|messages|inbox|mailbox|contacts|files)|access\s+logs?|(conversation|chat)\s+history)\b[^\n]{0,120}?\b(to|with)\s+[''"<(]?([\w.+-]+@[\w-]+(\.[\w-]+)+|https?://)'
+        # "we will send a new code to you@example.com" passes). `upload` is left out:
+        # "Upload your files to https://..." is ordinary product copy.
+        - '(?im)(^\s*(\[\w+\]\s+)?|[.!?:]\s+|(?-u:\b)(please|kindly|then|also|first|now|and)\s+)(send|forward|email|share|post|transmit|leak|relay|cc|bcc)\s+(\S+\s+){0,6}?((security|verification|login|sign-?in|one-?time|2fa|mfa|reset|recovery)\s+(codes?|links?|tokens?)|codes?|passwords?|passcodes?|(api|secret|private|ssh)\s+keys?|tokens?|secrets?|credentials|(all|every|the\s+user''?s|my|your)\s+(emails?|messages|inbox|mailbox|contacts|files)|access\s+logs?|(conversation|chat)\s+history)(?-u:\b)[^\n]{0,120}?(?-u:\b)(to|with)\s+[''"<(]?([\w.+-]+@[\w-]+(\.[\w-]+)+|https?://)'
         # Adding a participant or changing permissions.
-        - '(?im)(^\s*(\[\w+\]\s+)?|[.!?:]\s+|\b(please|kindly|then|also|first|now|and)\s+)(add|invite)\s+[''"<]?[\w.+-]+@[\w-]+(\.[\w-]+)+[''">]?\s+as\s+(an?\s+)?(admin|owner|participant|collaborator|member|guest|delegate)\b'
-        - '(?im)(^\s*(\[\w+\]\s+)?|[.!?:]\s+|\b(please|kindly|then|also|first|now|and)\s+)(grant|give)\s+((permanent|full|admin|owner)\s+)*(access|admin\s+rights|permissions?|privileges?)\s+to\s+(my|this|the|him|her|them|[\w.+-]+@)'
+        - '(?im)(^\s*(\[\w+\]\s+)?|[.!?:]\s+|(?-u:\b)(please|kindly|then|also|first|now|and)\s+)(add|invite)\s+[''"<]?[\w.+-]+@[\w-]+(\.[\w-]+)+[''">]?\s+as\s+(an?\s+)?(admin|owner|participant|collaborator|member|guest|delegate)(?-u:\b)'
+        - '(?im)(^\s*(\[\w+\]\s+)?|[.!?:]\s+|(?-u:\b)(please|kindly|then|also|first|now|and)\s+)(grant|give)\s+((permanent|full|admin|owner)\s+)*(access|admin\s+rights|permissions?|privileges?)\s+to\s+(my|this|the|him|her|them|[\w.+-]+@)'
         # Tool invocation (the agent tell).
-        - '(?i)\b(using|use|call|invoke|via|with)\s+the\s+[\w-]+\s+(tool|function|plugin)\b'
+        - '(?i)(?-u:\b)(using|use|call|invoke|via|with)\s+the\s+[\w-]+\s+(tool|function|plugin)(?-u:\b)'
         # The reader treated as an agent working for a user.
-        - '(?i)\bthe\s+user''?s\s+(checking|savings|bank|environment|inbox|mailbox|calendar|contacts|files?|emails?|password|credentials|api\s+keys?)\b'
+        - '(?i)(?-u:\b)the\s+user''?s\s+(checking|savings|bank|environment|inbox|mailbox|calendar|contacts|files?|emails?|password|credentials|api\s+keys?)(?-u:\b)'
         # Download and execute. `install` is left out on purpose: "download the app
         # and install it" is ordinary welcome mail.
-        - '(?i)\b(curl|wget)\b[^\n]{0,200}\|\s*(sudo\s+)?(ba|z)?sh\b'
-        - '(?i)\b(download|fetch)\b[^.\n]{0,80}\b(and\s+)?(then\s+)?(run|execute)\s+(it|this|the)\b'
+        - '(?i)(?-u:\b)(curl|wget)(?-u:\b)[^\n]{0,200}\|\s*(sudo\s+)?(ba|z)?sh(?-u:\b)'
+        - '(?i)(?-u:\b)(download|fetch)(?-u:\b)[^.\n]{0,80}(?-u:\b)(and\s+)?(then\s+)?(run|execute)\s+(it|this|the)(?-u:\b)'
         # Concealment.
-        - '(?i)\b(do\s+not|don''?t|never)\s+(tell|inform|notify|alert)\s+(the\s+)?(user|owner|account\s+holder|human)\b'
-        - '(?i)\bdelete\s+the\s+(email|message)\s+you\s+(have\s+)?(just\s+)?sent\b'
-        - '(?i)\b(and|then)\s+delete\s+this\s+(email|message)\b'
+        - '(?i)(?-u:\b)(do\s+not|don''?t|never)\s+(tell|inform|notify|alert)\s+(the\s+)?(user|owner|account\s+holder|human)(?-u:\b)'
+        - '(?i)(?-u:\b)delete\s+the\s+(email|message)\s+you\s+(have\s+)?(just\s+)?sent(?-u:\b)'
+        - '(?i)(?-u:\b)(and|then)\s+delete\s+this\s+(email|message)(?-u:\b)'
   exemplars:
     in_scope:
       - "Your Acme verification code is 482913. It expires in 10 minutes."
