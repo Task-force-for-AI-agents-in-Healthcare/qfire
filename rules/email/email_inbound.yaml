@@ -102,8 +102,9 @@
         - '(?i)(?-u:\b)ignore\s+all\s+(the\s+|of\s+the\s+)?(previous|above|prior|earlier|preceding)\s+messages(?-u:\b)'
         - '(?i)(?-u:\b)(disregard|forget|override)\s+(all\s+|the\s+|your\s+|any\s+)?(previous|above|prior|earlier|original|system|user.?s)\s+(instructions?|prompts?|rules|directives|task|goal|request)(?-u:\b)'
         # "Disregard prior guidance on the API migration" is a correction; guidance
-        # counts only when an imperative follows.
-        - '(?i)(?-u:\b)(disregard|forget)\s+(all\s+|the\s+|your\s+|any\s+)?(previous|above|prior|earlier|original)\s+guidance\s*([.!;:,]\s*|\s+and\s+)(then\s+)?(please\s+)?(read|ignore|stop|send|forward|reply|respond|run|execute|follow|delete|open|visit|click|list|share|export|grant|add|make|tell|reveal|print|summari[sz]e|collect|copy|transfer)(?-u:\b)'
+        # counts only when an imperative follows (after `.`, `;`, `:`, `,`, `and` or
+        # `, and`).
+        - '(?i)(?-u:\b)(disregard|forget)\s+(all\s+|the\s+|your\s+|any\s+)?(previous|above|prior|earlier|original)\s+guidance\s*([.!;:]\s*|,?\s+and\s+|,\s*)(then\s+)?(please\s+)?(read|ignore|stop|send|forward|reply|respond|run|execute|follow|delete|open|visit|click|list|share|export|grant|add|make|tell|reveal|print|summari[sz]e|collect|copy|transfer)(?-u:\b)'
         - '(?i)(?-u:\b)(disregard|forget|ignore)\s+(the|your)\s+(task|instructions?|request)\s+(above|below|you\s+were\s+given)(?-u:\b)'
         - '(?i)(?-u:\b)forget\s+(everything\s+you\s+(were|have\s+been)\s+told|(all\s+)?(your|the)\s+(instructions?|rules|prompts?))(?-u:\b)'
         - '(?i)(?-u:\b)(do\s+not|don.?t)\s+(follow|obey|adhere\s+to)\s+(the\s+)?(previous|above|system|prior)\s+(instructions?|rules)(?-u:\b)'
@@ -199,11 +200,11 @@
         # Permission change and fake authority tags.
         - '(?i)(?-u:\b)(grant|give|escalate)\s+(yourself|me)\s+(admin|root|full|elevated|owner)\s+(access|permissions?|privileges?|rights)'
         - '(?i)\[\s*(admin|system|developer)\s+(override|mode|instructions?)\s*\]'
-        # Encoded payload with an instruction to decode and obey it, or a `base64:` blob
         # Encoded payload with an instruction to decode and obey it, or a line that is
         # only a `base64:` blob (e7_injection_encoding_obfuscation, narrowed: "Your
         # recovery key (base64: ...) is shown once" passes). Encoded imperatives are
         # also caught on the decoded layer by the IMP-anchored patterns.
+        - '(?i)(?-u:\b)(decode|decrypt)\s+(this|that|it|the\s+(following|reference|text|string|blob|payload))(?-u:\b)[^.\n]{0,40}(?-u:\b)(and\s+)?(then\s+)?(execute|follow|do|run|obey)(?-u:\b)'
         - '(?im)^[\s\x{2063}]*(\[[\w:]+\]\s+)?base64\s*:\s*[A-Za-z0-9+/]{24,}={0,2}\s*$'
   exemplars:
     in_scope:
