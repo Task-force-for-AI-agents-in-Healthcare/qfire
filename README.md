@@ -141,6 +141,39 @@ a reproducibility manifest (seed, model, rule/chain/corpus versions).
 prompts (PyRIT-style) and reports that result separately from naked-attack
 resistance.
 
+### Email inbound chain
+
+`email_inbound` screens inbound service mail that an AI agent will read, such
+as the inbox an agent uses to sign up for services. Ordinary mail
+(verification and login codes, magic links, resets, receipts, invoices,
+account and security notices) is ALLOWed; mail that addresses the AI reader,
+tries to redirect its task, or asks it to exfiltrate data, change permissions,
+call tools, run a downloaded script or hide what it did is BLOCKed. The input
+is the message as `Subject: <subject>\n\n<visible text>`:
+
+```bash
+printf 'Subject: Your code\n\nYour Acme verification code is 482913.' \
+  | qfire check --json --chain email_inbound -     # exit 0 = allow, 2 = block
+make bench-email   # bench-out/email/report.md (corpora/email, seed 42)
+```
+
+The chain is offline and deterministic: shared injection guards (reused by id,
+with the E7 `e7_injection_jailbreak_dan` variant) plus the three regex rules in
+`rules/email/email_inbound.yaml`. It has no judge or embedding node, so its
+verdict does not depend on a model provider. `chains/email_inbound.yaml`
+records which shared guards are left out and why.
+
+`email_inbound_judge` and `email_inbound_sandbox_judge` add an LLM scope judge
+for shadow-mode runs. They use `fail_policy: fail_error`: if the judge's
+provider is unreachable, the verdict is ERROR and `qfire check` exits 1, rather
+than blocking every message.
+
+To run `qfire` as a subprocess from another working directory, point
+`QFIRE_CONFIG` at a config file; its relative `rules_dir` and `chains_dir` are
+resolved against that file's directory, and `audit_path = ""` turns the audit
+log off. The corpus is synthetic and is a regression guard, not a production
+false-positive estimate (see `corpora/email/README.md`).
+
 ## Attack corpora
 
 Small attack and benign snapshots ship in `corpora/`. Import the full
