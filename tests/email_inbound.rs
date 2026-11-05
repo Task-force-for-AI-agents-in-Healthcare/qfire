@@ -148,12 +148,17 @@ async fn offline_verdicts_unchanged() {
 
 /// Run the binary exactly as the subprocess caller does, from an unrelated cwd.
 fn run_cli(stdin: &str) -> (Output, tempfile::TempDir) {
+    run_cli_with(CHAIN, stdin, "")
+}
+
+/// Like `run_cli`, for any chain, with `extra` appended to the config file.
+fn run_cli_with(chain: &str, stdin: &str, extra: &str) -> (Output, tempfile::TempDir) {
     let t = tempfile::tempdir().unwrap();
     let toml = t.path().join("qfire.toml");
     std::fs::write(
         &toml,
         format!(
-            "rules_dir = {:?}\nchains_dir = {:?}\naudit_path = \"\"\n",
+            "rules_dir = {:?}\nchains_dir = {:?}\naudit_path = \"\"\n{extra}",
             manifest().join("rules").to_string_lossy(),
             manifest().join("chains").to_string_lossy(),
         ),
@@ -162,7 +167,7 @@ fn run_cli(stdin: &str) -> (Output, tempfile::TempDir) {
     let mut child = Command::new(env!("CARGO_BIN_EXE_qfire"))
         .current_dir(t.path())
         .env("QFIRE_CONFIG", &toml)
-        .args(["check", "--json", "--chain", CHAIN, "-"])
+        .args(["check", "--json", "--chain", chain, "-"])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -261,4 +266,52 @@ async fn crlf_attack_still_blocks() {
         .await
         .unwrap();
     assert_eq!(d.terminal, Verdict::Block);
+}
+
+// ---- Opt-in judge chains (shadow mode) -------------------------------------
+
+const JUDGE_CHAINS: [&str; 2] = ["email_inbound_judge", "email_inbound_sandbox_judge"];
+
+/// Config lines for a single Ollama provider that refuses connections.
+const OFFLINE_PROVIDER: &str =
+    "\n[[providers]]\nname = \"ollama\"\nkind = \"ollama\"\nbase_url = \"http://127.0.0.1:1\"\nmodel = \"llama3.2\"\n";
+
+#[tokio::test]
+async fn judge_chain_offline_benign_is_error() {
+    let app = offline_app();
+    let (_, prompt) = benign().remove(0);
+    for chain in JUDGE_CHAINS {
+        let d = app
+            .check(chain, &LlmRequest::user("m", &prompt))
+            .await
+            .unwrap();
+        assert_eq!(d.terminal, Verdict::Error, "{chain}: {}", d.reason);
+        let (out, _t) = run_cli_with(chain, &prompt, OFFLINE_PROVIDER);
+        let stderr = String::from_utf8_lossy(&out.stderr);
+        assert_eq!(out.status.code(), Some(1), "{chain}: stderr: {stderr}");
+        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+        assert_eq!(v["terminal"], "error");
+    }
+}
+
+#[tokio::test]
+async fn judge_chain_offline_attack_still_blocks() {
+    let app = offline_app();
+    let (_, prompt) = attacks().remove(0);
+    for chain in JUDGE_CHAINS {
+        let d = app
+            .check(chain, &LlmRequest::user("m", &prompt))
+            .await
+            .unwrap();
+        assert_eq!(d.terminal, Verdict::Block, "{chain}: {}", d.reason);
+    }
+}
+
+#[test]
+fn judge_chains_lint() {
+    let app = app();
+    for chain in JUDGE_CHAINS {
+        let c = app.resolve_chain(chain).unwrap();
+        app.compile_for(&c).unwrap();
+    }
 }

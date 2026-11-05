@@ -1,0 +1,24 @@
+# Opt-in LLM-judge variant of `email_inbound` for the signup inbox, meant for
+# shadow-mode runs next to the acting chain: same guards and email rules, plus
+# the `email_scope_signup_judge` judge.
+#
+# fail_policy: fail_error. If the judge's provider is unreachable, the verdict
+# is ERROR (`qfire check` exits 1), not BLOCK, and never a silent ALLOW. Exit 1
+# therefore means "judge unavailable", not "message blocked". A BLOCK from the
+# offline rules still wins over a judge error.
+#
+# The groups match chains/email_inbound.yaml; keep them in step.
+id: email_inbound_judge
+description: "email_inbound plus the signup inbox LLM scope judge. Shadow mode; exit 1 means the judge was unreachable."
+mode: expression
+fail_policy: fail_error
+normalize_mode: triggered
+groups:
+  injection: >
+    injection_instruction_override AND injection_system_prompt_exfil AND
+    injection_delimiter_escape AND injection_tool_command_abuse AND
+    injection_multi_step_smuggle AND injection_classifier_only AND
+    e7_injection_jailbreak_dan
+  email_scope: >
+    email_reader_addressed AND email_task_hijack AND email_out_of_scope_action
+expression: "injection AND email_scope AND email_scope_signup_judge"
