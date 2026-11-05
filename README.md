@@ -148,7 +148,7 @@ as the inbox an agent uses to sign up for services. Ordinary mail
 (verification and login codes, magic links, resets, receipts, invoices,
 account and security notices) is ALLOWed; mail that addresses the AI reader,
 tries to redirect its task, or asks it to exfiltrate data, change permissions,
-call tools, run a downloaded script or hide what it did is BLOCKed. The input
+call tools or hide what it did is BLOCKed. The input
 is the message as `Subject: <subject>\n\n<visible text>`:
 
 ```bash
@@ -157,11 +157,38 @@ printf 'Subject: Your code\n\nYour Acme verification code is 482913.' \
 make bench-email   # bench-out/email/report.md (corpora/email, seed 42)
 ```
 
-The chain is offline and deterministic: shared injection guards (reused by id,
-with the E7 `e7_injection_jailbreak_dan` variant) plus the three regex rules in
-`rules/email/email_inbound.yaml`. It has no judge or embedding node, so its
-verdict does not depend on a model provider. `chains/email_inbound.yaml`
-records which shared guards are left out and why.
+The chain is offline and deterministic: four shared injection guards (reused
+by id) plus the regex rules in `rules/email/email_inbound.yaml`, which include
+email variants of the shared instruction-override and DAN rules
+(`email_instruction_override`, `email_jailbreak_dan`). It has no judge or
+embedding node, so its verdict does not depend on a model provider.
+`chains/email_inbound.yaml` records which shared guards are left out and why.
+
+**Regex rules can be beaten by paraphrase.** The chain stops the common,
+cheap forms of injection aimed at a mail-reading agent; an attack reworded to
+avoid their wording gets through. `corpora/email/attack_heldout` holds
+paraphrased attacks that the rules were not tuned on, and its recall is
+reported separately (`make bench-email`) as a measure of that gap. Use the
+judge chains below, or a stricter caller policy, when that matters.
+
+**Download-and-run is judge-only.** `curl ... | sh`, `wget ... | bash`,
+`bash <(curl ...)` and `curl -o ... && bash` are not blocked by
+`email_inbound`: welcome mail from developer services routinely carries
+install one-liners. Those patterns live in `email_download_and_run`
+(`rules/email/email_download_exec.yaml`), which only the judge chains
+reference, and their attack examples are in `corpora/email/attack_judge_only`.
+In the judge chains a match BLOCKs (a regex BLOCK wins over the judge), so
+those chains also block benign install one-liners.
+
+Known false positives (by design). These stay blocked, because the same words
+are the attack:
+
+- "send the code to friend@example.com" (an imperative to send a code to an
+  address);
+- "Please add dana@example.com as a participant" (adding an address to an
+  account object);
+- "Ignore the previous instructions we sent on Monday" (reads as an
+  instruction override).
 
 `email_inbound_judge` and `email_inbound_sandbox_judge` add an LLM scope judge
 for shadow-mode runs. They use `fail_policy: fail_error`: if the judge's

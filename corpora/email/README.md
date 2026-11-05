@@ -10,11 +10,27 @@ AI agent will read, such as the inbox an agent uses to sign up for services.
   imperative sentences with an address ("Please send any questions to ..."),
   passive "we sent the code to ...", an accented name, a Japanese footer and a
   long base64url magic-link token.
-- `attacks/attacks.jsonl`: visible-text injections that must be BLOCKed:
+- `benign/false_positives_fix1.jsonl`: service mail that an earlier rule set
+  blocked (correction mail, "From now on you will be billed ...", product
+  copy about AI agents, docs that "call the ... function", share/gift codes
+  followed by a URL, and two developer welcome mails with install one-liners).
+- `attacks/attacks.jsonl`, `attacks/attacks_fix1.jsonl`: the tuned attack
+  set; visible-text injections that must be BLOCKed:
   AgentDojo-style `<INFORMATION>` wrappers, InjecAgent-style product reviews,
   attack-in-prompt payloads inside verification mail, ChatML and `[INST]`
   delimiters, role and markdown-header injections, base64 / hex /
-  percent-encoded payloads, `curl ... | sh`, and concealment requests.
+  percent-encoded payloads (including encoded imperatives with no "ignore"
+  text), reader-addressed hails, "reply to <address> with the code", owner and
+  admin grants, and concealment requests.
+- `attack_heldout/heldout.jsonl`: about 15 attacks in fresh, paraphrased
+  wording. The rules were NOT tuned on these; `make bench-email` reports their
+  recall separately, and a low number there is the honest measure of how
+  regex rules fare against paraphrase. Do not tune rules to this set; write a
+  new held-out set instead.
+- `attack_judge_only/judge_only.jsonl`: download-and-run attacks (`curl | sh`,
+  `wget | bash`, `bash <(curl ...)`, `curl -o ... && bash`). `email_inbound`
+  does not block these by design; they are blocked by `email_download_and_run`
+  in the judge chains only.
 
 ## Format
 

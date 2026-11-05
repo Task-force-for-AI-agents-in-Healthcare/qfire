@@ -65,13 +65,18 @@ bench-quick: release
 	$(QFIRE_RELEASE) bench --chain default --seed $(SEED) --out $(BENCH_OUT)
 
 # The offline email_inbound chain against the synthetic email corpus, plus
-# attack-in-prompt (no Ollama needed).
+# attack-in-prompt, then the held-out paraphrase set (no Ollama needed).
 bench-email: release
 	$(QFIRE_RELEASE) bench --chain email_inbound \
 		--attacks corpora/email/attacks \
 		--benign corpora/email/benign \
 		--attack-in-prompt --no-cache --seed $(SEED) --out $(BENCH_OUT)/email
+	$(QFIRE_RELEASE) bench --chain email_inbound \
+		--attacks corpora/email/attack_heldout \
+		--benign corpora/email/benign \
+		--no-cache --seed $(SEED) --out $(BENCH_OUT)/email_heldout
 	@echo "Email chain tables written to $(BENCH_OUT)/email/report.md"
+	@echo "Held-out (not tuned on) recall: $(BENCH_OUT)/email_heldout/report.md"
 
 # Run the proxy daemon (drop-in OpenAI/Anthropic/Gemini/Ollama endpoints).
 serve: build
