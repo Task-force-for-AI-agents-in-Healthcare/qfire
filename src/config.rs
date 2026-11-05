@@ -6,10 +6,12 @@
 //! built-in default profile pointing at local Ollama is used so QFIRE works
 //! offline with zero setup.
 //!
-//! When the file came from `--config` or `QFIRE_CONFIG`, a relative
-//! `rules_dir`, `chains_dir` or `audit_path` is resolved against that file's
-//! directory, so `qfire` can run as a subprocess from any working directory. A
-//! missing file named by either is an error. `audit_path = ""` disables the
+//! When the file came from `QFIRE_CONFIG`, a relative `rules_dir`,
+//! `chains_dir` or `audit_path` is resolved against that file's directory, so
+//! `qfire` can run as a subprocess from any working directory. Every other
+//! source (including `--config`) keeps the historical behaviour: relative
+//! paths resolve against the current directory. A missing file named by
+//! `--config` or `QFIRE_CONFIG` is an error. `audit_path = ""` disables the
 //! audit log.
 
 use crate::{Error, Result};
@@ -138,6 +140,8 @@ impl Config {
             .filter(|v| !v.is_empty())
             .map(PathBuf::from);
         // An explicit path (flag, then env var) is the only candidate and must exist.
+        // Only a path from QFIRE_CONFIG gets config-relative path resolution.
+        let from_env = explicit.is_none() && env_path.is_some();
         let named = explicit.map(Path::to_path_buf).or(env_path);
         let candidates: Vec<PathBuf> = match &named {
             Some(p) => vec![p.clone()],
@@ -154,7 +158,7 @@ impl Config {
                 let text = std::fs::read_to_string(&path)?;
                 let mut cfg: Config = toml::from_str(&text)
                     .map_err(|e| Error::Config(format!("{}: {e}", path.display())))?;
-                if named.is_some() {
+                if from_env {
                     let base = path.parent().unwrap_or_else(|| Path::new(""));
                     cfg.rules_dir = resolve_relative(base, &cfg.rules_dir);
                     cfg.chains_dir = resolve_relative(base, &cfg.chains_dir);

@@ -81,18 +81,25 @@ fn qfire_config_env_resolves_relative_dirs() {
     assert!(!t.path().join("audit.jsonl").exists());
 }
 
+/// `--config` keeps the historical behaviour: relative paths resolve against
+/// the current directory, not the config file's directory.
 #[test]
-fn explicit_config_flag_resolves_relative_dirs() {
+fn explicit_config_flag_keeps_cwd_relative_dirs() {
     let (t, toml) = setup();
     let toml_s = toml.to_str().unwrap();
-    let out = run(
-        t.path(),
-        None,
-        &[
-            "--config", toml_s, "check", "--json", "--chain", "default", "-",
-        ],
-        INJECTION,
+    let args = [
+        "--config", toml_s, "check", "--json", "--chain", "default", "-",
+    ];
+    // From `t`, the relative `rules` dir does not exist: config error.
+    let out = run(t.path(), None, &args, INJECTION);
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        stderr.contains("rules directory not found"),
+        "stderr: {stderr}"
     );
+    // From `t/cfg`, the same relative paths resolve: the injection blocks.
+    let out = run(&t.path().join("cfg"), None, &args, INJECTION);
     assert_eq!(
         out.status.code(),
         Some(2),

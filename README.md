@@ -166,7 +166,16 @@ records which shared guards are left out and why.
 `email_inbound_judge` and `email_inbound_sandbox_judge` add an LLM scope judge
 for shadow-mode runs. They use `fail_policy: fail_error`: if the judge's
 provider is unreachable, the verdict is ERROR and `qfire check` exits 1, rather
-than blocking every message.
+than blocking every message. `qfire bench` reports ERROR verdicts separately
+(`attack_errors`, `benign_errors`) and leaves them out of the rates. The two
+judge chains differ only in the judge's scope:
+
+- `email_inbound_judge` is for a signup inbox: mail from third-party services
+  the agent signed up for (codes, resets, receipts, account notices).
+- `email_inbound_sandbox_judge` is for a sandbox inbox: mail that an
+  organisation's own app sends to a test user, for example while an agent
+  tests that app's signup or notification flows. Its judge treats that app's
+  mail as in scope and everything else under the same out-of-scope rules.
 
 To run `qfire` as a subprocess from another working directory, point
 `QFIRE_CONFIG` at a config file; its relative `rules_dir` and `chains_dir` are
@@ -241,10 +250,11 @@ Every command accepts `--json` (machine-readable) and `--quiet` (CI).
 
 Configuration is read from `--config <file>`, else the `QFIRE_CONFIG`
 environment variable, else `./qfire.toml`, else `~/.config/qfire/config.toml`.
-When the file comes from `--config` or `QFIRE_CONFIG`, relative `rules_dir`,
-`chains_dir` and `audit_path` are resolved against the config file's directory,
-so `qfire` can run as a subprocess from any working directory. Set
-`audit_path = ""` to turn the audit log off.
+When the file comes from `QFIRE_CONFIG`, relative `rules_dir`, `chains_dir`
+and `audit_path` are resolved against the config file's directory, so `qfire`
+can run as a subprocess from any working directory. With `--config` (and the
+default locations), relative paths still resolve against the current directory,
+as before. Set `audit_path = ""` to turn the audit log off.
 
 ## Reproducibility & audit
 

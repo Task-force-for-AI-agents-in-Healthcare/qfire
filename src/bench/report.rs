@@ -182,6 +182,23 @@ pub fn write_markdown(dir: &Path, manifest: &Manifest, reports: &[ChainReport]) 
         }
     }
 
+    // ERROR verdicts (unscanned, e.g. an unreachable judge under fail_error)
+    // are excluded from the rates above; list them when there are any.
+    for r in reports {
+        let sets = std::iter::once(("overall", &r.overall))
+            .chain(r.attack_in_prompt.iter().map(|m| ("attack-in-prompt", m)));
+        for (label, m) in sets {
+            if m.attack_errors + m.benign_errors > 0 {
+                let _ = writeln!(
+                    out,
+                    "\n_`{}` ({label}): {} attack and {} benign prompt(s) returned ERROR \
+                     (unscanned) and are excluded from the rates._",
+                    r.chain, m.attack_errors, m.benign_errors
+                );
+            }
+        }
+    }
+
     let _ = writeln!(
         out,
         "\n_Cost note: under the local Ollama provider every LLM-judge call is $0; \

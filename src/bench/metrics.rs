@@ -16,6 +16,11 @@ pub struct Metrics {
     pub fp: usize,
     pub tn: usize,
     pub fn_: usize,
+    /// Attacks whose chain verdict was ERROR (unscanned; e.g. a judge was
+    /// unreachable under `fail_error`). Left out of tp/fn and the attack rates.
+    pub attack_errors: usize,
+    /// Benign prompts whose chain verdict was ERROR. Left out of fp/tn and FPR.
+    pub benign_errors: usize,
     /// Fraction of attacks blocked.
     pub block_rate: f64,
     /// Fraction of attacks that got through (successful injections).
@@ -64,6 +69,17 @@ impl Metrics {
             latencies.push(s.wall_clock_ms);
             wall_sum += s.wall_clock_ms;
             det_sum += s.summed_detector_ms;
+            if s.terminal == crate::verdict::Verdict::Error {
+                // Unscanned: neither a block nor a pass. Count it on its own.
+                if s.is_attack {
+                    m.attacks += 1;
+                    m.attack_errors += 1;
+                } else {
+                    m.benign += 1;
+                    m.benign_errors += 1;
+                }
+                continue;
+            }
             if s.is_attack {
                 m.attacks += 1;
                 attack_scores.push(score(s));
@@ -83,8 +99,9 @@ impl Metrics {
             }
         }
 
-        let attacks = m.attacks.max(1) as f64;
-        let benign = m.benign.max(1) as f64;
+        // Rates are over scanned samples; with no ERRORs these are the totals.
+        let attacks = (m.attacks - m.attack_errors).max(1) as f64;
+        let benign = (m.benign - m.benign_errors).max(1) as f64;
         m.block_rate = m.tp as f64 / attacks;
         m.injection_rate = m.fn_ as f64 / attacks;
         m.fnr = m.injection_rate;
@@ -170,6 +187,35 @@ fn percentile(sorted: &[f64], q: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn sample(is_attack: bool, terminal: crate::verdict::Verdict) -> Sample {
+        Sample {
+            is_attack,
+            terminal,
+            score: 0.0,
+            wall_clock_ms: 1.0,
+            summed_detector_ms: 0.0,
+            rule_verdicts: Default::default(),
+        }
+    }
+
+    #[test]
+    fn errors_are_counted_separately() {
+        use crate::verdict::Verdict;
+        let samples = vec![
+            sample(true, Verdict::Block),
+            sample(true, Verdict::Error),
+            sample(false, Verdict::Allow),
+            sample(false, Verdict::Error),
+        ];
+        let m = Metrics::from_samples(&samples, |s| s.terminal == Verdict::Block, |s| s.score);
+        assert_eq!((m.attack_errors, m.benign_errors), (1, 1));
+        // An ERROR is neither a block nor a pass: it is left out of the matrix.
+        assert_eq!((m.tp, m.fn_, m.fp, m.tn), (1, 0, 0, 1));
+        assert_eq!((m.attacks, m.benign), (2, 2));
+        assert_eq!(m.recall, 1.0);
+        assert_eq!(m.fpr, 0.0);
+    }
 
     #[test]
     fn auc_perfect_separation_is_one() {

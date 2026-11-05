@@ -211,9 +211,8 @@ fn cli_contract_allow() {
     assert_eq!(v["terminal"], "allow");
 }
 
-#[tokio::test]
-async fn huge_benign_input_is_fast_and_allowed() {
-    let app = app();
+/// A benign body repeated up to the caller's 200 000-byte cap.
+fn huge_benign() -> String {
     let (_, base) = benign().remove(0);
     let body = base.split_once("\n\n").map(|(_, b)| b).unwrap_or(&base);
     let mut p = String::from("Subject: Your monthly statement\n\n");
@@ -221,6 +220,30 @@ async fn huge_benign_input_is_fast_and_allowed() {
         p.push_str(body);
         p.push_str("\n\n");
     }
+    p
+}
+
+/// End-to-end smoke timing: the real binary (startup, rule load and compile,
+/// evaluation) on a 200 kB message stays well inside the caller's 5 s timeout.
+#[test]
+fn cli_huge_input_under_5s() {
+    let p = huge_benign();
+    let start = Instant::now();
+    let (out, _t) = run_cli(&p);
+    let elapsed = start.elapsed();
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert_eq!(out.status.code(), Some(0), "stderr: {stderr}");
+    assert!(
+        elapsed.as_secs_f64() < 5.0,
+        "{} bytes took {elapsed:?}",
+        p.len()
+    );
+}
+
+#[tokio::test]
+async fn huge_benign_input_is_fast_and_allowed() {
+    let app = app();
+    let p = huge_benign();
     // Time the evaluation itself (rules compiled once, outside the timer), with
     // the verdict cache off; take the best of 3 so a busy host does not flake.
     let chain = app.resolve_chain(CHAIN).unwrap();
