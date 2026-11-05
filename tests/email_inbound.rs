@@ -419,7 +419,11 @@ async fn fix1_bypasses_and_encoded_layers_block() {
 #[test]
 fn chain_uses_email_variants_not_shared_rules() {
     let app = app();
-    let refs = app.resolve_chain(CHAIN).unwrap().referenced_rules().unwrap();
+    let refs = app
+        .resolve_chain(CHAIN)
+        .unwrap()
+        .referenced_rules()
+        .unwrap();
     for gone in [
         "injection_instruction_override",
         "injection_classifier_only",
@@ -429,7 +433,10 @@ fn chain_uses_email_variants_not_shared_rules() {
         assert!(!refs.iter().any(|r| r == gone), "{gone} still in {CHAIN}");
     }
     for want in ["email_instruction_override", "email_jailbreak_dan"] {
-        assert!(refs.iter().any(|r| r == want), "{want} missing from {CHAIN}");
+        assert!(
+            refs.iter().any(|r| r == want),
+            "{want} missing from {CHAIN}"
+        );
     }
 }
 
@@ -442,7 +449,11 @@ async fn judge_only_set_blocked_by_judge_chains() {
         for (id, p) in corpus("corpora/email/attack_judge_only") {
             let d = app.check(chain, &LlmRequest::user("m", &p)).await.unwrap();
             assert_eq!(d.terminal, Verdict::Block, "{chain} {id}: {}", d.reason);
-            assert_eq!(d.deciding_rule.as_deref(), Some("email_download_and_run"), "{chain} {id}");
+            assert_eq!(
+                d.deciding_rule.as_deref(),
+                Some("email_download_and_run"),
+                "{chain} {id}"
+            );
         }
     }
 }
