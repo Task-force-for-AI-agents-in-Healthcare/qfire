@@ -180,10 +180,23 @@ impl Engine {
             .sum();
 
         // Collapse to a terminal decision.
-        let (terminal, deciding_rule, reason) = match chain.mode {
+        let (mut terminal, mut deciding_rule, mut reason) = match chain.mode {
             ChainMode::Ordered => collapse_ordered(chain, &by_id),
             ChainMode::Expression => collapse_expression(chain, &by_id)?,
         };
+
+        // fail_error: a detector error that did not end in a BLOCK surfaces as
+        // ERROR, naming the first errored rule (in referenced order).
+        if chain.fail_policy == FailPolicy::FailError && terminal != Verdict::Block {
+            let errored = referenced
+                .iter()
+                .find(|id| by_id.get(*id).is_some_and(|t| t.errored));
+            if let Some(rule) = errored {
+                terminal = Verdict::Error;
+                reason = format!("detector error under fail_error: '{rule}'");
+                deciding_rule = Some(rule.clone());
+            }
+        }
 
         let deciding_node = deciding_rule
             .as_ref()

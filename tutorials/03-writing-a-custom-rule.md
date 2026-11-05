@@ -179,6 +179,15 @@ qfire serve --addr 127.0.0.1:8787 --chain sql_assist
 …or select it per request with `-H 'X-QFire-Chain: sql_assist'` (see
 [tutorial 02](02-proxy-in-front-of-your-app.md)).
 
+### Example: email_inbound
+
+For a larger worked example, see `rules/email/email_inbound.yaml` and
+`chains/email_inbound.yaml`. Three regex-only email rules sit beside reused
+shared guards in one expression chain, every rule carries `in_scope` and
+`out_of_scope` fixtures for `qfire rules test --rule <id>`, and the chain's
+header comment records which shared guards were left out and why. The paired
+corpus in `corpora/email/` is benched with `make bench-email`.
+
 ---
 
 ### What you learned

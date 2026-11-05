@@ -43,7 +43,12 @@ impl App {
         let rules = RuleSet::load_dir(Path::new(&config.rules_dir))?;
         let chains = load_chains(Path::new(&config.chains_dir))?;
         let engine = Engine::new(providers);
-        let audit = AuditLog::open(&config.audit_path);
+        // `audit_path = ""` turns auditing off (e.g. a read-only sidecar).
+        let audit = if config.audit_path.is_empty() {
+            AuditLog::disabled()
+        } else {
+            AuditLog::open(&config.audit_path)
+        };
         Ok(App { config, rules, chains, engine, audit })
     }
 

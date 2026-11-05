@@ -141,6 +141,83 @@ a reproducibility manifest (seed, model, rule/chain/corpus versions).
 prompts (PyRIT-style) and reports that result separately from naked-attack
 resistance.
 
+### Email inbound chain
+
+`email_inbound` screens inbound service mail that an AI agent will read, such
+as the inbox an agent uses to sign up for services. Ordinary mail
+(verification and login codes, magic links, resets, receipts, invoices,
+account and security notices) is ALLOWed; mail that addresses the AI reader,
+tries to redirect its task, or asks it to exfiltrate data, change permissions,
+call tools or hide what it did is BLOCKed. The input
+is the message as `Subject: <subject>\n\n<visible text>`:
+
+```bash
+printf 'Subject: Your code\n\nYour Acme verification code is 482913.' \
+  | qfire check --json --chain email_inbound -     # exit 0 = allow, 2 = block
+make bench-email   # bench-out/email/report.md (corpora/email, seed 42)
+```
+
+The chain is offline and deterministic: four shared injection guards (reused
+by id) plus the regex rules in `rules/email/email_inbound.yaml`, which include
+email variants of the shared instruction-override and DAN rules
+(`email_instruction_override`, `email_jailbreak_dan`). It has no judge or
+embedding node, so its verdict does not depend on a model provider.
+`chains/email_inbound.yaml` records which shared guards are left out and why.
+
+**Regex rules can be beaten by paraphrase.** The chain stops the common,
+cheap forms of injection aimed at a mail-reading agent; an attack reworded to
+avoid their wording gets through. `corpora/email/attack_heldout` holds
+paraphrased attacks that the rules were not tuned on, and its recall is
+reported separately (`make bench-email`) as a measure of that gap. Use the
+judge chains below, or a stricter caller policy, when that matters.
+
+**Download-and-run is judge-only.** `curl ... | sh`, `wget ... | bash`,
+`bash <(curl ...)` and `curl -o ... && bash` are not blocked by
+`email_inbound`: welcome mail from developer services routinely carries
+install one-liners. Those patterns live in `email_download_and_run`
+(`rules/email/email_download_exec.yaml`), which only the judge chains
+reference, and their attack examples are in `corpora/email/attack_judge_only`.
+In the judge chains a match BLOCKs (a regex BLOCK wins over the judge), so
+those chains also block benign install one-liners.
+
+Known false positives (by design). These stay blocked. In the first three,
+the same words are the attack; the last is a side effect of the shared guards
+the chain keeps:
+
+- "send the code to friend@example.com" (an imperative to send a code to an
+  address);
+- "Please add dana@example.com as a participant" (adding an address to an
+  account object);
+- "Ignore the previous instructions we sent on Monday" (reads as an
+  instruction override).
+- "You are now in developer mode for your sandbox account". The email rules,
+  including `email_jailbreak_dan`, pass it, but the four shared guards the
+  chain keeps (`injection_system_prompt_exfil`, `injection_delimiter_escape`,
+  `injection_tool_command_abuse`, `injection_multi_step_smuggle`) each carry a
+  DeBERTa node. With no ONNX model loaded, that node falls back to a lexical
+  score, and "you are now" plus "developer mode" scores 0.86, above the 0.6
+  threshold.
+
+`email_inbound_judge` and `email_inbound_sandbox_judge` add an LLM scope judge
+for shadow-mode runs. They use `fail_policy: fail_error`: if the judge's
+provider is unreachable, the verdict is ERROR and `qfire check` exits 1, rather
+than blocking every message. `qfire bench` reports ERROR verdicts separately
+(`attack_errors`, `benign_errors`) and leaves them out of the rates. The two
+judge chains differ only in the judge's scope:
+
+- `email_inbound_judge` is for a signup inbox: mail from third-party services
+  the agent signed up for (codes, resets, receipts, account notices).
+- `email_inbound_sandbox_judge` is for a sandbox inbox: mail that an
+  organisation's own app sends to a test user, for example while an agent
+  tests that app's signup or notification flows. Its judge treats that app's
+  mail as in scope and everything else under the same out-of-scope rules.
+
+To run `qfire` as a subprocess from another working directory, point
+`QFIRE_CONFIG` at a config file; its relative `rules_dir` and `chains_dir` are
+resolved against that file's directory, and `audit_path = ""` turns the audit
+log off. The corpus is synthetic and is a regression guard, not a production
+false-positive estimate (see `corpora/email/README.md`).
+
 ## Attack corpora
 
 Small attack and benign snapshots ship in `corpora/`. Import the full
@@ -205,6 +282,14 @@ A small snapshot also ships in-repo at `corpora/healthcare_bench/` for offline r
 | `qfire report` | summarize the audit log | 0 |
 
 Every command accepts `--json` (machine-readable) and `--quiet` (CI).
+
+Configuration is read from `--config <file>`, else the `QFIRE_CONFIG`
+environment variable, else `./qfire.toml`, else `~/.config/qfire/config.toml`.
+When the file comes from `QFIRE_CONFIG`, relative `rules_dir`, `chains_dir`
+and `audit_path` are resolved against the config file's directory, so `qfire`
+can run as a subprocess from any working directory. With `--config` (and the
+default locations), relative paths still resolve against the current directory,
+as before. Set `audit_path = ""` to turn the audit log off.
 
 ## Reproducibility & audit
 
