@@ -33,8 +33,14 @@
 #     message, it was sent in error") and its DeBERTa node, with no ONNX model,
 #     falls back to a lexical score that is noise on mail.
 #   - injection_classifier_only: dropped. It is only a DeBERTa node; with no
-#     ONNX model its lexical fallback blocks product copy such as "You are now
-#     in developer mode for your sandbox account".
+#     ONNX model its lexical fallback is noise on product copy.
+#   Known false positive kept: "You are now in developer mode for your sandbox
+#   account" still BLOCKs. email_jailbreak_dan and the email rules pass it, but
+#   the DeBERTa lexical fallback inside the four kept shared guards
+#   (injection_system_prompt_exfil, injection_delimiter_escape,
+#   injection_tool_command_abuse, injection_multi_step_smuggle) scores
+#   "you are now" + "developer mode" at 0.86 and blocks it. Accepted; see the
+#   README's known false positives.
 #   - injection_jailbreak_dan: `STAN` has no word boundary and matches
 #     "Standard" (4/114 blocked).
 #   - e7_injection_jailbreak_dan: replaced by email_jailbreak_dan. Its

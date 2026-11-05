@@ -78,7 +78,7 @@ pub fn write_csv(dir: &Path, reports: &[ChainReport]) -> Result<()> {
     wtr.write_record([
         "chain", "scope", "kind", "attacks", "benign", "tp", "fp", "tn", "fn", "block_rate",
         "injection_rate", "fpr", "fnr", "precision", "recall", "f1", "accuracy", "auc", "p50_ms",
-        "p95_ms", "p99_ms", "mean_wall_ms", "mean_detector_ms",
+        "p95_ms", "p99_ms", "mean_wall_ms", "mean_detector_ms", "attack_errors", "benign_errors",
     ])
     .map_err(csv_err)?;
     for r in reports {
@@ -125,6 +125,8 @@ fn write_metrics_row(
         &fmt(m.p99_ms),
         &fmt(m.mean_wall_ms),
         &fmt(m.mean_detector_ms),
+        &m.attack_errors.to_string(),
+        &m.benign_errors.to_string(),
     ])
     .map_err(csv_err)
 }
@@ -218,4 +220,41 @@ fn md_row(out: &mut String, label: &str, m: &Metrics) {
         m.block_rate, m.injection_rate, m.fpr, m.precision, m.recall, m.f1, m.auc, m.p95_ms,
         m.mean_detector_ms
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn csv_has_error_columns() {
+        let dir = tempfile::tempdir().unwrap();
+        let overall = Metrics {
+            attacks: 3,
+            attack_errors: 1,
+            benign: 2,
+            benign_errors: 2,
+            ..Default::default()
+        };
+        let r = ChainReport {
+            chain: "c".into(),
+            chain_version: "1".into(),
+            overall,
+            per_rule: vec![],
+            attack_in_prompt: None,
+            total_wall_ms: 0.0,
+            throughput_qps: 0.0,
+        };
+        write_csv(dir.path(), &[r]).unwrap();
+        let text = std::fs::read_to_string(dir.path().join("bench.csv")).unwrap();
+        let mut lines = text.lines();
+        let header: Vec<&str> = lines.next().unwrap().split(',').collect();
+        let row: Vec<&str> = lines.next().unwrap().split(',').collect();
+        let col = |name: &str| header.iter().position(|h| *h == name).unwrap();
+        assert_eq!(row[col("attack_errors")], "1");
+        assert_eq!(row[col("benign_errors")], "2");
+        // Appended after the existing columns, so old column positions hold.
+        assert_eq!(header[0..3], ["chain", "scope", "kind"]);
+        assert_eq!(col("attack_errors"), 23);
+    }
 }

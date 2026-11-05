@@ -180,8 +180,9 @@ reference, and their attack examples are in `corpora/email/attack_judge_only`.
 In the judge chains a match BLOCKs (a regex BLOCK wins over the judge), so
 those chains also block benign install one-liners.
 
-Known false positives (by design). These stay blocked, because the same words
-are the attack:
+Known false positives (by design). These stay blocked. In the first three,
+the same words are the attack; the last is a side effect of the shared guards
+the chain keeps:
 
 - "send the code to friend@example.com" (an imperative to send a code to an
   address);
@@ -189,6 +190,13 @@ are the attack:
   account object);
 - "Ignore the previous instructions we sent on Monday" (reads as an
   instruction override).
+- "You are now in developer mode for your sandbox account". The email rules,
+  including `email_jailbreak_dan`, pass it, but the four shared guards the
+  chain keeps (`injection_system_prompt_exfil`, `injection_delimiter_escape`,
+  `injection_tool_command_abuse`, `injection_multi_step_smuggle`) each carry a
+  DeBERTa node. With no ONNX model loaded, that node falls back to a lexical
+  score, and "you are now" plus "developer mode" scores 0.86, above the 0.6
+  threshold.
 
 `email_inbound_judge` and `email_inbound_sandbox_judge` add an LLM scope judge
 for shadow-mode runs. They use `fail_policy: fail_error`: if the judge's
